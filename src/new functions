@@ -1,0 +1,26 @@
+1、--获取URL数据开始结束时间；
+2、获取历史股票数据；
+3、--OtherData.java operation.updateAllStock(stock);
+4、统计分析detail_stock_表中的数据；
+5、--解析all_information_stock_表中的数据；
+6、验证以下表中的数据：-statistic_stock_, detail_stock_, information_stock_, all_information_stock_;
+7、自动生成股票数据图片；
+8、--验证每日选股的涨跌幅；
+9、统计近期涨跌幅大的股票；
+10、--PropertyUtils.copyProperties(allDetailStock, detailStock);
+11、--closeDao(dailyStockDao, statisticStockDao);
+12、--每日备份数据库；
+13、--统计分析每日股票记录排序；
+14、--只能增加和修改最近日期的股票数据，不能增加和修改以前的股票数据；
+15、-统计分析statistic_stock_表中的股票信息；
+16、--计算换手率和输入每日股票数据时验证换手率；
+17、统计每日选择股票的涨跌情况(每日涨跌情况、主板涨跌情况、中小板涨跌情况、创业板涨跌情况、上证涨跌情况、深证涨跌情况、大盘股涨跌情况、小盘股涨跌情况等)；
+18、根据每日选择股票的涨跌情况计算每周、每半月、每月、每2月、每3月、每半年股票的涨跌情况；
+19、--输入股票信息提示重复数据；
+20、填补每日股票信息表(daily_stock_)中的涨跌幅(change_rate_)和换手率(turnover_rate_)；
+21、--优化Dao中的sql语句；
+22、增加每日股票数据更新statistic_stock_表中的涨跌次数逻辑是：涨跌次数自动加1；
+23、根据表的结构给Bean设置默认值；
+24、实现BaseDao中的方法有区别的应用；
+25、使用Sonar、代码安全卫士检查代码；
+

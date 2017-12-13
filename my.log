@@ -1,0 +1,5 @@
+
+
+2015-11-24 17:07:05,858ERROR[cn.log.Log]-error
+java.lang.ArithmeticException: / by zero
+	at cn.ClientMain.main(ClientMain.java:14)
