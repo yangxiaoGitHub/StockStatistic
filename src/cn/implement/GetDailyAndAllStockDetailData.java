@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import cn.com.CommonUtils;
+import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
 import cn.db.AllDetailStockDao;
@@ -17,17 +18,11 @@ import cn.db.bean.AllDetailStock;
 import cn.db.bean.AllStock;
 import cn.db.bean.DetailStock;
 import cn.db.bean.StatisticStock;
-import cn.log.Log;
 
 public class GetDailyAndAllStockDetailData extends OperationData {
-	Log log = Log.getLoger();
-	
+
 	public void getStockDetailData() {
-		
-		allStockDao = new AllStockDao();
-		statisticStockDao = new StatisticStockDao();
-		informationStockDao = new InformationStockDao();
-		detailStockDao = new DetailStockDao();
+
 		int detailSaveNum = 0;
 		int infoSaveNum = 0;
 		int infoUpdateNum = 0;
@@ -36,33 +31,51 @@ public class GetDailyAndAllStockDetailData extends OperationData {
 		try {
 			int lineNum = 0;
 			Date searchStockDate = null;
+			allStockDao = new AllStockDao(); //AllStockDao.getInstance();
+			statisticStockDao = new StatisticStockDao();
+			informationStockDao = new InformationStockDao();
+			detailStockDao = new DetailStockDao();
 			List<StatisticStock> statisticList = statisticStockDao.listStatisticStock();
-			System.out.println("--------------------统计股票获取详细信息(" + DateUtils.Date2String(new Date()) + ")-----------------------");
-			log.loger.info("--------------------统计股票获取详细信息(" + DateUtils.Date2String(new Date()) + ")-----------------------");
+			System.out.println("--------------------统计股票获取详细信息(" + DateUtils.dateToString(new Date()) + ")-----------------------");
+			log.loger.info("--------------------统计股票获取详细信息(" + DateUtils.dateToString(new Date()) + ")-----------------------");
 			for (StatisticStock stock : statisticList) {
 				String stockCode = stock.getStockCode();
 				if (searchStockDate != null) {
 					boolean existFlg = informationStockDao.isExistInInformationStock(stockCode, searchStockDate);
-					if (existFlg) continue;
+					if (existFlg)
+						continue;
 				}
 				System.out.print(++lineNum + "： ");
 				// 使用线程执行超时处理
 				String stockInfo = CommonUtils.getRequestByTimeOut(stockCode);
-				if (stockInfo != null) ++requestSuccess; else continue;
+				if (stockInfo != null)
+					++requestSuccess;
+				else
+					continue;
 				String[] stockInfoArray = stockInfo.split(",");
-				if (searchStockDate == null) searchStockDate = DateUtils.String2Date(stockInfoArray[30]);
+				if (searchStockDate == null)
+					searchStockDate = DateUtils.stringToDate(stockInfoArray[30]);
 				long tradedStockNumber = Long.valueOf(stockInfoArray[8]).longValue();
 				float tradedAmount = Float.valueOf(stockInfoArray[9]).floatValue();
-				if (tradedStockNumber!=0 && tradedAmount!=0) {
-					int saveUpdateFlg = informationStockDao.saveOrUpdateInformationStock(stockInfoArray[30], stockCode, stockInfo);
-					if (saveUpdateFlg==1) ++infoSaveNum; else if (saveUpdateFlg==2) ++infoUpdateNum;
+				if (tradedStockNumber != 0 && tradedAmount != 0) {
 					DetailStock detailStock = getDetailStockFromArray(stockInfoArray);
-					//计算股票换手率
+					if (!validateStockData(detailStock)) {
+						System.out.println("----->" + stockInfoArray[30] + " 股票(" + stockCode + ")数据无效！");
+						continue;
+					}
+					int saveUpdateFlg = informationStockDao.saveOrUpdateInformationStock(stockInfoArray[30], stockCode, stockInfo);
+					if (saveUpdateFlg == 1)
+						++infoSaveNum;
+					else if (saveUpdateFlg == 2)
+						++infoUpdateNum;
+					// 计算股票换手率
 					calculateTurnoverRate(detailStock);
 					boolean saveFlg = detailStockDao.saveOrUpdateDetailStock(detailStock);
-					if (saveFlg) ++detailSaveNum;
+					if (saveFlg)
+						++detailSaveNum;
 					String message = "无操作！";
-					if (saveUpdateFlg!=0 && saveFlg) message = "保存成功！";
+					if (saveUpdateFlg != 0 && saveFlg)
+						message = "保存成功！";
 					System.out.println("----->" + stockInfoArray[30] + " 股票(" + stockCode + ")" + message);
 				} else {
 					if (CommonUtils.isBlank(PropertiesUtils.getProperty(stockCode))) {
@@ -90,7 +103,7 @@ public class GetDailyAndAllStockDetailData extends OperationData {
 				log.loger.info("统计股票详细信息表(information_stock_)中更新了" + infoUpdateNum + "条记录！");
 			}
 			long endTime = System.currentTimeMillis();
-			System.out.println("获取统计股票信息耗时: " + DateUtils.msecToTime(endTime-startTime));
+			System.out.println("获取统计股票信息耗时: " + DateUtils.msecToTime(endTime - startTime));
 		}
 	}
 
@@ -99,9 +112,7 @@ public class GetDailyAndAllStockDetailData extends OperationData {
 	 * 
 	 */
 	public void getAllStockInformationData() {
-		allStockDao = new AllStockDao();
-		allInformationStockDao = new AllInformationStockDao();
-		allDetailStockDao = new AllDetailStockDao();
+
 		int infoSaveNum = 0;
 		int infoUpdateNum = 0;
 		int detailSaveNum = 0;
@@ -109,39 +120,65 @@ public class GetDailyAndAllStockDetailData extends OperationData {
 		long startTime = System.currentTimeMillis();
 		try {
 			int lineNum = 0;
-			Date searchStockDate = null;
-			List<AllDetailStock> allDetailStockList = new ArrayList<AllDetailStock>();
+			allStockDao = new AllStockDao(); //AllStockDao.getInstance();
+			allInformationStockDao = new AllInformationStockDao();
+			allDetailStockDao = new AllDetailStockDao(); //AllDetailStockDao.getInstance();
 			List<AllStock> allStockList = allStockDao.listAllStock();
-			System.out.println("--------------------所有股票获取详细信息(" + DateUtils.Date2String(new Date()) + ")-----------------------");
-			log.loger.info("--------------------所有股票获取详细信息(" + DateUtils.Date2String(new Date()) + ")-----------------------");
-			for (int index=0; index<allStockList.size(); index++) {
-				AllStock stock = allStockList.get(index);
+			List<AllDetailStock> allDetailStockList = new ArrayList<AllDetailStock>();
+			System.out.println("--------------------所有股票获取详细信息(" + DateUtils.dateToString(new Date()) + ")-----------------------");
+			log.loger.info("--------------------所有股票获取详细信息(" + DateUtils.dateToString(new Date()) + ")-----------------------");
+			for (AllStock stock : allStockList) {
 				String stockCode = stock.getStockCode();
-				if (searchStockDate != null) {
-					boolean existInAllInformationStockFlg = allInformationStockDao.isExistInAllInformationStock(stockCode, searchStockDate);
-					boolean existInAllDetailStockFlg = allDetailStockDao.isExistInAllDetailStock(stockCode, searchStockDate);
-					if (existInAllInformationStockFlg && existInAllDetailStockFlg) continue;
-				}
 				System.out.print(++lineNum + "： ");
 				// 使用线程执行超时处理
 				String stockInfo = CommonUtils.getRequestByTimeOut(stockCode);
-				if (stockInfo != null) ++requestSuccess; else continue;
+				if (!CommonUtils.isBlank(stockInfo)) ++requestSuccess;
+				else continue;
 				String[] stockInfoArray = stockInfo.split(",");
-				if (searchStockDate == null) searchStockDate = DateUtils.String2Date(stockInfoArray[30]);
 				long tradedStockNumber = Long.valueOf(stockInfoArray[8]).longValue();
 				float tradedAmount = Float.valueOf(stockInfoArray[9]).floatValue();
-				if (tradedStockNumber!=0 && tradedAmount!=0) {
-					int saveUpdateFlg = allInformationStockDao.saveOrUpdateAllInformationStock(stockInfoArray[30], stockCode, stockInfo);
-					if (saveUpdateFlg==1) ++infoSaveNum; else if (saveUpdateFlg==2) ++infoUpdateNum;
+				if (tradedStockNumber != 0 && tradedAmount != 0) {
 					AllDetailStock allDetailStock = getDetailStockFromArray(stockInfoArray);
-					//计算股票换手率
+					if (!validateStockData(allDetailStock)) {
+						System.out.println("----->" + stockInfoArray[30] + " 股票(" + stockCode + ")数据无效！");
+						continue;
+					}
+					String message = "";
+					int saveUpdateFlg = allInformationStockDao.saveOrUpdateAllInformationStock(stockInfoArray[30], stockCode, stockInfo);
+					// 分开循环保存时添加
+					if (saveUpdateFlg != 0) {
+						message = saveUpdateFlg==1?"保存成功！":"更新成功！";
+						// 计算股票换手率
+						calculateTurnoverRate(allDetailStock);
+						allDetailStockList.add(allDetailStock);
+					} else {
+						message = "无操作！";
+					}
+					
+					/*if (saveUpdateFlg == 1) {
+						++infoSaveNum;
+						message = "所有股票原始信息表(all_information_stock_)保存";
+					} else if (saveUpdateFlg == 2) {
+						++infoUpdateNum;
+						message = "所有股票原始信息表(all_information_stock_)更新";
+					}
+					// 计算股票换手率
 					calculateTurnoverRate(allDetailStock);
-					allDetailStockList.add(allDetailStock);
 					boolean saveFlg = allDetailStockDao.saveOrUpdateAllDetailStock(allDetailStock);
-					if (saveFlg) ++detailSaveNum;
-					String message = "无操作！";
-					if (saveUpdateFlg!=0 && saveFlg) message = "保存成功！";
-					System.out.println("----->" + stockInfoArray[30] + " 股票(" + stockCode + ")" + message);
+					if (saveFlg) {
+						++detailSaveNum;
+						if (!message.equals(DataUtils.CONSTANT_BLANK)) {
+							message += ", ";
+						}
+						message += "所有股票详细信息表(all_detail_stock_)保存";
+					}
+					
+					if (!message.equals(DataUtils.CONSTANT_BLANK)) {
+						message += "成功！";
+					} else {
+						message = "无操作！";
+					}*/
+					System.out.println("----->" + stockInfoArray[30] + " 股票(" + stockCode + ")在所有股票原始信息表(all_information_stock_)中" + message);
 				} else {
 					if (CommonUtils.isBlank(PropertiesUtils.getProperty(stockCode))) {
 						System.out.println("----->" + stockInfoArray[30] + " 股票(" + stockCode + ")退市！");
@@ -151,6 +188,25 @@ public class GetDailyAndAllStockDetailData extends OperationData {
 						log.loger.info(" " + stockInfoArray[30] + " 股票(" + stockCode + ")停盘！");
 					}
 				}
+			}
+			// 分开循环保存AllInformationStock和AllDetailStock
+			for (int index=0; index<allDetailStockList.size(); index++) {
+				String message = "";
+				AllDetailStock allDetailStock = allDetailStockList.get(index);
+				boolean saveFlg = allDetailStockDao.saveOrUpdateAllDetailStock(allDetailStock);
+				if (saveFlg) {
+					++detailSaveNum;
+					if (!message.equals(DataUtils.CONSTANT_BLANK)) {
+						message += ", ";
+					}
+					message += "所有股票详细信息表(all_detail_stock_)保存";
+				}
+				if (!message.equals(DataUtils.CONSTANT_BLANK)) {
+					message += "成功！";
+				} else {
+					message = "无操作！";
+				}
+				System.out.println(DateUtils.dateTimeToString(new Date()) + "----->" + detailSaveNum + ": " + DateUtils.dateToString(allDetailStock.getStockDate()) + " 股票(" + allDetailStock.getStockCode() + ") " + message);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -168,13 +224,7 @@ public class GetDailyAndAllStockDetailData extends OperationData {
 				log.loger.info("所有股票详细信息表(detail_stock_)中更新了" + infoUpdateNum + "条记录！");
 			}
 			long endTime = System.currentTimeMillis();
-			System.out.println("获取所有股票信息耗时: " + DateUtils.msecToTime(endTime-startTime));
+			System.out.println("获取所有股票信息耗时: " + DateUtils.msecToTime(endTime - startTime));
 		}
 	}
-
-/*	private static Double getTwoDecimal(double changeRate) {
-		BigDecimal bigValue = new BigDecimal(changeRate);  
-		double dValue = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
-		return dValue;
-	}*/
 }

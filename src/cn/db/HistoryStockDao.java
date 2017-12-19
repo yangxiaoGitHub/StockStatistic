@@ -6,21 +6,21 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.mysql.jdbc.PreparedStatement;
+
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
 import cn.db.bean.HistoryStock;
 
-import com.mysql.jdbc.PreparedStatement;
-
 public class HistoryStockDao extends OperationDao {
-	
-	public boolean saveHistoryStock(HistoryStock historyStock) {
-		
+
+	public boolean saveHistoryStock(HistoryStock historyStock) throws SQLException {
+
 		boolean saveFlg = false;
 		PreparedStatement state = null;
 		String sql = "insert into " + HistoryStock.TABLE_NAME + " (" + HistoryStock.ALL_FIELDS + ") values (?,?,?,?,?,?,?,?,?,?)";
 		try {
-			state = (PreparedStatement) conn.prepareStatement(sql);
+			state = (PreparedStatement) connection.prepareStatement(sql);
 			state.setLong(1, historyStock.getNum());
 			state.setDate(2, new java.sql.Date(historyStock.getStockDate().getTime()));
 			state.setString(3, historyStock.getStockCode());
@@ -32,11 +32,14 @@ public class HistoryStockDao extends OperationDao {
 			state.setFloat(9, historyStock.getTradedAmount());
 			state.setTimestamp(10, new java.sql.Timestamp((new Date()).getTime()));
 			state.executeUpdate();
-			//conn.commit();
+			connection.commit();
 			saveFlg = true;
 		} catch (Exception e) {
-			System.out.println(DateUtils.DateTimeToString(new Date()) + " 历史股票信息表(history_stock_)中添加记录失败---股票代码：" + historyStock.getStockCode() + "(" + PropertiesUtils.getProperty(historyStock.getStockCode()) + ")");
-			log.loger.error(" 历史股票信息表(history_stock_)中添加记录失败---股票代码：" + historyStock.getStockCode() + "(" + PropertiesUtils.getProperty(historyStock.getStockCode()) + ")");
+			connection.rollback();
+			System.out.println(DateUtils.dateTimeToString(new Date()) + " 历史股票信息表(history_stock_)中增加记录失败---股票代码：" + historyStock.getStockCode()
+					+ "(" + PropertiesUtils.getProperty(historyStock.getStockCode()) + ")");
+			log.loger.error(" 历史股票信息表(history_stock_)中增加记录失败---股票代码：" + historyStock.getStockCode() + "("
+					+ PropertiesUtils.getProperty(historyStock.getStockCode()) + ")");
 			e.printStackTrace();
 			log.loger.error(e);
 		} finally {
@@ -46,11 +49,11 @@ public class HistoryStockDao extends OperationDao {
 	}
 
 	public boolean isExistInHistoryStock(String stockCode, Date stockDate) throws SQLException {
-		
+
 		int count = 0;
-		String sql = "select count(" + HistoryStock.NUM + ") as count_ from " + HistoryStock.TABLE_NAME + " where " 
-				   + HistoryStock.STOCK_CODE + "=? and " + HistoryStock.STOCK_DATE + "=?";
-		PreparedStatement state = (PreparedStatement) conn.prepareStatement(sql);
+		String sql = "select count(" + HistoryStock.NUM + ") as count_ from " + HistoryStock.TABLE_NAME + " where " + HistoryStock.STOCK_CODE
+				+ "=? and " + HistoryStock.STOCK_DATE + "=?";
+		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
 		state.setString(1, stockCode);
 		state.setDate(2, new java.sql.Date(stockDate.getTime()));
 		ResultSet rs = state.executeQuery();
@@ -61,10 +64,10 @@ public class HistoryStockDao extends OperationDao {
 	}
 
 	public Long getMaxNumFromHistoryStock() throws SQLException {
-		
+
 		long maxNum = 0;
 		String sql = "select max(" + HistoryStock.NUM + ") as num_ from " + HistoryStock.TABLE_NAME;
-		PreparedStatement state = (PreparedStatement) conn.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			maxNum = rs.getInt("num_");
@@ -73,11 +76,11 @@ public class HistoryStockDao extends OperationDao {
 	}
 
 	public Date[] getMinMaxDate(String stockCode) throws SQLException {
-		
+
 		Date[] dateArray = new Date[2];
-		String sql = "select min(" + HistoryStock.STOCK_DATE + ") as min_date_, max(" + HistoryStock.STOCK_DATE + ") as max_date_ from " 
-				   + HistoryStock.TABLE_NAME + " where " + HistoryStock.STOCK_CODE + "=?";
-		PreparedStatement state = (PreparedStatement) conn.prepareStatement(sql);
+		String sql = "select min(" + HistoryStock.STOCK_DATE + ") as min_date_, max(" + HistoryStock.STOCK_DATE + ") as max_date_ from "
+				+ HistoryStock.TABLE_NAME + " where " + HistoryStock.STOCK_CODE + "=?";
+		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
 		state.setString(1, stockCode);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
@@ -92,7 +95,7 @@ public class HistoryStockDao extends OperationDao {
 		List<HistoryStock> historyStockList = new ArrayList<HistoryStock>();
 		String sql = "select " + HistoryStock.ALL_FIELDS + " from " + HistoryStock.TABLE_NAME + " where " + HistoryStock.STOCK_DATE
 				+ "=? order by " + HistoryStock.INPUT_TIME;
-		PreparedStatement state = (PreparedStatement) conn.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
 		state.setDate(1, new java.sql.Date(date.getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {

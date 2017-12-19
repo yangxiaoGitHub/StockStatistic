@@ -9,9 +9,9 @@ public class StatisticStock extends BaseStock {
 	private static final long serialVersionUID = 7751504139176766814L;
 
 	private Date firstDate;
-	private Integer upDownNumber = 0;
-	private Integer upNumber = 0;
-	private Integer downNumber = 0;
+	private Integer upDownNumber;
+	private Integer upNumber;
+	private Integer downNumber;
 	private String oneWeek;
 	private String halfMonth;
 	private String oneMonth;
@@ -22,11 +22,11 @@ public class StatisticStock extends BaseStock {
 	private String stockCodeDES;
 	private String decryptStockCode;
 	private String note;
-	private Integer errorUpDownNumber = 0;
-	private Integer errorUpNumber = 0;
-	private Integer errorDownNumber = 0;
+	private Integer errorUpDownNumber;
+	private Integer errorUpNumber;
+	private Integer errorDownNumber;
 	// 涨跌次数标识：1:跌  2:涨跌 3:涨
-	private Integer upDownFlg = 0;
+//	private Integer upDownFlg = 0;
 	public final static Integer DOWN_FLG = 1; // 跌
 	public final static Integer UP_DOWN_FLG = 2; // 涨跌
 	public final static Integer UP_FLG = 3; // 涨
@@ -87,11 +87,11 @@ public class StatisticStock extends BaseStock {
 	}
 	
 	public StatisticStock(String stockCode) {
-		this.stockCode = stockCode;
+		this.setStockCode(stockCode);
 	}
 	
 	public StatisticStock(String stockCode, Date firstDate, String stockCodeDES) {
-		this.stockCode = stockCode;
+		this.setStockCode(stockCode);
 		this.firstDate = firstDate;
 		this.stockCodeDES = stockCodeDES;
 	}
@@ -176,13 +176,13 @@ public class StatisticStock extends BaseStock {
 		this.errorUpDownNumber = errorUpDownNumber;
 	}
 
-	public Integer getUpDownFlg() {
+	/*public Integer getUpDownFlg() {
 		return upDownFlg;
 	}
 
 	public void setUpDownFlg(Integer upDownFlg) {
 		this.upDownFlg = upDownFlg;
-	}
+	}*/
 
 	public String getOneWeek() {
 		return oneWeek;
@@ -190,10 +190,10 @@ public class StatisticStock extends BaseStock {
 	
 	//解析前一周涨跌次数
 	public String getOneWeek_NoJson() {
-		Map<String, String> jsonMap = JsonUtils.getMapByJson(oneWeek);
-		String upDownNum = jsonMap.get(PRE_ONE_WEEK_UP_DOWN_NUM);
-		String upNum = jsonMap.get(PRE_ONE_WEEK_UP_NUM);
-		String downNum = jsonMap.get(PRE_ONE_WEEK_DOWN_NUM);
+		Map<String, Integer> jsonMap = JsonUtils.getMapByJson(oneWeek);
+		Integer upDownNum = jsonMap.get(PRE_ONE_WEEK_UP_DOWN_NUM);
+		Integer upNum = jsonMap.get(PRE_ONE_WEEK_UP_NUM);
+		Integer downNum = jsonMap.get(PRE_ONE_WEEK_DOWN_NUM);
 		return CH_UP_DOWN + ":" + upDownNum + "," + CH_UP + ":" + upNum + "," + CH_DOWN + ":" + downNum;
 	}
 
@@ -207,10 +207,10 @@ public class StatisticStock extends BaseStock {
 	
 	//解析前半月涨跌次数
 	public String getHalfMonth_NoJson() {
-		Map<String, String> jsonMap = JsonUtils.getMapByJson(halfMonth);
-		String upDownNum = jsonMap.get(PRE_HALF_MONTH_UP_DOWN_NUM);
-		String upNum = jsonMap.get(PRE_HALF_MONTH_UP_NUM);
-		String downNum = jsonMap.get(PRE_HALF_MONTH_DOWN_NUM);
+		Map<String, Integer> jsonMap = JsonUtils.getMapByJson(halfMonth);
+		Integer upDownNum = jsonMap.get(PRE_HALF_MONTH_UP_DOWN_NUM);
+		Integer upNum = jsonMap.get(PRE_HALF_MONTH_UP_NUM);
+		Integer downNum = jsonMap.get(PRE_HALF_MONTH_DOWN_NUM);
 		return CH_UP_DOWN + ":" + upDownNum + "," + CH_UP + ":" + upNum + "," + CH_DOWN + ":" + downNum;
 	}
 
@@ -224,10 +224,10 @@ public class StatisticStock extends BaseStock {
 
 	//解析前一月涨跌次数
 	public String getOneMonth_NoJson() {
-		Map<String, String> jsonMap = JsonUtils.getMapByJson(oneMonth);
-		String upDownNum = jsonMap.get(PRE_ONE_MONTH_UP_DOWN_NUM);
-		String upNum = jsonMap.get(PRE_ONE_MONTH_UP_NUM);
-		String downNum = jsonMap.get(PRE_ONE_MONTH_DOWN_NUM);
+		Map<String, Integer> jsonMap = JsonUtils.getMapByJson(oneMonth);
+		Integer upDownNum = jsonMap.get(PRE_ONE_MONTH_UP_DOWN_NUM);
+		Integer upNum = jsonMap.get(PRE_ONE_MONTH_UP_NUM);
+		Integer downNum = jsonMap.get(PRE_ONE_MONTH_DOWN_NUM);
 		return CH_UP_DOWN + ":" + upDownNum + "," + CH_UP + ":" + upNum + "," + CH_DOWN + ":" + downNum;
 	}
 	
@@ -241,10 +241,10 @@ public class StatisticStock extends BaseStock {
 	
 	//解析前二月涨跌次数
 	public String getTwoMonth_NoJson() {
-		Map<String, String> jsonMap = JsonUtils.getMapByJson(twoMonth);
-		String upDownNum = jsonMap.get(PRE_TWO_MONTH_UP_DOWN_NUM);
-		String upNum = jsonMap.get(PRE_TWO_MONTH_UP_NUM);
-		String downNum = jsonMap.get(PRE_TWO_MONTH_DOWN_NUM);
+		Map<String, Integer> jsonMap = JsonUtils.getMapByJson(twoMonth);
+		Integer upDownNum = jsonMap.get(PRE_TWO_MONTH_UP_DOWN_NUM);
+		Integer upNum = jsonMap.get(PRE_TWO_MONTH_UP_NUM);
+		Integer downNum = jsonMap.get(PRE_TWO_MONTH_DOWN_NUM);
 		return CH_UP_DOWN + ":" + upDownNum + "," + CH_UP + ":" + upNum + "," + CH_DOWN + ":" + downNum;
 	}
 
@@ -258,10 +258,10 @@ public class StatisticStock extends BaseStock {
 	
 	//解析前三月涨跌次数
 	public String getThreeMonth_NoJson() {
-		Map<String, String> jsonMap = JsonUtils.getMapByJson(threeMonth);
-		String upDownNum = jsonMap.get(PRE_THREE_MONTH_UP_DOWN_NUM);
-		String upNum = jsonMap.get(PRE_THREE_MONTH_UP_NUM);
-		String downNum = jsonMap.get(PRE_THREE_MONTH_DOWN_NUM);
+		Map<String, Integer> jsonMap = JsonUtils.getMapByJson(threeMonth);
+		Integer upDownNum = jsonMap.get(PRE_THREE_MONTH_UP_DOWN_NUM);
+		Integer upNum = jsonMap.get(PRE_THREE_MONTH_UP_NUM);
+		Integer downNum = jsonMap.get(PRE_THREE_MONTH_DOWN_NUM);
 		return CH_UP_DOWN + ":" + upDownNum + "," + CH_UP + ":" + upNum + "," + CH_DOWN + ":" + downNum;
 	}
 
@@ -275,10 +275,10 @@ public class StatisticStock extends BaseStock {
 	
 	//解析前半年涨跌次数
 	public String getHalfYear_NoJson() {
-		Map<String, String> jsonMap = JsonUtils.getMapByJson(halfYear);
-		String upDownNum = jsonMap.get(PRE_HALF_YEAR_UP_DOWN_NUM);
-		String upNum = jsonMap.get(PRE_HALF_YEAR_UP_NUM);
-		String downNum = jsonMap.get(PRE_HALF_YEAR_DOWN_NUM);
+		Map<String, Integer> jsonMap = JsonUtils.getMapByJson(halfYear);
+		Integer upDownNum = jsonMap.get(PRE_HALF_YEAR_UP_DOWN_NUM);
+		Integer upNum = jsonMap.get(PRE_HALF_YEAR_UP_NUM);
+		Integer downNum = jsonMap.get(PRE_HALF_YEAR_DOWN_NUM);
 		return CH_UP_DOWN + ":" + upDownNum + "," + CH_UP + ":" + upNum + "," + CH_DOWN + ":" + downNum;
 	}
 
@@ -293,16 +293,30 @@ public class StatisticStock extends BaseStock {
 	
 	//解析前一周涨跌次数
 	public String getOneYear_NoJson() {
-		Map<String, String> jsonMap = JsonUtils.getMapByJson(oneYear);
-		String upDownNum = jsonMap.get(PRE_ONE_YEAR_UP_DOWN_NUM);
-		String upNum = jsonMap.get(PRE_ONE_YEAR_UP_NUM);
-		String downNum = jsonMap.get(PRE_ONE_YEAR_DOWN_NUM);
+		Map<String, Integer> jsonMap = JsonUtils.getMapByJson(oneYear);
+		Integer upDownNum = jsonMap.get(PRE_ONE_YEAR_UP_DOWN_NUM);
+		Integer upNum = jsonMap.get(PRE_ONE_YEAR_UP_NUM);
+		Integer downNum = jsonMap.get(PRE_ONE_YEAR_DOWN_NUM);
 		return CH_UP_DOWN + ":" + upDownNum + "," + CH_UP + ":" + upNum + "," + CH_DOWN + ":" + downNum;
 	}
-
 
 	public void setOneYear(String oneYear) {
 		this.oneYear = oneYear;
 	}
-
+	@Override
+	public String getStockCode() {
+		return super.stockCode;
+	}
+	@Override
+	public void setStockCode(String stockCode) {
+		super.stockCode = stockCode;
+	}
+	@Override
+	public Date getStockDate() {
+		return null;
+	}
+	@Override
+	public void setStockDate(Date stockDate) {
+		
+	}
 }

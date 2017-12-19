@@ -1,10 +1,10 @@
 package cn.implement;
 
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
 
 import cn.com.CommonUtils;
+import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
 import cn.db.DailyStockDao;
@@ -12,36 +12,34 @@ import cn.db.OriginalStockDao;
 import cn.db.StatisticStockDao;
 import cn.db.bean.DailyStock;
 import cn.db.bean.StatisticStock;
-import cn.log.Log;
 
- public class HandleOriginalAndDailyData extends OperationData {
-	Log log = Log.getLoger();
+public class HandleOriginalAndDailyData extends OperationData {
 
-	public void handleOriginal(String sDate, String stockCodes, String changeRates, String turnoverRates) {
+	public void handleOriginalStockData(String sDate, String stockCodes, String changeRates, String turnoverRates) {
 
 		originalStockDao = new OriginalStockDao();
 		String info = "无操作";
 		try {
 			// 保存数据
-			int original_count = originalStockDao.searchOriginalData(sDate);
+			final int original_count = originalStockDao.searchOriginalData(sDate);
 			if (original_count == 0) {
 				originalStockDao.addOriginalData(sDate, stockCodes, changeRates, turnoverRates);
-				info = "添加";
+				info = "增加";
 			} else {
 				originalStockDao.updateOriginalData(sDate, stockCodes, changeRates, turnoverRates);
-				info = "更新";
+				info = "增加";
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.loger.error(e);
 		} finally {
 			closeDao(originalStockDao);
-			System.out.println(DateUtils.DateTimeToString(new Date()) + " " +  info + "了" + sDate + "的原始股票数据(original_stock_)！");
-			log.loger.info(" " +  info + "了" + sDate + "的原始股票数据(original_stock_)！");
+			System.out.println(DateUtils.dateTimeToString(new Date()) + " " + info + "了" + sDate + "的原始股票数据(original_stock_)！");
+			log.loger.info(" " + info + "了" + sDate + "的原始股票数据(original_stock_)！");
 		}
 	}
-	
-	public void handleDaily(String sDate, String stockCodes, String changeRates, String turnoverRates) {
+
+	public void handleDailyStockData(String sDate, String stockCodes, String changeRates, String turnoverRates) {
 
 		int dailySum = 0;
 		int statisticSum = 0;
@@ -55,19 +53,24 @@ import cn.log.Log;
 				turnoverRateArray = turnoverRates.split(",");
 			}
 
-			for (int index=0; index<codeArray.length; index++) {
+			for (int index = 0; index < codeArray.length; index++) {
 				// 对数据进行转换
 				DailyStock stockData = getStockData(index, codeArray, changeRateArray, turnoverRateArray, sDate);
-				// 保存数据
+				// 保存输入的股票数据
 				boolean existFlg = dailyStockDao.isExistInDailyStock(stockData);
 				if (!existFlg) {
 					boolean saveFlg = dailyStockDao.saveDailyStock(stockData);
 					if (saveFlg) {
 						dailySum++;
-						System.out.println(DateUtils.DateTimeToString(new Date()) + " 每日股票数据表(daily_stock_)增加股票---" + (index+1) + "：" + stockData.getStockCode() + "(" + PropertiesUtils.getProperty(stockData.getStockCode()) + ")");
-						log.loger.info(" 每日股票数据表(daily_stock_)增加股票---" + (index+1) + "：" + stockData.getStockCode() + "(" + PropertiesUtils.getProperty(stockData.getStockCode()) + ")");
-						boolean saveUpdateFlg = updateStatisticStock(stockData);
-						if (saveUpdateFlg) statisticSum++;
+						boolean updateFlg = updateStatisticStock(stockData);
+						if (updateFlg) {
+							statisticSum++;
+							System.out.println(DateUtils.dateTimeToString(new Date())
+									+ " 每日股票信息表(daily_stock_)和统计股票信息表(statistic_stock_)增加或更新了股票---" + dailySum + "：" + stockData.getStockCode()
+									+ "(" + PropertiesUtils.getProperty(stockData.getStockCode()) + ")");
+							log.loger.info(" 每日股票信息表(daily_stock_)和统计股票信息表(statistic_stock_)增加或更新了股票---" + dailySum + "："
+									+ stockData.getStockCode() + "(" + PropertiesUtils.getProperty(stockData.getStockCode()) + ")");
+						}
 					}
 				}
 			}
@@ -76,24 +79,30 @@ import cn.log.Log;
 			log.loger.error(e);
 		} finally {
 			closeDao(dailyStockDao, statisticStockDao);
-			System.out.println(DateUtils.DateTimeToString(new Date()) + "  " + sDate + " 每日股票信息表(daily_stock_)共添加了" + dailySum + "条记录！");
-			log.loger.info(" " + sDate + " 每日股票信息表(daily_stock_)共添加了" + dailySum + "条记录！");
-			System.out.println(DateUtils.DateTimeToString(new Date()) + "  " + sDate + " 统计股票信息表(statistic_stock_)共更新了" + statisticSum + "条记录！");
+			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + sDate + " 每日股票信息表(daily_stock_)共增加了" + dailySum + "条记录！");
+			log.loger.info(" " + sDate + " 每日股票信息表(daily_stock_)共增加了" + dailySum + "条记录！");
+			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + sDate + " 统计股票信息表(statistic_stock_)共更新了" + statisticSum + "条记录！");
 			log.loger.info(" " + sDate + " 统计股票信息表(statistic_stock_)共更新了" + statisticSum + "条记录！");
 		}
 	}
 
-	private boolean updateStatisticStock(DailyStock dailyStock) throws SQLException {
+	private boolean updateStatisticStock(DailyStock dailyStock) throws Exception {
 
+		boolean updateFlg = false;
 		String stockCode = dailyStock.getStockCode();
-		StatisticStock statisticStock = new StatisticStock(stockCode);
-		setUpDownNumberAndUpDownJson(statisticStock);
-		return statisticStockDao.updateStatisticStock(statisticStock);
+		String changeFlg = dailyStock.getChangeFlg();
+		StatisticStock statisticStock = statisticStockDao.getStatisticStockByStockCode(stockCode);
+		if (null != statisticStock) {
+			// 计算股票的涨跌次数
+			calculateUpDownNumber(statisticStock, changeFlg);
+			updateFlg = statisticStockDao.updateStatisticStock(statisticStock);
+		}
+		return updateFlg;
 	}
 
 	private DailyStock getStockData(int index, String[] codes, String[] changeRates, String[] turnoverRates, String sDate) {
 		DailyStock stockData = new DailyStock();
-		Date stockDate = DateUtils.String2Date(sDate);
+		Date stockDate = DateUtils.stringToDate(sDate);
 		Timestamp inputTime = new Timestamp(System.currentTimeMillis());
 		stockData.setStockCode(codes[index]);
 		stockData.setStockDate(stockDate);
@@ -105,8 +114,9 @@ import cn.log.Log;
 		} else {
 			stockData.setTurnoverRate(null);
 		}
-		String changeFlg = changeRate>0?"1":"0";
+		String changeFlg = changeRate > 0 ? "1" : "0";
 		stockData.setChangeFlg(changeFlg);
+		stockData.setNote(DataUtils.CONSTANT_BLANK);
 		stockData.setInputTime(inputTime);
 		return stockData;
 	}

@@ -1,5 +1,5 @@
 original_stock_£º±£´æÊäÈëµÄÔ­Ê¼¹ÉÆ±Êı¾İ(ÒÔ¶ººÅ·Ö¸îµÄ¹ÉÆ±´úÂë¡¢ÕÇµø·ù¡¢»»ÊÖÂÊµÈ)£¬²¢½âÎöµ½Ã¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞ
---num_<int(5)>£º¼ÇÂ¼ÊıÁ¿
+--num_<bigint(5)>£º¼ÇÂ¼ÊıÁ¿
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
 --stock_number_<int(3)>£º¹ÉÆ±ÊıÁ¿
 --stock_codes_<varchar(1000)>£º¹ÉÆ±´úÂë(ÒÔ¶ººÅ·Ö¸ô)
@@ -14,7 +14,7 @@ original_stock_£º±£´æÊäÈëµÄÔ­Ê¼¹ÉÆ±Êı¾İ(ÒÔ¶ººÅ·Ö¸îµÄ¹ÉÆ±´úÂë¡¢ÕÇµø·ù¡¢»»ÊÖÂÊµÈ)£
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 daily_stock_£º±£´æÃ¿ÈÕÑ¡Ôñ¹ÉÆ±µÄĞÅÏ¢(¹ÉÆ±´úÂë¡¢ÕÇµø·ù¡¢»»ÊÖÂÊµÈ)£¬Êı¾İÀ´Ô´ÓÚÔ­Ê¼¹ÉÆ±ĞÅÏ¢±í(original_stock_)ÖĞ
---num_<int(5)>£º¼ÇÂ¼ÊıÁ¿
+--num_<bigint(5)>£º¼ÇÂ¼ÊıÁ¿
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
 --stock_code_encrypt_<varchar(30)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
@@ -26,11 +26,21 @@ daily_stock_£º±£´æÃ¿ÈÕÑ¡Ôñ¹ÉÆ±µÄĞÅÏ¢(¹ÉÆ±´úÂë¡¢ÕÇµø·ù¡¢»»ÊÖÂÊµÈ)£¬Êı¾İÀ´Ô´ÓÚÔ­Ê¼
 --note_<varchar(500)>£º×¢ÊÍ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
-statistic_stock_£º±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢
+statistic_stock_£º±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢(°´¹ÉÆ±Í³¼Æ)
 Íâ¼ü£ºstatistic_stock_(stock_code_)-daily_stock_(stock_code_)--¼Ó
---num_<int(5)>£º¼ÇÂ¼ÊıÁ¿
+--num_<bigint(5)>£º¼ÇÂ¼ÊıÁ¿
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
 --first_date_<date>£ºµÚÒ»´ÎÔö¼Óµ½Ã¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞµÄÈÕÆÚ
+--up_down_number_<int(5)>: ×ÜÕÇµø´ÎÊı
+--up_number_<int(5)>: ×ÜÕÇ´ÎÊı
+--down_number_<int(5)>: ×Üµø´ÎÊı
+--one_week_<varchar(100)>: Ò»ÖÜÕÇµø´ÎÊıJson´®
+--half_month_<varchar(100)>: °ëÔÂÕÇµø´ÎÊıJson´®
+--one_month_<varchar(100)>: Ò»ÔÂÕÇµø´ÎÊıJson´®
+--two_month_<varchar(100)>: ¶şÔÂÕÇµø´ÎÊıJson´®
+--three_month_<varchar(100)>: ÈıÔÂÕÇµø´ÎÊıJson´®
+--half_year_<varchar(100)>: °ëÄêÕÇµø´ÎÊıJson´®
+--one_year_<varchar(100)>: Ò»ÄêÕÇµø´ÎÊıJson´®
 --stock_code_DES_<varchar(30)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
 --note_<varchar(500)>£º×¢ÊÍ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
@@ -38,16 +48,16 @@ statistic_stock_£º±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢
 information_stock_£º±£´æÍ³¼Æ¹ÉÆ±Êı¾İ±í(statistic_stock_)ÖĞµÄ¹ÉÆ±´ÓÍøÉÏ»ñÈ¡µÄÏêÏ¸ĞÅÏ¢´®£¬
 					¹ÉÆ±À´Ô´ÓÚÍ³¼Æ¹ÉÆ±Êı¾İ±í(statistic_stock_)ÖĞ£¬²¢½âÎöµ½¹ÉÆ±ÏêÏ¸ĞÅÏ¢±í(detail_stock_)ÖĞ
 Íâ¼ü£ºinformation_stock_(stock_code_)-statistic_stock_(stock_code_)
---num_<int(8)>£º¼ÇÂ¼ÊıÁ¿
+--num_<bigint(8)>£º¼ÇÂ¼ÊıÁ¿
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
---stock_info_<varchar(1000)>£º´ÓÍøÉÏ»ñÈ¡µÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢
---stock_info_DES_<varchar(2000)>£º¹ÉÆ±ÏêÏ¸ĞÅÏ¢DES¼ÓÃÜ
---stock_info_MD5_<varchar(2000)>£º¹ÉÆ±ÏêÏ¸ĞÅÏ¢MD5¼ÓÃÜ
+--stock_info_<varchar(500)>£º´ÓÍøÉÏ»ñÈ¡µÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢
+--stock_info_DES_<varchar(600)>£º¹ÉÆ±ÏêÏ¸ĞÅÏ¢DES¼ÓÃÜ
+--stock_info_MD5_<varchar(100)>£º¹ÉÆ±ÏêÏ¸ĞÅÏ¢MD5¼ÓÃÜ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 detail_stock_£º±£´æ´Ó¹ÉÆ±ĞÅÏ¢±í(information_stock_)ÖĞ½âÎö³öµÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢£¬Êı¾İÀ´Ô´ÓÚ¹ÉÆ±ĞÅÏ¢±í(information_stock_)ÖĞ
---num_<int(10)>£º¼ÇÂ¼ÊıÁ¿
+--num_<bigint(10)>£º¼ÇÂ¼ÊıÁ¿
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
 --stock_code_DES_<varchar(30)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
@@ -57,8 +67,8 @@ detail_stock_£º±£´æ´Ó¹ÉÆ±ĞÅÏ¢±í(information_stock_)ÖĞ½âÎö³öµÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢£¬Êı¾İÀ
 --current_<double(6.2)>£ºµ±Ç°¼Û
 --today_high_<double(6.2)>£º½ñÈÕ×î¸ß¼Û
 --today_low_<double(6.2)>£º½ñÈÕ×îµÍ¼Û
---traded_stock_number_<bigint(20)>£º³É½»µÄ¹ÉÆ±Êı
---traded_amount_<float(30.5)>£º³É½»½ğ¶î
+--traded_stock_number_<bigint(15)>£º³É½»µÄ¹ÉÆ±Êı
+--traded_amount_<float(20.3)>£º³É½»½ğ¶î
 --change_rate_<double(4.2)>£ºÕÇµø·ù
 --change_rate_DES_<varchar(30)>£ºÕÇµø·ùDES¼ÓÃÜ
 --turnover_rate_<double(4.2)>£º»»ÊÖÂÊ
@@ -67,9 +77,12 @@ detail_stock_£º±£´æ´Ó¹ÉÆ±ĞÅÏ¢±í(information_stock_)ÖĞ½âÎö³öµÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢£¬Êı¾İÀ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 all_stock_£º±£´æËùÓĞ¹ÉÆ±ĞÅÏ¢£¬Êı¾İÀ´Ô´ÓÚclient.propertiesÎÄ¼şÖĞ
---num_<int(5)>£º¼ÇÂ¼ÊıÁ¿
+--num_<bigint(5)>£º¼ÇÂ¼ÊıÁ¿
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
 --stock_name_<varchar(12)>£º¹ÉÆ±Ãû³Æ
+--circulation_value_<bigint(15)>: Á÷Í¨Öµ
+--circulation_stock_complex_<bigint(15)>: Á÷Í¨¹É(Ïê)
+--circulation_stock_simple_<varchar(30)>: Á÷Í¨¹É(¼ò)
 --industry_<varchar(30)>£ºĞĞÒµÃû³Æ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
@@ -78,13 +91,13 @@ all_information_stock_£º±£´æËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_stock_)ÖĞµÄ¹ÉÆ±´ÓÍøÉÏ»ñÈ¡µÄÏêÏ¸ĞÅ
 --num_<bigint(15)>£º¼ÇÂ¼ÊıÁ¿
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
---stock_info_<varchar(1000)>£º´ÓÍøÉÏ»ñÈ¡µÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢
---stock_info_DES_<varchar(2000)>£º¹ÉÆ±ÏêÏ¸ĞÅÏ¢DES¼ÓÃÜ
---stock_info_MD5_<varchar(2000)>£º¹ÉÆ±ÏêÏ¸ĞÅÏ¢MD5¼ÓÃÜ
+--stock_info_<varchar(500)>£º´ÓÍøÉÏ»ñÈ¡µÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢
+--stock_info_DES_<varchar(600)>£º¹ÉÆ±ÏêÏ¸ĞÅÏ¢DES¼ÓÃÜ
+--stock_info_MD5_<varchar(100)>£º¹ÉÆ±ÏêÏ¸ĞÅÏ¢MD5¼ÓÃÜ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 all_detail_stock_£º±£´æ´ÓËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_information_stock_)ÖĞ½âÎö³öµÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢£¬Êı¾İÀ´Ô´ÓÚËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_information_stock_)ÖĞ
---num_<int(10)>£º¼ÇÂ¼ÊıÁ¿
+--num_<bigint(10)>£º¼ÇÂ¼ÊıÁ¿
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
 --stock_code_DES_<varchar(30)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
@@ -102,3 +115,28 @@ all_detail_stock_£º±£´æ´ÓËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_information_stock_)ÖĞ½âÎö³öµÄ¹ÉÆ±ÏêÏ
 --turnover_rate_DES_<varchar(30)>£º»»ÊÖÂÊDES¼ÓÃÜ
 --traded_time_<datetime>£º½»Ò×Ê±¼ä
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
+
+history_stock_: ±£´æ¹ÉÆ±µÄÀúÊ·ĞÅÏ¢£¬Êı¾İÀ´Ô´ÓÚÎÄ¼ş»òÍâ²¿Êı¾İ¿â
+--num_<bigint(15)>
+--stock_date_<date>
+--stock_code_<varchar(6)>
+--open_price_<double(6.2)>
+--high_price_<double(6.2)>
+--low_price_<double(6.2)>
+--close_price_<double(6.2)>
+--traded_stock_number_<bigint(15)>
+--traded_amount_<float(20.2)>
+--input_time_<datetime>
+
+statistic_date_: ±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢(°´ÈÕÆÚÍ³¼Æ)
+--num_<bigint(5)>
+--stock_date_<date>
+--daily_up_down_<varchar(100)>
+--main_up_down_<varchar(100)>
+--sme_up_down_<varchar(100)>
+--gem_up_down_<varchar(100)>
+--shh_up_down_<varchar(100)>
+--shz_up_down_<varchar(100)>
+--large_up_down_<varchar(100)>
+--small_up_down_<varchar(100)>
+--input_time_<datetime>

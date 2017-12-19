@@ -9,10 +9,8 @@ import cn.com.CommonUtils;
 import cn.com.PropertiesUtils;
 import cn.db.DailyStockDao;
 import cn.db.bean.DailyStock;
-import cn.log.Log;
 
 public class AnalysisDailyAndDetailStockData extends OperationData {
-	Log log = Log.getLoger();
 
 	/**
 	 * 统计分析某一时间段股票出现的次数

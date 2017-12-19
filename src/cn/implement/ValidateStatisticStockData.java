@@ -9,22 +9,21 @@ import java.util.Map;
 
 import cn.com.CommonUtils;
 import cn.com.DESUtils;
+import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
 import cn.db.DailyStockDao;
 import cn.db.StatisticStockDao;
 import cn.db.bean.DailyStock;
 import cn.db.bean.StatisticStock;
-import cn.log.Log;
 
 public class ValidateStatisticStockData extends OperationData{
-	Log log = Log.getLoger();
 
 	/**
 	 * 验证统计股票数据，并输出无效数据
 	 * 
 	 */
-	public void validateStatistic() {
+	public void validateStatisticStockData() {
 		statisticStockDao = new StatisticStockDao();
 		try {
 			List<StatisticStock> statisticStockList = statisticStockDao.listStatisticStock();
@@ -55,42 +54,29 @@ public class ValidateStatisticStockData extends OperationData{
 		
 		boolean flg = true;
 	    Map<String, StatisticStock> upDownAndNumberMap = combineUpAndDownNumberMap();
-		List<StatisticStock> invalidUpDownList = listErrorUpDownNumber(statisticStockList, upDownAndNumberMap);
+	    // 合并涨跌次数验证
+		/*List<StatisticStock> invalidUpDownList = listErrorUpDownNumber(statisticStockList, upDownAndNumberMap);
 		List<StatisticStock> invalidUpList = listErrorUpNumber(statisticStockList, upDownAndNumberMap);
 		List<StatisticStock> invalidDownList = listErrorDownNumber(statisticStockList, upDownAndNumberMap);
-		List<StatisticStock> invalidSumList = listErrorSum(statisticStockList);
-		List<StatisticStock> invalidList = new ArrayList<StatisticStock>(invalidUpDownList);
-		invalidList.addAll(invalidUpList);
-		invalidList.addAll(invalidDownList);
-		invalidList.addAll(invalidSumList);
-		if (invalidList.size() > 0) {
+		List<StatisticStock> invalidSumList = listErrorSum(statisticStockList);*/
+		
+		List<StatisticStock> invalidUpAndDownList = listErrorUpAndDownNumber(statisticStockList, upDownAndNumberMap);
+		if (invalidUpAndDownList.size() > 0) {
 			flg = false;
 			System.out.println("---------------验证统计股票信息表(statistic_stock_)的涨跌次数无效----------------");
 			log.loger.info("---------------验证统计股票信息表(statistic_stock_)的涨跌次数无效----------------");
-			for (int index=0; index<invalidList.size(); index++) {
-				StatisticStock data = invalidList.get(index);
-				String errorMessage = "";
-				switch(data.getUpDownFlg()) {
-					case 1:
-						errorMessage = " 错误的跌次数为：down_number_=" + data.getErrorDownNumber() + " 正确的跌次数为：down_number_=" + data.getDownNumber();
-						break;
-					case 2:
-						errorMessage = " 错误的涨跌次数为：up_down_number_=" + data.getErrorUpDownNumber() + " 正确的涨跌次数为：up_down_number_=" + data.getUpDownNumber();
-						break;
-					case 3:
-						errorMessage = " 错误的涨次数为：up_number_=" + data.getErrorUpNumber() + " 正确的涨跌次数为：up_number_=" + data.getUpNumber();
-						break;
-					case 4:
-						errorMessage = " 涨跌次数不等于涨次数和跌次数之和，涨跌次数为：" + data.getUpDownNumber() + " 涨次数为：" + data.getUpNumber() + " 跌次数为：" + data.getDownNumber();
-						break;
-					default:
-						errorMessage = " 涨跌次数无效！";
-						break;
-				}
-				System.out.println("验证涨跌次数无效---" + CommonUtils.supplyNumber(index+1, invalidList.size()) + ": 股票" + data.getStockCode() 
-													   + "(" + PropertiesUtils.getProperty(data.getStockCode()) + ")" + errorMessage);
-				log.loger.info("验证涨跌次数无效---" + CommonUtils.supplyNumber(index+1, invalidList.size()) +": 股票" + data.getStockCode() 
-												   + "(" + PropertiesUtils.getProperty(data.getStockCode()) + ")" + errorMessage);
+			for (int index=0; index<invalidUpAndDownList.size(); index++) {
+				StatisticStock data = invalidUpAndDownList.get(index);
+				System.out.println("验证涨跌次数无效---" + CommonUtils.supplyNumber(index+1, invalidUpAndDownList.size()) + ": 股票" + data.getStockCode() 
+								 + "(" + PropertiesUtils.getProperty(data.getStockCode()) + ")在统计股票信息表(statistic_stock_)中的数据为: " + StatisticStock.UP_DOWN_NUMBER + ":" 
+								 + data.getErrorUpDownNumber() + "," + StatisticStock.UP_NUMBER + ":" + data.getErrorUpNumber() + "," + StatisticStock.DOWN_NUMBER + ":" + data.getErrorDownNumber() 
+								 + "  在每日股票信息表中的统计数据为: " + StatisticStock.UP_DOWN_NUMBER + ":" + data.getUpDownNumber() + "," + StatisticStock.UP_NUMBER + ":" + data.getUpNumber() 
+								 + "," + StatisticStock.DOWN_NUMBER + ":" + data.getDownNumber());
+				log.loger.info("验证涨跌次数无效---" + CommonUtils.supplyNumber(index+1, invalidUpAndDownList.size()) + ": 股票" + data.getStockCode() 
+								 + "(" + PropertiesUtils.getProperty(data.getStockCode()) + ")在统计股票信息表(statistic_stock_)中的数据为: " + StatisticStock.UP_DOWN_NUMBER + ":" 
+								 + data.getErrorUpDownNumber() + "," + StatisticStock.UP_NUMBER + ":" + data.getErrorUpNumber() + "," + StatisticStock.DOWN_NUMBER + ":" + data.getErrorDownNumber() 
+								 + "  在每日股票信息表中的统计数据为: " + StatisticStock.UP_DOWN_NUMBER + ":" + data.getUpDownNumber() + "," + StatisticStock.UP_NUMBER + ":" + data.getUpNumber() 
+								 + "," + StatisticStock.DOWN_NUMBER + ":" + data.getDownNumber());
 			}
 		}
 		return flg;
@@ -107,12 +93,12 @@ public class ValidateStatisticStockData extends OperationData{
 			for (int index=0; index<invalidList.size(); index++) {
 				String[] data = invalidList.get(index);
 				System.out.println("验证出的无效数据---" + (index+1) + ": 股票" + data[2] + "(" + PropertiesUtils.getProperty(data[2]) 
-													   + ") 错误的stock_code_=" + data[0] + " first_date_=" + data[1]
-													   + " 正确的stock_code_=" + data[2] + " first_date_=" + data[3]);
+													   + ") 表(statistic_stock_)错误的stock_code_=" + data[0] + " first_date_=" + data[1]
+													   + " 表(daily_stock_)正确的stock_code_=" + data[2] + " first_date_=" + data[3]);
 
 				log.loger.info("验证出的无效数据---" + (index+1) + ": 股票" + data[2] + "(" + PropertiesUtils.getProperty(data[2]) 
-												   + ") 错误的stock_code_=" + data[0] + " first_date_=" + data[1]
-												   + " 正确的stock_code_=" + data[2] + " first_date_=" + data[3]);
+												   + ") 表(statistic_stock_)错误的stock_code_=" + data[0] + " first_date_=" + data[1]
+												   + " 表(daily_stock_)正确的stock_code_=" + data[2] + " first_date_=" + data[3]);
 			}
 		}
 		return flg;
@@ -134,15 +120,15 @@ public class ValidateStatisticStockData extends OperationData{
 					if (firstDate.compareTo(dailyStock_stockCode.getStockDate()) != 0) {
 						String[] errorCodeAndDateArray = new String[4];
 						errorCodeAndDateArray[0] = stockCode;
-						errorCodeAndDateArray[1] = DateUtils.Date2String(firstDate);
+						errorCodeAndDateArray[1] = DateUtils.dateToString(firstDate);
 						errorCodeAndDateArray[2] = dailyStock_stockCode.getStockCode();
-						errorCodeAndDateArray[3] = DateUtils.Date2String(dailyStock_stockCode.getStockDate());
+						errorCodeAndDateArray[3] = DateUtils.dateToString(dailyStock_stockCode.getStockDate());
 						errorCodeAndDateList.add(errorCodeAndDateArray);
 					}
 				} else {
 					String[] errorCodeAndDateArray = new String[4];
 					errorCodeAndDateArray[0] = stockCode;
-					errorCodeAndDateArray[1] = DateUtils.Date2String(firstDate);
+					errorCodeAndDateArray[1] = DateUtils.dateToString(firstDate);
 					errorCodeAndDateArray[2] = "";
 					errorCodeAndDateArray[3] = "";
 					errorCodeAndDateList.add(errorCodeAndDateArray);
@@ -178,7 +164,12 @@ public class ValidateStatisticStockData extends OperationData{
 															   Map<String, StatisticStock> downNumberMap) {
 
 		Map<String, StatisticStock> statisticStockMap = new HashMap<String, StatisticStock>();
-		statisticStockMap.putAll(upDownNumberMap);
+		//初始化涨和跌次数
+		for (StatisticStock statisticStock : upDownNumberMap.values()) {
+			statisticStock.setUpNumber(DataUtils.CONSTANT_INTEGER_ZERO);
+			statisticStock.setDownNumber(DataUtils.CONSTANT_INTEGER_ZERO);
+			statisticStockMap.put(statisticStock.getStockCode(), statisticStock);
+		}
 		// 合并upNumberMap
 		for (StatisticStock statisticStock : upNumberMap.values()) {
 			String stockCode = statisticStock.getStockCode();
@@ -204,7 +195,7 @@ public class ValidateStatisticStockData extends OperationData{
 		return statisticStockMap;
 	}
 
-	private List<StatisticStock> listErrorUpDownNumber(List<StatisticStock> statisticStockList, Map<String, StatisticStock> statisticStockMap) throws SQLException {
+	/*private List<StatisticStock> listErrorUpDownNumber(List<StatisticStock> statisticStockList, Map<String, StatisticStock> statisticStockMap) throws SQLException {
 		
 		List<StatisticStock> errorUpDownNumberList = new ArrayList<StatisticStock>();
 		for (StatisticStock statisticStock : statisticStockList) {
@@ -217,9 +208,9 @@ public class ValidateStatisticStockData extends OperationData{
 			}
 		}
 		return errorUpDownNumberList;
-	}
+	}*/
 	
-	private List<StatisticStock> listErrorUpNumber(List<StatisticStock> statisticStockList, Map<String, StatisticStock> statisticStockMap) throws SQLException {
+	/*private List<StatisticStock> listErrorUpNumber(List<StatisticStock> statisticStockList, Map<String, StatisticStock> statisticStockMap) throws SQLException {
 		
 		List<StatisticStock> errorUpNumberList = new ArrayList<StatisticStock>();
 		for (StatisticStock statisticStock : statisticStockList) {
@@ -232,9 +223,9 @@ public class ValidateStatisticStockData extends OperationData{
 			}
 		}
 		return errorUpNumberList;
-	}
+	}*/
 	
-	private List<StatisticStock> listErrorDownNumber(List<StatisticStock> statisticStockList, Map<String, StatisticStock> statisticStockMap) throws SQLException {
+	/*private List<StatisticStock> listErrorDownNumber(List<StatisticStock> statisticStockList, Map<String, StatisticStock> statisticStockMap) throws SQLException {
 		
 		List<StatisticStock> errorDownNumberList = new ArrayList<StatisticStock>();
 		for (StatisticStock statisticStock : statisticStockList) {
@@ -247,82 +238,61 @@ public class ValidateStatisticStockData extends OperationData{
 			}
 		}
 		return errorDownNumberList;
+	}*/
+	
+	/**
+	 * 验证涨跌次数，返回错误涨跌次数List 
+	 *
+	 */
+	private List<StatisticStock> listErrorUpAndDownNumber(List<StatisticStock> statisticStockList, Map<String, StatisticStock> statisticUpAndDownMap) {
+
+		List<StatisticStock> errorUpAndDownNumberList = new ArrayList<StatisticStock>();
+		for (StatisticStock statisticStock : statisticStockList) {
+			String stockCode = statisticStock.getStockCode();
+			StatisticStock statisticUpAndDownStock = statisticUpAndDownMap.get(stockCode);
+			//验证统计股票信息的涨跌次数
+			StatisticStock errorStatisticStock = validateUpAndDownNumber(statisticUpAndDownStock, statisticStock);
+			if (errorStatisticStock != null) {
+				errorUpAndDownNumberList.add(errorStatisticStock);
+			}
+		}
+		return errorUpAndDownNumberList;
 	}
 	
-	private StatisticStock compareUpAndDownNumber(String stockCode, Integer upDownNumber, Map<String, StatisticStock> statisticStockMap, Integer upDownFlg) {
-		//upDownFlg 1:跌 2:涨跌 3:涨
-		StatisticStock statisticStock = null;
+	private StatisticStock validateUpAndDownNumber(StatisticStock statisticUpAndDownStock, StatisticStock statisticStock) {
+
+		StatisticStock errorStatisticStock = null;
 		try {
-			StatisticStock statisticStock_ = statisticStockMap.get(stockCode);
-			if (statisticStock_ == null) {
+			String stockCode = statisticStock.getStockCode();
+			Integer upDownNumber = statisticStock.getUpDownNumber();
+			Integer upNumber = statisticStock.getUpNumber();
+			Integer downNumber = statisticStock.getDownNumber();
+			if (statisticUpAndDownStock == null) {
 				System.out.println("统计股票信息表(statistic_stock_)中" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")不存在每日股票信息表(daily_stock_)中！");
 				log.loger.info("统计股票信息表(statistic_stock_)中" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")不存在每日股票信息表(daily_stock_)中！");
 			} else {
-					switch(upDownFlg) {
-					case 1:
-						if (upDownNumber.compareTo(statisticStock_.getDownNumber()) != 0) {
-							statisticStock = new StatisticStock();
-							statisticStock.setStockCode(stockCode);
-							statisticStock.setDownNumber(statisticStock_.getDownNumber());
-							statisticStock.setErrorDownNumber(upDownNumber);
-						}
-						break;
-					case 2:
-						if (upDownNumber.compareTo(statisticStock_.getUpDownNumber()) != 0) {
-							statisticStock = new StatisticStock();
-							statisticStock.setStockCode(stockCode);
-							statisticStock.setUpDownNumber(statisticStock_.getUpDownNumber());
-							statisticStock.setErrorUpDownNumber(upDownNumber);
-						}
-						break;
-					case 3:
-						if (upDownNumber.compareTo(statisticStock_.getUpNumber()) != 0) {
-							statisticStock = new StatisticStock();
-							statisticStock.setStockCode(stockCode);
-							statisticStock.setUpNumber(statisticStock_.getUpNumber());
-							statisticStock.setErrorUpNumber(upDownNumber);
-						}
-						break;
-					default:
-						System.out.println("涨跌标识无效(upDownFlg=" + upDownFlg + ")");
-						log.loger.error("涨跌标识无效(upDownFlg=" + upDownFlg + ")");
-						break;
-					}
+				Integer statisticUpDownNumber = statisticUpAndDownStock.getUpDownNumber();
+				Integer statisticUpNumber = statisticUpAndDownStock.getUpNumber();
+				Integer statisticDownNumber = statisticUpAndDownStock.getDownNumber();
+				if (statisticUpDownNumber.compareTo(upDownNumber)!=0 
+						|| statisticUpNumber.compareTo(upNumber)!=0 
+						|| statisticDownNumber.compareTo(downNumber)!=0) {
+					errorStatisticStock = new StatisticStock();
+					errorStatisticStock.setStockCode(stockCode);
+					errorStatisticStock.setUpDownNumber(statisticUpDownNumber);
+					errorStatisticStock.setUpNumber(statisticUpNumber);
+					errorStatisticStock.setDownNumber(statisticDownNumber);
+					errorStatisticStock.setErrorUpDownNumber(upDownNumber);
+					errorStatisticStock.setErrorUpNumber(upNumber);
+					errorStatisticStock.setErrorDownNumber(downNumber);
+				}
 			}
 		} catch(Exception ex) {
-			String upDownNumber_statistic = "";
-			String stockCode_daily = "";
-			String upDownNumber_daily = "";
-			
-			if (statisticStockMap.containsKey(stockCode)) {
-				stockCode_daily = stockCode;
-			}
-			switch(upDownFlg) {
-				case 1:
-					if (statisticStockMap.containsKey(stockCode)) upDownNumber_daily = statisticStockMap.get(stockCode).getDownNumber()==null?"0":statisticStockMap.get(stockCode).getDownNumber().toString();
-					upDownNumber_statistic = " down_number_=" + upDownNumber;
-					upDownNumber_daily = " down_number_=" + upDownNumber_daily;
-					break;
-				case 2:
-					if (statisticStockMap.containsKey(stockCode)) upDownNumber_daily = statisticStockMap.get(stockCode).getUpDownNumber()==null?"0":statisticStockMap.get(stockCode).getUpDownNumber().toString();
-					upDownNumber_statistic = " upDown_number_=" + upDownNumber;
-					upDownNumber_daily = " upDown_number_=" + upDownNumber_daily;
-					break;
-				case 3:
-					if (statisticStockMap.containsKey(stockCode)) upDownNumber_daily = statisticStockMap.get(stockCode).getUpNumber()==null?"0":statisticStockMap.get(stockCode).getUpNumber().toString();
-					upDownNumber_statistic = " up_number_=" + upDownNumber;
-					upDownNumber_daily = " up_number_=" + upDownNumber_daily;
-					break;
-				default:
-					System.out.println("涨跌标识无效(upDownFlg=" + upDownFlg + ")");
-					log.loger.error("涨跌标识无效(upDownFlg=" + upDownFlg + ")");
-					break;
-			}
-			System.out.println("统计股票信息表中stock_code_=" + stockCode + upDownNumber_statistic + " 每日股票数据表中stock_code_=" + stockCode_daily + upDownNumber_daily);
+			System.out.println("验证统计股票信息表(statistic_stock_)中的股票" + statisticStock.getStockCode() + "(" + PropertiesUtils.getProperty(statisticStock.getStockCode()) + ")涨跌次数异常！");
 			ex.printStackTrace();
 			log.loger.error(ex);
 		}
-		return statisticStock;
+		return errorStatisticStock;
 	}
 	
 	private DailyStock containStockCode(String stockCode, List<DailyStock> dailyStockList) {
@@ -358,7 +328,7 @@ public class ValidateStatisticStockData extends OperationData{
 		return flg;
 	}
 
-	private List<StatisticStock> listErrorSum(List<StatisticStock> statisticStockList) {
+	/*private List<StatisticStock> listErrorSum(List<StatisticStock> statisticStockList) {
 		
 		List<StatisticStock> errorSumList = new ArrayList<StatisticStock>();
 		for (StatisticStock statisticStock : statisticStockList) {
@@ -371,7 +341,7 @@ public class ValidateStatisticStockData extends OperationData{
 			}
 		}
 		return errorSumList;
-	}
+	}*/
 
 	private List<StatisticStock> listErrorStockCodeDES(List<StatisticStock> statisticStockList) {
 

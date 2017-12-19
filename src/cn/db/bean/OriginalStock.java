@@ -106,4 +106,20 @@ public class OriginalStock extends BaseStock{
 	public void setTurnoverRatesMD5(String turnoverRatesMD5) {
 		this.turnoverRatesMD5 = turnoverRatesMD5;
 	}
+	@Override
+	public String getStockCode() {
+		return null;
+	}
+	@Override
+	public void setStockCode(String stockCode) {
+		
+	}
+	@Override
+	public Date getStockDate() {
+		return super.stockDate;
+	}
+	@Override
+	public void setStockDate(Date stockDate) {
+		super.stockDate = stockDate;
+	}
 }

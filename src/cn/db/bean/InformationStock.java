@@ -33,4 +33,20 @@ public class InformationStock extends BaseStock {
 	public void setStockInfoMD5(String stockInfoMD5) {
 		this.stockInfoMD5 = stockInfoMD5;
 	}
+	@Override
+	public String getStockCode() {
+		return super.stockCode;
+	}
+	@Override
+	public void setStockCode(String stockCode) {
+		super.stockCode = stockCode;
+	}
+	@Override
+	public Date getStockDate() {
+		return super.stockDate;
+	}
+	@Override
+	public void setStockDate(Date stockDate) {
+		super.stockDate = stockDate;
+	}
 }

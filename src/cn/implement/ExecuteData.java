@@ -10,21 +10,19 @@ import cn.db.DailyStockDao;
 import cn.db.StatisticStockDao;
 import cn.db.bean.DailyStock;
 import cn.db.bean.StatisticStock;
-import cn.log.Log;
 
 public class ExecuteData extends OperationData {
-	Log log = Log.getLoger();
 
 	public void searchStock(String stockCode, String startDate, String endDate, String changeFlg) {
 		
 		dailyStockDao = new DailyStockDao();
 		try {
 			String sDate = "";
-			if (!startDate.trim().equals("") && !endDate.trim().equals("")) {
+			if (!startDate.trim().equals(DataUtils.CONSTANT_BLANK) && !endDate.trim().equals(DataUtils.CONSTANT_BLANK)) {
 				sDate = startDate + "至" + endDate;
 			} else {
 				Date[] minMaxDate = dailyStockDao.getMinMaxDate();
-				sDate = DateUtils.Date2String(minMaxDate[0]) + "至" + DateUtils.Date2String(minMaxDate[1]);
+				sDate = DateUtils.dateToString(minMaxDate[0]) + "至" + DateUtils.dateToString(minMaxDate[1]);
 			}
 			String stockName = PropertiesUtils.getProperty(stockCode);
 			List<DailyStock> dailyList = dailyStockDao.searchStockByTime(stockCode, startDate, endDate, changeFlg);
@@ -37,7 +35,7 @@ public class ExecuteData extends OperationData {
 				String dateStr = "";
 				for (int index=0; index<dailyList.size(); index++) {
 					DailyStock data = dailyList.get(index);
-					dateStr += DateUtils.Date2String(data.getStockDate()) + ",";
+					dateStr += DateUtils.dateToString(data.getStockDate()) + ",";
 				}
 				System.out.println(sDate + " " + stockName + "(" + stockCode + ")出现的日期：");
 				System.out.println(dateStr.substring(0, sDate.length()));
@@ -61,7 +59,7 @@ public class ExecuteData extends OperationData {
 		statisticStockDao = new StatisticStockDao();
 		try {
 			Date[] minMaxDate = dailyStockDao.getMinMaxDate();
-			String sDate = DateUtils.Date2String(minMaxDate[0]) + "至" + DateUtils.Date2String(minMaxDate[1]);
+			String sDate = DateUtils.dateToString(minMaxDate[0]) + "至" + DateUtils.dateToString(minMaxDate[1]);
 			List<StatisticStock> statisticStockList = statisticStockDao.listStatisticStock();
 			System.out.println("-------------------------------" + sDate + " 每日选择的股票出现的次数统计--------------------------------");
 			log.loger.info("-------------------------------" + sDate + " 每日选择的股票出现的次数统计--------------------------------");

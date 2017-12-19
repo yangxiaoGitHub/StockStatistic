@@ -39,14 +39,14 @@ public class StockMain {
 					continue;
 				}
 				ValidateOriginalStockData validateOriginalStockData = new ValidateOriginalStockData();
-				String message = validateOriginalStockData.checkData(date, codes, names, changeRates, turnoverRates);
+				String message = validateOriginalStockData.checkInputStockData(date, codes, names, changeRates, turnoverRates);
 				if (message != null) {
 					System.out.println(message);
 					continue;
 				}
 				try {
-					handle.handleOriginal(date, codes, changeRates, turnoverRates);
-					handle.handleDaily(date, codes, changeRates, turnoverRates);
+					handle.handleOriginalStockData(date, codes, changeRates, turnoverRates);
+					handle.handleDailyStockData(date, codes, changeRates, turnoverRates);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					break;

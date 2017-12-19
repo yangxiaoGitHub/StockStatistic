@@ -24,10 +24,9 @@ public class HistoryStock extends BaseStock {
 	public HistoryStock() {
 		
 	}
-	
 	public HistoryStock(String stockCode, Date stockDate) {
-		this.stockCode = stockCode;
-		this.stockDate = stockDate;
+		this.setStockCode(stockCode);
+		this.setStockDate(stockDate);
 	}
 	public Double getOpenPrice() {
 		return openPrice;
@@ -66,4 +65,23 @@ public class HistoryStock extends BaseStock {
 		this.tradedAmount = tradedAmount;
 	}
 
+	@Override
+	public String getStockCode() {
+		return super.stockCode;
+	}
+
+	@Override
+	public void setStockCode(String stockCode) {
+		super.stockCode = stockCode;
+	}
+
+	@Override
+	public Date getStockDate() {
+		return super.stockDate;
+	}
+
+	@Override
+	public void setStockDate(Date stockDate) {
+		super.stockDate = stockDate;
+	}
 }

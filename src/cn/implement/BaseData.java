@@ -1,7 +1,9 @@
 package cn.implement;
 
 import cn.db.AllDetailStockDao;
+import cn.db.AllDetailStockTestDao;
 import cn.db.AllInformationStockDao;
+import cn.db.AllInformationStockTestDao;
 import cn.db.AllStockDao;
 import cn.db.DailyStockDao;
 import cn.db.DetailStockDao;
@@ -22,17 +24,47 @@ public abstract class BaseData {
 	protected DetailStockDao detailStockDao = null;
 	protected InformationStockDao informationStockDao = null;
 	protected HistoryStockDao historyStockDao = null;
-	
+
+	protected AllInformationStockTestDao allInformationStockTestDao = null;
+	protected AllDetailStockTestDao allDetailStockTestDao = null;
+
 	protected void closeAllDao() {
-		if (dailyStockDao != null) dailyStockDao = null;
-		if (statisticStockDao != null) statisticStockDao = null;
-		if (originalStockDao != null) originalStockDao = null;
-		if (allDetailStockDao != null) allDetailStockDao = null;
-		if (allInformationStockDao != null) allInformationStockDao = null;
-		if (allStockDao != null) allStockDao = null;
-		if (detailStockDao != null) detailStockDao = null;
-		if (informationStockDao != null) informationStockDao = null;
-		if (historyStockDao != null) historyStockDao = null;
+		if (dailyStockDao != null) {
+			dailyStockDao.close();
+			dailyStockDao = null;
+		}
+		if (statisticStockDao != null) {
+			statisticStockDao.close();
+			statisticStockDao = null;
+		}
+		if (originalStockDao != null) {
+			originalStockDao.close();
+			originalStockDao = null;
+		}
+		if (allDetailStockDao != null) {
+			allDetailStockDao.close();
+			allDetailStockDao = null;
+		}
+		if (allInformationStockDao != null) {
+			allInformationStockDao.close();
+			allInformationStockDao = null;
+		}
+		if (allStockDao != null) {
+			allStockDao.close();
+			allStockDao = null;
+		}
+		if (detailStockDao != null) {
+			detailStockDao.close();
+			detailStockDao = null;
+		}
+		if (informationStockDao != null) {
+			informationStockDao.close();
+			informationStockDao = null;
+		}
+		if (historyStockDao != null) {
+			historyStockDao.close();
+			historyStockDao = null;
+		}
 	}
 
 	protected abstract void closeDao(OperationDao... daoList);

@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.mysql.jdbc.PreparedStatement;
+
 import cn.db.bean.AllDetailStock;
+import cn.db.bean.AllDetailStockTest;
 import cn.db.bean.DailyStock;
 import cn.db.bean.DetailStock;
 import cn.db.bean.HistoryStock;
@@ -12,15 +15,30 @@ import cn.db.bean.InformationStock;
 import cn.db.bean.OriginalStock;
 import cn.db.bean.StatisticStock;
 
-import com.mysql.jdbc.PreparedStatement;
-
 public class OperationDao extends BaseDao {
-	protected Connection conn = null;
+	protected Connection connection = null;
 
 	public OperationDao() {
-		conn = getConnection();
+		//openConnection();
+		this.connection = getConnection();
 	}
 	
+	/*protected void openConnection() {
+		try {
+			if (this.connection == null || this.connection.isClosed()) {
+				this.connection = getConnection();
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}*/
+	
+	/*public boolean connectionIsNull() throws Exception {
+
+		if (this.connection == null || this.connection.isClosed()) return true;
+		else return false;
+	}*/
+
 	protected HistoryStock getHistoryStockFromResult(ResultSet rs) throws SQLException {
 
 		HistoryStock historyStock = new HistoryStock();
@@ -89,7 +107,7 @@ public class OperationDao extends BaseDao {
 	}
 
 	protected InformationStock getInformationStockFromResult(ResultSet rs) throws SQLException {
-		
+
 		InformationStock data = new InformationStock();
 		data.setNum(rs.getLong(InformationStock.NUM));
 		data.setStockCode(rs.getString(InformationStock.STOCK_CODE));
@@ -100,7 +118,7 @@ public class OperationDao extends BaseDao {
 		data.setInputTime(rs.getDate(InformationStock.INPUT_TIME));
 		return data;
 	}
-	
+
 	protected DetailStock getDetailStockFromResult(ResultSet rs) throws SQLException {
 
 		DetailStock data = new DetailStock();
@@ -124,7 +142,7 @@ public class OperationDao extends BaseDao {
 		data.setInputTime(rs.getTimestamp(DetailStock.INPUT_TIME));
 		return data;
 	}
-	
+
 	protected AllDetailStock getAllDetailStockFromResult(ResultSet rs) throws SQLException {
 
 		AllDetailStock data = new AllDetailStock();
@@ -149,9 +167,106 @@ public class OperationDao extends BaseDao {
 		return data;
 	}
 
+	protected AllDetailStockTest getAllDetailStockTestFromResult(ResultSet rs) throws SQLException {
+
+		AllDetailStockTest data = new AllDetailStockTest();
+		data.setNum(rs.getLong(DetailStock.NUM));
+		data.setStockDate(rs.getDate(DetailStock.STOCK_DATE));
+		data.setStockCode(rs.getString(DetailStock.STOCK_CODE));
+		data.setStockCodeDES(rs.getString(DetailStock.STOCK_CODE_DES));
+		data.setStockName(rs.getString(DetailStock.STOCK_NAME));
+		data.setTodayOpen(rs.getDouble(DetailStock.TODAY_OPEN));
+		data.setYesterdayClose(rs.getDouble(DetailStock.YESTERDAY_CLOSE));
+		data.setCurrent(rs.getDouble(DetailStock.CHANGE_RATE));
+		data.setTodayHigh(rs.getDouble(DetailStock.TODAY_HIGH));
+		data.setTodayLow(rs.getDouble(DetailStock.TODAY_LOW));
+		data.setTradedStockNumber(rs.getLong(DetailStock.TRADED_STOCK_NUMBER));
+		data.setTradedAmount(rs.getFloat(DetailStock.TRADED_AMOUNT));
+		data.setChangeRate(rs.getDouble(DetailStock.CHANGE_RATE));
+		data.setChangeRateDES(rs.getString(DetailStock.CHANGE_RATE_DES));
+		data.setTurnoverRate(rs.getDouble(DetailStock.TURNOVER_RATE));
+		data.setTurnoverRateDES(rs.getString(DetailStock.TURNOVER_RATE_DES));
+		data.setTradedTime(rs.getTimestamp(DetailStock.TRADED_TIME));
+		data.setInputTime(rs.getTimestamp(DetailStock.INPUT_TIME));
+		return data;
+	}
+	
+	/**
+	 * 开始事务
+	 *
+	 */
+	@Override
+	protected void beginTransaction() {
+		if (this.connection != null) {
+			try {
+				if (this.connection.getAutoCommit()) {
+					this.connection.setAutoCommit(false);
+				}
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+				log.loger.error(ex);
+			}
+		}
+	}
+
+	/**
+	 * 提交事务
+	 *
+	 */
+	@Override
+	protected void commitTransaction() {
+		if (this.connection != null) {
+			try {
+				if (!this.connection.getAutoCommit()) {
+					this.connection.commit();
+				}
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+				log.loger.error(ex);
+			}
+		}
+	}
+		
+	/**
+	 * 回滚事务
+	 *
+	 */
+	@Override
+	protected void rollBackTransaction() {
+		if (this.connection != null) {
+			try {
+				if (!this.connection.getAutoCommit()) {
+					this.connection.rollback();
+				}
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+				log.loger.error(ex);
+			}
+		}
+	}
+		
+	/**
+	 * 还原连接状态
+	 * 
+	 */
+	@Override
+	protected void resetConnection() {
+		if (this.connection != null) {
+			try {
+				if (!this.connection.getAutoCommit()) {
+					this.connection.setAutoCommit(true);
+				}
+			} catch (SQLException ex) {
+				ex.printStackTrace();
+				log.loger.error(ex);
+			}
+		}
+	}
+
 	@Override
 	public void close() {
-		close(null, null, conn);
+		this.close(null, null, this.connection);
+		super.closeConnection();
 	}
 
 	@Override
@@ -160,39 +275,44 @@ public class OperationDao extends BaseDao {
 	}
 
 	@Override
+	protected void close(ResultSet result, PreparedStatement statement) {
+		close(result, statement, null);
+	}
+
+	@Override
 	public void close(ResultSet rs, PreparedStatement ps, Connection conn) {
-        if(rs!=null){
-            try{  
-                 rs.close();  
-                 rs=null;  
-            }catch(SQLException e){
-         	    System.out.println("关闭ResultSet失败！");
-         	    log.loger.error("关闭ResultSet失败！");
-                 e.printStackTrace();  
-                 log.loger.error(e);
-            }  
-         }  
-         if(ps!=null){  
-             try{  
-                 ps.close();  
-                 ps=null;  
-             }catch(SQLException e){
-             	System.out.println("关闭PreparedStatement失败！");
-             	log.loger.error("关闭PreparedStatement失败！");
-                 e.printStackTrace();  
-                 log.loger.error(e);
-             }  
-         }  
-         if(conn!=null){  
-             try{  
-                 conn.close();  
-                 conn=null;  
-             }catch(SQLException e){
-                 System.out.println("关闭Connection失败！");
-                 log.loger.error("关闭Connection失败！");
-                 e.printStackTrace();
-                 log.loger.error(e);
-             }  
-         }  
+		if (rs != null) {
+			try {
+				rs.close();
+				rs = null;
+			} catch (SQLException ex) {
+				System.out.println("关闭ResultSet失败！");
+				log.loger.error("关闭ResultSet失败！");
+				ex.printStackTrace();
+				log.loger.error(ex);
+			}
+		}
+		if (ps != null) {
+			try {
+				ps.close();
+				ps = null;
+			} catch (SQLException ex) {
+				System.out.println("关闭PreparedStatement失败！");
+				log.loger.error("关闭PreparedStatement失败！");
+				ex.printStackTrace();
+				log.loger.error(ex);
+			}
+		}
+		if (conn != null) {
+			try {
+				conn.close();
+				conn = null;
+			} catch (SQLException ex) {
+				System.out.println("关闭Connection失败！");
+				log.loger.error("关闭Connection失败！");
+				ex.printStackTrace();
+				log.loger.error(ex);
+			}
+		}
 	}
 }

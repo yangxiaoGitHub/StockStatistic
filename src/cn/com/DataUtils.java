@@ -6,16 +6,28 @@ import java.text.DecimalFormat;
 public class DataUtils {
 	
 	// 整型常量
+	public final static int CONSTANT_INTEGER_ZERO = 0;
 	public final static int CONSTANT_LONG_DAY = 12; //A股休市时间最高限制
+	public final static int CONSTANT_MAX_CHANGE_RATE = 11;
+	public final static int CONSTANT_MIN_CHANGE_RATE = -11;
 	public final static BigDecimal CONSTANT_ONE = new BigDecimal("1");
 	public final static BigDecimal CONSTANT_TEN = new BigDecimal("10");
 	public final static BigDecimal CONSTANT_HUNDRED = new BigDecimal("100");
 	public final static BigDecimal CONSTANT_TEN_THOUSAND = new BigDecimal("10000"); //万
 	public final static BigDecimal CONSTANT_HUNDRED_MILLION = new BigDecimal("100000000");  //亿
+	// 字符串常量
 	public final static String CONSTANT_SPACES = "   ";
-	
+	public final static String CONSTANT_BLANK = "";
+	public static final String CONSTANT_SH_CAPITAL = "SH";
+	public static final String CONSTANT_SZ_CAPITAL = "SZ";
+	public static final String CONSTANT_SH_SMALL = "sh";
+	public static final String CONSTANT_SZ_SMALL = "sz";
+	public static final String CONSTANT_SIX = "6";
+	public static final String CONSTANT_SEVEN = "7";
 	// 小数常量
 	public final static Double CONSTANT_ZERO_DOT_ONE = 0.1;
+	public final static Double CONSTANT_ZERO_DOT_ZERO = 0.0;
+	public static final Double CONSTANT_TODAY_OPEN_LIMIT = 800.00;
 
 	public static boolean isNumeric(String value) {
 		

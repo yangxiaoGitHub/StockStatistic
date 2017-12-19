@@ -3,6 +3,7 @@ package cn.db.bean;
 import java.util.Date;
 import java.util.Map;
 
+import cn.com.DataUtils;
 import cn.com.JsonUtils;
 
 public class AllStock extends BaseStock {
@@ -33,7 +34,7 @@ public class AllStock extends BaseStock {
 	}
 	
 	public AllStock(String stockCode, String stockName) {
-		this.stockCode = stockCode;
+		this.setStockCode(stockCode);
 		this.stockName = stockName;
 	}
 
@@ -67,6 +68,8 @@ public class AllStock extends BaseStock {
 	}
 	
 	public String getCirculationStockSimple_NoJson() {
+		
+		if (circulationStockSimple==null) return DataUtils.CONSTANT_BLANK; 
 		Map<String, String> map = JsonUtils.getMapByJson(circulationStockSimple);
 		String value = map.get(AllStock.JSON_VALUE);
 		String unit = map.get(AllStock.JSON_UNIT);
@@ -77,4 +80,23 @@ public class AllStock extends BaseStock {
 		this.circulationStockSimple = circulationStockSimple;
 	}
 
+	@Override
+	public String getStockCode() {
+		return super.stockCode;
+	}
+
+	@Override
+	public void setStockCode(String stockCode) {
+		super.stockCode = stockCode;
+	}
+
+	@Override
+	public Date getStockDate() {
+		return null;
+	}
+
+	@Override
+	public void setStockDate(Date stockDate) {
+
+	}
 }

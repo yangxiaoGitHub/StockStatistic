@@ -18,16 +18,14 @@ import cn.db.DailyStockDao;
 import cn.db.OriginalStockDao;
 import cn.db.bean.AllDetailStock;
 import cn.db.bean.OriginalStock;
-import cn.log.Log;
 
 public class ValidateOriginalStockData extends OperationData {
-	Log log = Log.getLoger();
 	
 	/**
 	 * 验证原始股票数据，并输出无效数据
 	 * 
 	 */
-	public void validateOriginal() {
+	public void validateOriginalStockData() {
 
 		originalStockDao = new OriginalStockDao();
 		try {
@@ -59,7 +57,8 @@ public class ValidateOriginalStockData extends OperationData {
 	 * 验证输入的股票信息
 	 * 
 	 */
-	public String checkData(String sDate, String codes, String names, String changeRates, String turnoverRates) throws Exception {
+	public String checkInputStockData(String sDate, String codes, String names, String changeRates, String turnoverRates) throws Exception {
+		
 		if (!CommonUtils.isValidDate(sDate)) {
 			return "输入的日期格式不正确！";
 		}
@@ -92,22 +91,31 @@ public class ValidateOriginalStockData extends OperationData {
 				return "输入的股票代码和涨跌幅的数量对应不上！";
 			}
 		}
-		// 验证输入股票名称和实际股票名称
-		List<String[]> errorStockNameList = CommonUtils.listErrorStockName(codeArray, nameArray);
-		if (errorStockNameList.size() > 0) {
-			return "输入的股票为：" + CommonUtils.getErrorStockName(errorStockNameList) + "  实际股票为：" + CommonUtils.getActualStockName(errorStockNameList);
-		}
-
-		// 验证输入股票涨跌幅和实际股票涨跌幅
-		List<String[]> errorStockChangeRateList = listErrorStockChangeRate(sDate, codeArray, changeRateArray);
-		if (errorStockChangeRateList.size() > 0) {
-			return "输入股票涨跌幅为：" + CommonUtils.getErrorStockMessage(errorStockChangeRateList) + "  实际股票涨跌幅为：" + CommonUtils.getActualStockMessage(errorStockChangeRateList);
-		}
 		
-		// 验证输入股票的换手率
-		List<String[]> errorTurnoverRateList = listErrorStockTurnoverRate(sDate, codeArray, turnoverRateArray);
-		if (errorTurnoverRateList.size() > 0) {
-			return "输入股票涨跌幅为：" + CommonUtils.getErrorStockMessage(errorTurnoverRateList) + "  实际股票涨跌幅为：" + CommonUtils.getActualStockMessage(errorTurnoverRateList);
+		allDetailStockDao = new AllDetailStockDao(); // AllDetailStockDao.getInstance();
+		try {
+			// 验证输入股票名称和实际股票名称
+			List<String[]> errorStockNameList = CommonUtils.listErrorStockName(codeArray, nameArray);
+			if (errorStockNameList.size() > 0) {
+				return "输入的股票为：" + CommonUtils.getErrorStockName(errorStockNameList) + "  实际股票为：" + CommonUtils.getActualStockName(errorStockNameList);
+			}
+	
+			// 验证输入股票涨跌幅和实际股票涨跌幅
+			List<String[]> errorStockChangeRateList = listErrorStockChangeRate(sDate, codeArray, changeRateArray);
+			if (errorStockChangeRateList.size() > 0) {
+				return "输入股票涨跌幅为：" + CommonUtils.getErrorStockMessage(errorStockChangeRateList) + "  实际股票涨跌幅为：" + CommonUtils.getActualStockMessage(errorStockChangeRateList);
+			}
+			
+			// 验证输入股票的换手率
+			List<String[]> errorTurnoverRateList = listErrorStockTurnoverRate(sDate, codeArray, turnoverRateArray);
+			if (errorTurnoverRateList.size() > 0) {
+				return "输入股票换手率为：" + CommonUtils.getErrorStockMessage(errorTurnoverRateList) + "  实际股票换手率为：" + CommonUtils.getActualStockMessage(errorTurnoverRateList);
+			}
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			log.loger.error(ex);
+		} finally {
+			closeDao(allDetailStockDao);
 		}
 		return null;
 	}
@@ -121,7 +129,7 @@ public class ValidateOriginalStockData extends OperationData {
 		List<String[]> errorStockList = new ArrayList<String[]>();
 		for (int index=0; index<codeArray.length; index++) {
 			String inputChangeRate = changeRateArray[index];
-			AllDetailStock allDetailStock = getAllDetailStockByKey(sDate, codeArray[index]);
+			AllDetailStock allDetailStock = allDetailStockDao.getAllDetailStockByKey(DateUtils.stringToDate(sDate), codeArray[index]);
 			if (allDetailStock != null) {
 				if (Double.valueOf(inputChangeRate).compareTo(allDetailStock.getChangeRate()) != 0) {
 					String[] errorStock = new String[3];
@@ -131,9 +139,9 @@ public class ValidateOriginalStockData extends OperationData {
 					errorStockList.add(errorStock);
 				}
 			} else {
-//				Exception exception = new IOException(sDate + " 股票" + codeArray[index] + "(" + PropertiesUtils.getProperty(codeArray[index]) + ")不存在所有股票详细信息表(all_detail_stock_)中！");
-//				log.loger.error(exception);
-//				throw exception;
+				Exception exception = new IOException(sDate + " 股票" + codeArray[index] + "(" + PropertiesUtils.getProperty(codeArray[index]) + ")不存在所有股票详细信息表(all_detail_stock_)中！");
+				exception.printStackTrace();
+				log.loger.error(exception);
 			}
 		}
 		return errorStockList;
@@ -148,10 +156,10 @@ public class ValidateOriginalStockData extends OperationData {
 		List<String[]> errorStockList = new ArrayList<String[]>();
 		for (int index=0; index<codeArray.length; index++) {
 			String inputTurnoverRate = turnoverRateArray[index];
-			AllDetailStock allDetailStock = getAllDetailStockByKey(sDate, codeArray[index]);
+			AllDetailStock allDetailStock = allDetailStockDao.getAllDetailStockByKey(DateUtils.stringToDate(sDate), codeArray[index]);
 			if (allDetailStock != null) {
 				Double realTurnoverRate = allDetailStock.getTurnoverRate();
-				if (!CommonUtils.compareTurnoverRate(Double.valueOf(inputTurnoverRate), realTurnoverRate)) {
+				if (!CommonUtils.isZeroOrNull(realTurnoverRate) && !CommonUtils.isEqualsTurnoverRate(Double.valueOf(inputTurnoverRate), realTurnoverRate)) {
 					String[] errorStock = new String[3];
 					errorStock[0] = codeArray[index];
 					errorStock[1] = inputTurnoverRate;
@@ -159,27 +167,12 @@ public class ValidateOriginalStockData extends OperationData {
 					errorStockList.add(errorStock);
 				}
 			} else {
-//				Exception exception = new IOException(sDate + " 股票" + codeArray[index] + "(" + PropertiesUtils.getProperty(codeArray[index]) + ")不存在所有股票详细信息表(all_detail_stock_)中！");
-//				log.loger.error(exception);
-//				throw exception;
+				Exception exception = new IOException(sDate + " 股票" + codeArray[index] + "(" + PropertiesUtils.getProperty(codeArray[index]) + ")不存在所有股票详细信息表(all_detail_stock_)中！");
+				log.loger.error(exception);
+				throw exception;
 			}
 		}
 		return errorStockList;
-	}
-	
-	private AllDetailStock getAllDetailStockByKey(String sDate, String stockCode) {
-
-		AllDetailStock allDetailStock = null;
-		allDetailStockDao = new AllDetailStockDao();
-		try {
-			allDetailStock = allDetailStockDao.getAllDetailStockByKey(sDate, stockCode);
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.loger.error(e);
-		} finally {
-			closeDao(allDetailStockDao);
-		}
-		return allDetailStock;
 	}
 	
 	/**
@@ -215,13 +208,13 @@ public class ValidateOriginalStockData extends OperationData {
 			for (int index=0; index<invalidList.size(); index++) {
 				OriginalStock data = invalidList.get(index);
 				System.out.println("MD5验证出的无效数据---" + (index+1) +": stock_date_=" 
-									+  DateUtils.Date2String(data.getStockDate())
+									+  DateUtils.dateToString(data.getStockDate())
 									+ " stock_number_=" + data.getStockNumber()
 									+ " stock_codes_=" + data.getStockCodes()
 									+ " change_rates_=" + data.getChangeRates());
 
 				log.loger.info("MD5验证出的无效数据---" + (index+1) +": stock_date_=" 
-									+  DateUtils.Date2String(data.getStockDate()) 
+									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " stock_number_=" + data.getStockNumber()
 									+ " stock_codes_=" + data.getStockCodes()
 									+ " change_rates_=" + data.getChangeRates());
@@ -262,7 +255,7 @@ public class ValidateOriginalStockData extends OperationData {
 		} finally {
 			closeDao(dailyStockDao);
 		}
-		Date inputDate = DateUtils.String2Date(sDate);
+		Date inputDate = DateUtils.stringToDate(sDate);
 		return inputDate.compareTo(recentStockDate)>=0?null:recentStockDate; 
 	}
 	
@@ -282,7 +275,7 @@ public class ValidateOriginalStockData extends OperationData {
 		} finally {
 			closeDao(originalStockDao);
 		}
-		Date inputDate = DateUtils.String2Date(sDate);
+		Date inputDate = DateUtils.stringToDate(sDate);
 		return inputDate.compareTo(recentStockDate)>=0?null:recentStockDate;
 	}
 
@@ -297,7 +290,7 @@ public class ValidateOriginalStockData extends OperationData {
 			for (int index=0; index<invalidList.size(); index++) {
 				OriginalStock data = invalidList.get(index);
 				System.out.println("DES验证出的无效数据---" + (index+1) +": stock_date_=" 
-									+  DateUtils.Date2String(data.getStockDate()) 
+									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " stock_number_=" + data.getStockNumber()
 									+ " stock_codes_=" + data.getStockCodes()
 									+ " 解密的stock_codes=" + data.getDecryptStockCodes()
@@ -305,7 +298,7 @@ public class ValidateOriginalStockData extends OperationData {
 									+ " 解密的change_rates=" + data.getDecryptChangeRates());
 
 				log.loger.info("DES验证出的无效数据---" + (index+1) +": stock_date_=" 
-									+  DateUtils.Date2String(data.getStockDate()) 
+									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " stock_number_=" + data.getStockNumber()
 									+ " stock_codes_=" + data.getStockCodes()
 									+ " 解密的stock_codes=" + data.getDecryptStockCodes()
@@ -351,13 +344,13 @@ public class ValidateOriginalStockData extends OperationData {
 			for (int index=0; index<invalidateOriginalList.size(); index++) {
 				OriginalStock data = invalidateOriginalList.get(index);
 				System.out.println("验证出的无效数据---" + (index+1) +": stock_date_=" 
-									+  DateUtils.Date2String(data.getStockDate()) 
+									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " stock_number_=" + data.getStockNumber()
 									+ " stock_codes_=" + data.getStockCodes()
 									+ " change_rates_=" + data.getChangeRates());
 
 				log.loger.info("验证出的无效数据---" + (index+1) +": stock_date_=" 
-									+  DateUtils.Date2String(data.getStockDate()) 
+									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " stock_number_=" + data.getStockNumber()
 									+ " stock_codes_=" + data.getStockCodes()
 									+ " change_rates_=" + data.getChangeRates());

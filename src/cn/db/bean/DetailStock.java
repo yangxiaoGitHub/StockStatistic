@@ -122,4 +122,20 @@ public class DetailStock extends BaseStock {
 	public void setCurrent(Double current) {
 		this.current = current;
 	}
+	@Override
+	public String getStockCode() {
+		return super.stockCode;
+	}
+	@Override
+	public void setStockCode(String stockCode) {
+		super.stockCode = stockCode;
+	}
+	@Override
+	public Date getStockDate() {
+		return super.stockDate;
+	}
+	@Override
+	public void setStockDate(Date stockDate) {
+		super.stockDate = stockDate;
+	}
 }

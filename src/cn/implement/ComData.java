@@ -3,10 +3,8 @@ package cn.implement;
 import java.util.Date;
 
 import cn.db.DailyStockDao;
-import cn.log.Log;
 
 public class ComData extends OperationData {
-	Log log = Log.getLoger();
 	
 	public Date getRecentDateFromDailyStock() {
 

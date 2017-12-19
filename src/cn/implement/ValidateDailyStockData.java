@@ -22,7 +22,7 @@ public class ValidateDailyStockData extends OperationData {
 	 * 验证每日股票数据，并输出无效数据
 	 * 
 	 */
-	public void validateDaily() {
+	public void validateDailyStockData() {
 		dailyStockDao = new DailyStockDao();
 		originalStockDao = new OriginalStockDao();
 		try {
@@ -67,10 +67,10 @@ public class ValidateDailyStockData extends OperationData {
 				DailyStock data = invalidList.get(index);
 				System.out.println("不存在的每日股票数据---" + (index+1) +": 股票" + data.getStockCode() + "(" 
 														  + PropertiesUtils.getProperty(data.getStockCode()) 
-														  + ") stock_date_=" +  DateUtils.Date2String(data.getStockDate()));
+														  + ") stock_date_=" +  DateUtils.dateToString(data.getStockDate()));
 				log.loger.info("不存在的每日股票数据---" + (index+1) +": 股票" + data.getStockCode() + "(" 
 													  + PropertiesUtils.getProperty(data.getStockCode()) 
-													  + ") stock_date_=" +  DateUtils.Date2String(data.getStockDate()));
+													  + ") stock_date_=" +  DateUtils.dateToString(data.getStockDate()));
 			}
 		} 
 		return flg;
@@ -87,12 +87,12 @@ public class ValidateDailyStockData extends OperationData {
 			for (int index=0; index<invalidList.size(); index++) {
 				DailyStock data = invalidList.get(index);
 				System.out.println("验证出的无效数据--" + (index+1) +": stock_date_=" 
-									+  DateUtils.Date2String(data.getStockDate()) 
+									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " stock_code_=" + data.getStockCode()
 									+ " 解密的change_rate_=" + data.getChangeRate()
 									+ " 解密的change_rate=" + data.getDecryptChangeRate());
 				log.loger.info("验证出的无效数据--" + (index+1) +": stock_date_=" 
-									+  DateUtils.Date2String(data.getStockDate()) 
+									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " stock_code_=" + data.getStockCode()
 									+ " 解密的change_rate_=" + data.getChangeRate()
 									+ " 解密的change_rate=" + data.getDecryptChangeRate());
@@ -112,13 +112,13 @@ public class ValidateDailyStockData extends OperationData {
 			for (int index=0; index<invalidList.size(); index++) {
 				DailyStock data = invalidList.get(index);
 				System.out.println("验证出的无效数据---" + (index+1) +": 股票" + data.getStockCode() + "(" + PropertiesUtils.getProperty(data.getStockCode()) 
-									+ ") stock_date_=" +  DateUtils.Date2String(data.getStockDate()) 
+									+ ") stock_date_=" +  DateUtils.dateToString(data.getStockDate()) 
 									+ " 未解密的stock_code_=" + data.getStockCode()
 									+ " 解密的stock_code_=" + data.getDecryptStockCode()
 									+ " 未解密的change_rate_=" + data.getChangeRate()
 									+ " 解密的change_rate_=" + data.getDecryptChangeRate());
 				log.loger.info("验证出的无效数据---" + (index+1) +": 股票" + data.getStockCode() + "(" + PropertiesUtils.getProperty(data.getStockCode()) 
-									+ ") stock_date_=" +  DateUtils.Date2String(data.getStockDate()) 
+									+ ") stock_date_=" +  DateUtils.dateToString(data.getStockDate()) 
 									+ " 未解密的stock_code_=" + data.getStockCode()
 									+ " 解密的stock_code_=" + data.getDecryptStockCode()
 									+ " 未解密的change_rate_=" + data.getChangeRate()
@@ -173,11 +173,11 @@ public class ValidateDailyStockData extends OperationData {
 			for (int index=0; index<invalidDataList.size(); index++) {
 				DailyStock data = invalidDataList.get(index);
 				System.out.println("验证出的无效数据---" + (index+1) +": stock_date_=" 
-									+  DateUtils.Date2String(data.getStockDate()) 
+									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " 原始股票数量 stock_number_=" + data.getOriginalCount()
 									+ " 每日股票数量 daily_count=" + data.getDailyCount());
 				log.loger.info("验证出的无效数据---" + (index+1) +": stock_date_=" 
-									+  DateUtils.Date2String(data.getStockDate()) 
+									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " 原始股票数量 stock_number_=" + data.getOriginalCount()
 									+ " 每日股票数量 daily_count=" + data.getDailyCount());
 			}

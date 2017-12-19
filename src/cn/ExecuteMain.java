@@ -14,7 +14,7 @@ public class ExecuteMain {
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 			System.out.println("请输入涨跌标识(1：统计单只股票在一段时间内出现的涨跌次数, 2：统计所有股票在一段时间内出现的涨跌次数)：2");
 			String chooseFLg = br.readLine();
-			chooseFLg = chooseFLg.equals("1")?chooseFLg:"2";
+			chooseFLg = "1".equals(chooseFLg)?"1":"2";
 			switch(chooseFLg) {
 				case "1":
 					searchSingleStock(br);

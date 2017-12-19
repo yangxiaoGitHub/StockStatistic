@@ -10,8 +10,8 @@ public class AllDetailStock extends DetailStock {
 	}
 	
 	public AllDetailStock(String stockCode, Date stockDate) {
-		this.setStockCode(stockCode);
-		this.setStockDate(stockDate);
+		super.setStockCode(stockCode);
+		super.setStockDate(stockDate);
 	}
 	
 	public final static String TABLE_NAME = "ALL_DETAIL_STOCK_";

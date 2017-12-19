@@ -20,6 +20,7 @@ public class DailyStock  extends BaseStock {
 	private String decryptChangeRate;
 	private int count; //统计的次数
 	private String stockDates; //该股票出现的日期
+	private Date recentStockDate; //该股票出现的最近日期
 	
 	private int dailyCount; //每日股票数据统计的次数
 	private int originalCount; //原始股票数据统计的次数
@@ -96,6 +97,12 @@ public class DailyStock  extends BaseStock {
 	public String getEncryptTurnoverRate() {
 		return encryptTurnoverRate;
 	}
+	public Date getRecentStockDate() {
+		return recentStockDate;
+	}
+	public void setRecentStockDate(Date recentStockDate) {
+		this.recentStockDate = recentStockDate;
+	}
 	public void setEncryptTurnoverRate(String encryptTurnoverRate) {
 		this.encryptTurnoverRate = encryptTurnoverRate;
 	}
@@ -116,5 +123,21 @@ public class DailyStock  extends BaseStock {
 	}
 	public void setOriginalCount(int originalCount) {
 		this.originalCount = originalCount;
+	}
+	@Override
+	public String getStockCode() {
+		return super.stockCode;
+	}
+	@Override
+	public void setStockCode(String stockCode) {
+		super.stockCode = stockCode;
+	}
+	@Override
+	public Date getStockDate() {
+		return super.stockDate;
+	}
+	@Override
+	public void setStockDate(Date stockDate) {
+		super.stockDate = stockDate;
 	}
 }
