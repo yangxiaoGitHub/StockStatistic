@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.mysql.jdbc.PreparedStatement;
 
+import cn.com.CommonUtils;
 import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
@@ -20,11 +21,12 @@ public class DetailStockDao extends OperationDao {
 		long maxNum = 0;
 		StringBuffer sql = new StringBuffer();
 		sql.append("select max(").append(DetailStock.NUM).append(") as num_ from ").append(DetailStock.TABLE_NAME);
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			maxNum = rs.getLong("num_");
 		}
+		close(rs, state);
 		return maxNum;
 	}
 
@@ -43,13 +45,14 @@ public class DetailStockDao extends OperationDao {
 		int count = 0;
 		String sql = "select count(" + DetailStock.NUM + ") as count_ from " + DetailStock.TABLE_NAME + " where " + DetailStock.STOCK_CODE
 				+ "=? and " + DetailStock.STOCK_DATE + "=?";
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		state.setString(1, stockCode);
 		state.setDate(2, new java.sql.Date(stockDate.getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			count = rs.getInt("count_");
 		}
+		close(rs, state);
 		return count == 0 ? false : true;
 	}
 
@@ -59,13 +62,14 @@ public class DetailStockDao extends OperationDao {
 		int count = 0;
 		String sql = "select count(" + DetailStock.NUM + ") as count_ from " + DetailStock.TABLE_NAME + " where " + DetailStock.STOCK_CODE
 				+ "=? and " + DetailStock.STOCK_DATE + "=?";
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		state.setString(1, stockCode);
 		state.setDate(2, new java.sql.Date(stockDate.getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			count = rs.getInt("count_");
 		}
+		close(rs, state);
 		return count == 0 ? false : true;
 	}
 
@@ -75,13 +79,14 @@ public class DetailStockDao extends OperationDao {
 		DetailStock detailStock = null;
 		String sql = "select " + DetailStock.ALL_FIELDS + " from " + DetailStock.TABLE_NAME + " where " + DetailStock.STOCK_CODE + "=? and "
 				+ DetailStock.STOCK_DATE + "=?";
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		state.setString(1, stockCode);
 		state.setDate(2, new java.sql.Date(stockDate.getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			detailStock = getDetailStockFromResult(rs);
 		}
+		close(rs, state);
 		return detailStock;
 	}
 
@@ -91,7 +96,8 @@ public class DetailStockDao extends OperationDao {
 		PreparedStatement state = null;
 		String sql = "insert into " + DetailStock.TABLE_NAME + " (" + DetailStock.ALL_FIELDS + ") values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		try {
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			beginTransaction();
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			Long maxNum = getMaxNumFromDetailStock();
 			state.setLong(1, ++maxNum);
 			state.setDate(2, new java.sql.Date(detailStock.getStockDate().getTime()));
@@ -112,17 +118,20 @@ public class DetailStockDao extends OperationDao {
 			state.setTimestamp(17, new java.sql.Timestamp(detailStock.getTradedTime().getTime()));
 			state.setTimestamp(18, new java.sql.Timestamp((new Date()).getTime()));
 			state.executeUpdate();
-			connection.commit();
+			//connection.commit();
+			commitTransaction();
 			saveFlg = true;
-		} catch (Exception e) {
-			connection.rollback();
+		} catch (Exception ex) {
+			//connection.rollback();
+			rollBackTransaction();
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateToString(detailStock.getStockDate())
 					+ "股票详细信息表(detail_stock_)增加股票信息(" + detailStock.getStockCode() + ")失败！");
 			log.loger.error(
 					DateUtils.dateToString(detailStock.getStockDate()) + " 股票详细信息表(detail_stock_)增加股票信息(" + detailStock.getStockCode() + ")失败！");
-			e.printStackTrace();
-			log.loger.error(e);
+			ex.printStackTrace();
+			log.loger.error(CommonUtils.errorInfo(ex));
 		} finally {
+			resetConnection();
 			close(state);
 		}
 		return saveFlg;
@@ -133,13 +142,14 @@ public class DetailStockDao extends OperationDao {
 		List<DetailStock> detailStockList = new ArrayList<DetailStock>();
 		String sql = "select " + DetailStock.ALL_FIELDS + " from " + DetailStock.TABLE_NAME + " where " + DetailStock.STOCK_DATE + "=? order by "
 				+ DetailStock.NUM + ", " + DetailStock.INPUT_TIME;
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		state.setDate(1, new java.sql.Date(startDate.getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			DetailStock detailStock = getDetailStockFromResult(rs);
 			detailStockList.add(detailStock);
 		}
+		close(rs, state);
 		return detailStockList;
 	}
 
@@ -150,25 +160,29 @@ public class DetailStockDao extends OperationDao {
 		String sql = "update " + DetailStock.TABLE_NAME + " set " + DetailStock.TURNOVER_RATE + "=?, " + DetailStock.TURNOVER_RATE_DES + "=?, "
 				+ DetailStock.INPUT_TIME + "=? where " + DetailStock.STOCK_CODE + "=? and " + DetailStock.STOCK_DATE + "=?";
 		try {
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			beginTransaction();
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			state.setDouble(1, detailStock.getTurnoverRate());
 			state.setString(2, detailStock.getTurnoverRateDES());
 			state.setTimestamp(3, new java.sql.Timestamp((new Date()).getTime()));
 			state.setString(4, detailStock.getStockCode());
 			state.setDate(5, new java.sql.Date(detailStock.getStockDate().getTime()));
 			state.executeUpdate();
-			connection.commit();
+			//connection.commit();
+			commitTransaction();
 			updateFlg = true;
 		} catch (Exception e) {
-			connection.rollback();
+			//connection.rollback();
+			rollBackTransaction();
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateToString(detailStock.getStockDate())
 					+ " 每日选择股票详细信息表(detail_stock_)更新股票" + detailStock.getStockCode() + "("
 					+ PropertiesUtils.getProperty(detailStock.getStockCode()) + ")的换手率失败！");
 			log.loger.error(DateUtils.dateToString(detailStock.getStockDate()) + " 每日选择股票详细信息表(all_detail_stock_)更新股票" + detailStock.getStockCode()
 					+ "(" + PropertiesUtils.getProperty(detailStock.getStockCode()) + ")的换手率失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
+			resetConnection();
 			close(state);
 		}
 		return updateFlg;
@@ -180,13 +194,14 @@ public class DetailStockDao extends OperationDao {
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ").append(DetailStock.ALL_FIELDS).append(" from ").append(DetailStock.TABLE_NAME).append(" where ")
 				.append(DetailStock.TURNOVER_RATE).append("=? ").append(" order by ").append(DetailStock.STOCK_DATE).append(" desc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
-		state.setDouble(1, DataUtils.CONSTANT_ZERO_DOT_ZERO);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setDouble(1, DataUtils.CONSTANT_DOUBLE_ZERO);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			DetailStock data = getDetailStockFromResult(rs);
 			dataList.add(data);
 		}
+		close(rs, state);
 		return dataList;
 	}
 }

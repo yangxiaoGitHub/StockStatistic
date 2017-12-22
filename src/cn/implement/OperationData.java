@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import cn.com.CommonUtils;
@@ -26,6 +27,7 @@ import cn.db.bean.AllDetailStock;
 import cn.db.bean.AllStock;
 import cn.db.bean.DailyStock;
 import cn.db.bean.DetailStock;
+import cn.db.bean.OriginalStock;
 import cn.db.bean.StatisticStock;
 import cn.log.Log;
 
@@ -86,7 +88,7 @@ public class OperationData extends BaseData {
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			log.loger.error(ex);
+			log.loger.error(CommonUtils.errorInfo(ex));
 		}
 	}
 
@@ -115,9 +117,9 @@ public class OperationData extends BaseData {
 	 * 获取前半年的涨跌次数Json
 	 *
 	 */
-	protected String getPreHalfYearJson(String stockCode) throws SQLException {
+	protected String getPreHalfYearJson(String stockCode, Date recentDate) throws SQLException {
 
-		Date[] preHalfYearStartEndDate = DateUtils.getPreHalfYear();
+		Date[] preHalfYearStartEndDate = DateUtils.getPreHalfYear(recentDate);
 		Map<String, StatisticStock> preHalfYearUpDownNumberMap = dailyStockDao.statisticUpDownInDailyStock(stockCode, preHalfYearStartEndDate);
 		Map<String, StatisticStock> preHalfYearUpNumberMap = dailyStockDao.statisticUpInDailyStock(stockCode, preHalfYearStartEndDate);
 		Map<String, StatisticStock> preHalfYearDownNumberMap = dailyStockDao.statisticDownInDailyStock(stockCode, preHalfYearStartEndDate);
@@ -142,9 +144,9 @@ public class OperationData extends BaseData {
 	 * 获取前一周的涨跌次数Json
 	 *
 	 */
-	protected String getPreHalfMonthJson(String stockCode) throws SQLException {
-
-		Date[] preHalfMonthStartEndDate = DateUtils.getPreHalfMonth();
+	protected String getPreHalfMonthJson(String stockCode, Date recentDate) throws SQLException {
+		
+		Date[] preHalfMonthStartEndDate = DateUtils.getPreHalfMonth(recentDate);
 		Map<String, StatisticStock> preHalfMonthUpDownNumberMap = dailyStockDao.statisticUpDownInDailyStock(stockCode, preHalfMonthStartEndDate);
 		Map<String, StatisticStock> preHalfMonthUpNumberMap = dailyStockDao.statisticUpInDailyStock(stockCode, preHalfMonthStartEndDate);
 		Map<String, StatisticStock> preHalfMonthDownNumberMap = dailyStockDao.statisticDownInDailyStock(stockCode, preHalfMonthStartEndDate);
@@ -169,9 +171,9 @@ public class OperationData extends BaseData {
 	 * 获取前一月的涨跌次数Json
 	 *
 	 */
-	protected String getPreOneMonthJson(String stockCode) throws SQLException {
+	protected String getPreOneMonthJson(String stockCode, Date recentDate) throws SQLException {
 
-		Date[] preOneMonthStartEndDate = DateUtils.getPreOneMonth();
+		Date[] preOneMonthStartEndDate = DateUtils.getPreOneMonth(recentDate);
 		Map<String, StatisticStock> preOneMonthUpDownNumberMap = dailyStockDao.statisticUpDownInDailyStock(stockCode, preOneMonthStartEndDate);
 		Map<String, StatisticStock> preOneMonthUpNumberMap = dailyStockDao.statisticUpInDailyStock(stockCode, preOneMonthStartEndDate);
 		Map<String, StatisticStock> preOneMonthDownNumberMap = dailyStockDao.statisticDownInDailyStock(stockCode, preOneMonthStartEndDate);
@@ -196,9 +198,9 @@ public class OperationData extends BaseData {
 	 * 获取前二月的涨跌次数Json
 	 *
 	 */
-	protected String getPreTwoMonthJson(String stockCode) throws SQLException {
+	protected String getPreTwoMonthJson(String stockCode, Date recentDate) throws SQLException {
 
-		Date[] preTwoMonthStartEndDate = DateUtils.getPreTwoMonth();
+		Date[] preTwoMonthStartEndDate = DateUtils.getPreTwoMonth(recentDate);
 		Map<String, StatisticStock> preTwoMonthUpDownNumberMap = dailyStockDao.statisticUpDownInDailyStock(stockCode, preTwoMonthStartEndDate);
 		Map<String, StatisticStock> preTwoMonthUpNumberMap = dailyStockDao.statisticUpInDailyStock(stockCode, preTwoMonthStartEndDate);
 		Map<String, StatisticStock> preTwoMonthDownNumberMap = dailyStockDao.statisticDownInDailyStock(stockCode, preTwoMonthStartEndDate);
@@ -223,9 +225,9 @@ public class OperationData extends BaseData {
 	 * 获取前三月的涨跌次数Json
 	 * 
 	 */
-	protected String getPreThreeMonthJson(String stockCode) throws SQLException {
+	protected String getPreThreeMonthJson(String stockCode, Date recentDate) throws SQLException {
 
-		Date[] preThreeMonthStartEndDate = DateUtils.getPreThreeMonth();
+		Date[] preThreeMonthStartEndDate = DateUtils.getPreThreeMonth(recentDate);
 		Map<String, StatisticStock> preThreeMonthUpDownNumberMap = dailyStockDao.statisticUpDownInDailyStock(stockCode, preThreeMonthStartEndDate);
 		Map<String, StatisticStock> preThreeMonthUpNumberMap = dailyStockDao.statisticUpInDailyStock(stockCode, preThreeMonthStartEndDate);
 		Map<String, StatisticStock> preThreeMonthDownNumberMap = dailyStockDao.statisticDownInDailyStock(stockCode, preThreeMonthStartEndDate);
@@ -250,9 +252,9 @@ public class OperationData extends BaseData {
 	 * 获取前一周的涨跌次数Json
 	 *
 	 */
-	protected String getPreOneWeekJson(String stockCode) throws SQLException {
+	protected String getPreOneWeekJson(String stockCode, Date recentDate) throws SQLException {
 
-		Date[] preWeekStartEndDate = DateUtils.getPreOneWeek();
+		Date[] preWeekStartEndDate = DateUtils.getPreOneWeek(recentDate);
 		Map<String, StatisticStock> preOneWeekUpDownNumberMap = dailyStockDao.statisticUpDownInDailyStock(stockCode, preWeekStartEndDate);
 		Map<String, StatisticStock> preOneWeekUpNumberMap = dailyStockDao.statisticUpInDailyStock(stockCode, preWeekStartEndDate);
 		Map<String, StatisticStock> preOneWeekDownNumberMap = dailyStockDao.statisticDownInDailyStock(stockCode, preWeekStartEndDate);
@@ -273,12 +275,26 @@ public class OperationData extends BaseData {
 	}
 
 	/**
+	 * 获取original_stock_表中前一周的涨跌次数Json
+	 * @throws IOException 
+	 * 
+	 */
+	protected Map<String, StatisticStock> getPreOneWeekJsonInOriginalStock(String stockCode, Date recentDate) throws SQLException, IOException {
+		
+		Date[] preWeekStartEndDate = DateUtils.getPreOneWeek(recentDate);
+		List<OriginalStock> originalStockList = originalStockDao.getOriginalStockByDateInterval(preWeekStartEndDate[0], preWeekStartEndDate[1]);
+		Map<String, StatisticStock> upAndDownNumberMap = CommonUtils.statisticUpAndDownNumber(originalStockList);
+		CommonUtils.setUpAndDownNumberJson(upAndDownNumberMap, StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM);
+		return upAndDownNumberMap;
+	}
+
+	/**
 	 * 获取前一年的涨跌次数Json
 	 *
 	 */
-	protected String getPreOneYearJson(String stockCode) throws SQLException {
+	protected String getPreOneYearJson(String stockCode, Date recentDate) throws SQLException {
 
-		Date[] preOneYearStartEndDate = DateUtils.getPreOneYear();
+		Date[] preOneYearStartEndDate = DateUtils.getPreOneYear(recentDate);
 		Map<String, StatisticStock> preOneYearUpDownNumberMap = dailyStockDao.statisticUpDownInDailyStock(stockCode, preOneYearStartEndDate);
 		Map<String, StatisticStock> preOneYearUpNumberMap = dailyStockDao.statisticUpInDailyStock(stockCode, preOneYearStartEndDate);
 		Map<String, StatisticStock> preOneYearDownNumberMap = dailyStockDao.statisticDownInDailyStock(stockCode, preOneYearStartEndDate);
@@ -297,7 +313,7 @@ public class OperationData extends BaseData {
 		String preOneYearUpAndDownJson = JsonUtils.getJsonByMap(preOneYearUpAndDownMap);
 		return preOneYearUpAndDownJson;
 	}
-
+	
 	/**
 	 * 计算股票的涨跌幅
 	 * 
@@ -314,7 +330,7 @@ public class OperationData extends BaseData {
 			String changeRateDES = DESUtils.encryptToHex(String.valueOf(dValue));
 			stock.setChangeRateDES(changeRateDES);
 		} else {
-			stock.setChangeRate(DataUtils.CONSTANT_ZERO_DOT_ZERO);
+			stock.setChangeRate(DataUtils.CONSTANT_DOUBLE_ZERO);
 			stock.setChangeRateDES(DataUtils.CONSTANT_BLANK);
 		}
 	}
@@ -338,7 +354,7 @@ public class OperationData extends BaseData {
 			stock.setTurnoverRate(turnoverRate);
 			stock.setTurnoverRateDES(turnoverRateDES);
 		} else {
-			stock.setTurnoverRate(DataUtils.CONSTANT_ZERO_DOT_ZERO);
+			stock.setTurnoverRate(DataUtils.CONSTANT_DOUBLE_ZERO);
 			stock.setTurnoverRateDES(DataUtils.CONSTANT_BLANK);
 		}
 	}
@@ -348,7 +364,7 @@ public class OperationData extends BaseData {
 	 *
 	 */
 	protected void calculateUpDownNumber(StatisticStock statisticStock, String changeFlg) throws Exception {
-
+		// 计算总涨跌次数
 		Integer upDownNumber = statisticStock.getUpDownNumber();
 		statisticStock.setUpDownNumber(++upDownNumber); // 总涨跌次数
 		if (DailyStock.CHANGE_FLG_ONE.equals(changeFlg)) {
@@ -358,119 +374,98 @@ public class OperationData extends BaseData {
 			Integer downNumber = statisticStock.getDownNumber();
 			statisticStock.setDownNumber(++downNumber); // 总跌次数
 		}
-		// 一周涨跌次数
-		String oneWeekJson = statisticStock.getOneWeek();
-		oneWeekJson = modifyJsonByChangeFlg(oneWeekJson, changeFlg, StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM);
-		statisticStock.setOneWeek(oneWeekJson);
-		// 半月涨跌次数
-		String halfMonthJson = statisticStock.getHalfMonth();
-		halfMonthJson = modifyJsonByChangeFlg(halfMonthJson, changeFlg, StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM);
-		statisticStock.setHalfMonth(halfMonthJson);
-		// 一月涨跌次数
-		String oneMonthJson = statisticStock.getOneMonth();
-		oneMonthJson = modifyJsonByChangeFlg(oneMonthJson, changeFlg, StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM);
-		statisticStock.setOneMonth(oneMonthJson);
-		// 二月涨跌次数
-		String twoMonthJson = statisticStock.getTwoMonth();
-		twoMonthJson = modifyJsonByChangeFlg(twoMonthJson, changeFlg, StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM);
-		statisticStock.setTwoMonth(twoMonthJson);
-		// 三月涨跌次数
-		String threeMonthJson = statisticStock.getThreeMonth();
-		threeMonthJson = modifyJsonByChangeFlg(threeMonthJson, changeFlg, StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM);
-		statisticStock.setThreeMonth(threeMonthJson);
-		// 半年涨跌次数
-		String halfYearJson = statisticStock.getHalfYear();
-		halfYearJson = modifyJsonByChangeFlg(halfYearJson, changeFlg, StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM);
-		statisticStock.setHalfYear(halfYearJson);
-		// 一年涨跌次数
-		String oneYearJson = statisticStock.getOneYear();
-		oneYearJson = modifyJsonByChangeFlg(oneYearJson, changeFlg, StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM);
-		statisticStock.setOneYear(oneYearJson);
+		// 统计Json涨跌次数
+		statisticUpDownNumberInDailyStock(statisticStock);
+	}
+	
+	/**
+	 * 验证统计的Json涨跌次数和statistic_stock_表中的Json涨跌次数是否相等
+	 *
+	 */
+	protected boolean validateJsonUpAndDownNumber(String upAndDownJson, String upAndDownStatisticJson, String periodFlg) throws IOException {
+
+		boolean validateFlg = true;
+		String[] upAndDownNumberKeys = CommonUtils.getUpAndDownNumberKeysByFlg(periodFlg);
+		String upDownNumberKey = upAndDownNumberKeys[0];
+		String upNumberKey = upAndDownNumberKeys[1];
+		String downNumberKey = upAndDownNumberKeys[2];
+		/*switch (periodFlg) {
+			case StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM: // 一周涨跌次数
+				upDownNumberKey = StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM;
+				upNumberKey = StatisticStock.PRE_ONE_WEEK_UP_NUM;
+				downNumberKey = StatisticStock.PRE_ONE_WEEK_DOWN_NUM;
+				break;
+			case StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM: // 半月涨跌次数
+				upDownNumberKey = StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM;
+				upNumberKey = StatisticStock.PRE_HALF_MONTH_UP_NUM;
+				downNumberKey = StatisticStock.PRE_HALF_MONTH_DOWN_NUM;
+				break;
+			case StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM: // 一月涨跌次数
+				upDownNumberKey = StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM;
+				upNumberKey = StatisticStock.PRE_ONE_MONTH_UP_NUM;
+				downNumberKey = StatisticStock.PRE_ONE_MONTH_DOWN_NUM;
+				break;
+			case StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM: // 二月涨跌次数
+				upDownNumberKey = StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM;
+				upNumberKey = StatisticStock.PRE_TWO_MONTH_UP_NUM;
+				downNumberKey = StatisticStock.PRE_TWO_MONTH_DOWN_NUM;
+				break;
+			case StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM: // 三月涨跌次数
+				upDownNumberKey = StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM;
+				upNumberKey = StatisticStock.PRE_THREE_MONTH_UP_NUM;
+				downNumberKey = StatisticStock.PRE_THREE_MONTH_DOWN_NUM;
+				break;
+			case StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM: // 半年涨跌次数
+				upDownNumberKey = StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM;
+				upNumberKey = StatisticStock.PRE_HALF_YEAR_UP_NUM;
+				downNumberKey = StatisticStock.PRE_HALF_YEAR_DOWN_NUM;
+				break;
+			case StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM: // 一年涨跌次数
+				upDownNumberKey = StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM;
+				upNumberKey = StatisticStock.PRE_ONE_YEAR_UP_NUM;
+				downNumberKey = StatisticStock.PRE_ONE_YEAR_DOWN_NUM;
+				break;
+			default:
+				IOException ioException = new IOException("周期标识(periodFlg)不正确: " + periodFlg);
+				throw ioException;
+		}*/
+		Map<String, Integer> upAndDownMap = JsonUtils.getMapByJson(upAndDownJson);
+		Map<String, Integer> upAndDownStatisticMap = JsonUtils.getMapByJson(upAndDownStatisticJson);
+		Integer upDownNumber = upAndDownMap.get(upDownNumberKey);
+		Integer upNumber = upAndDownMap.get(upNumberKey);
+		Integer downNumber = upAndDownMap.get(downNumberKey);
+		Integer upDownStatisticNumber = upAndDownStatisticMap.get(upDownNumberKey);
+		Integer upStatisticNumber = upAndDownStatisticMap.get(upNumberKey);
+		Integer downStatisticNumber = upAndDownStatisticMap.get(downNumberKey);
+		if (upDownNumber.compareTo(upDownStatisticNumber)!=0
+			|| upNumber.compareTo(upStatisticNumber)!=0
+			|| downNumber.compareTo(downStatisticNumber)!=0) {
+			validateFlg = false;
+		}
+		return validateFlg;
 	}
 
 	/**
-	 * 涨跌次数自动增加1
+	 * 统计daily_stock_表中股票的一周至一年的涨跌次数(不包括总涨跌次数)
 	 *
 	 */
-	private String modifyJsonByChangeFlg(String numberJson, String changeFlg, String periodFlg) throws Exception {
-
-		String upDownNumberKey = "";
-		String upNumberKey = "";
-		String downNumberKey = "";
-		switch (periodFlg) {
-		case StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM: // 一周涨跌次数
-			upDownNumberKey = StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_ONE_WEEK_UP_NUM;
-			downNumberKey = StatisticStock.PRE_ONE_WEEK_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM: // 半月涨跌次数
-			upDownNumberKey = StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_HALF_MONTH_UP_NUM;
-			downNumberKey = StatisticStock.PRE_HALF_MONTH_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM: // 一月涨跌次数
-			upDownNumberKey = StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_ONE_MONTH_UP_NUM;
-			downNumberKey = StatisticStock.PRE_ONE_MONTH_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM: // 二月涨跌次数
-			upDownNumberKey = StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_TWO_MONTH_UP_NUM;
-			downNumberKey = StatisticStock.PRE_TWO_MONTH_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM: // 三月涨跌次数
-			upDownNumberKey = StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_THREE_MONTH_UP_NUM;
-			downNumberKey = StatisticStock.PRE_THREE_MONTH_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM: // 半年涨跌次数
-			upDownNumberKey = StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_HALF_YEAR_UP_NUM;
-			downNumberKey = StatisticStock.PRE_HALF_YEAR_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM: // 一年涨跌次数
-			upDownNumberKey = StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_ONE_YEAR_UP_NUM;
-			downNumberKey = StatisticStock.PRE_ONE_YEAR_DOWN_NUM;
-			break;
-		default:
-			IOException ioException = new IOException("周期标识(periodFlg)不正确(应该为:0～6): " + periodFlg);
-			throw ioException;
-		}
-
-		Map<String, Integer> jsonMap = JsonUtils.getMapByJson(numberJson);
-		Integer upDownNumberValue = jsonMap.get(upDownNumberKey);
-		jsonMap.put(upDownNumberKey, ++upDownNumberValue);
-		if (DailyStock.CHANGE_FLG_ONE.equals(changeFlg)) {
-			Integer upNumberValue = jsonMap.get(upNumberKey);
-			jsonMap.put(upNumberKey, ++upNumberValue);
-		} else {
-			Integer downNumberValue = jsonMap.get(downNumberKey);
-			jsonMap.put(downNumberKey, ++downNumberValue);
-		}
-		return JsonUtils.getJsonByMap(jsonMap);
-	}
-
-	/**
-	 * 统计statistic_stock_表中股票的涨跌次数
-	 *
-	 */
-	protected void statisticUpDownNumber(StatisticStock statistic) throws SQLException {
+	protected void statisticUpDownNumberInDailyStock(StatisticStock statistic) throws SQLException {
 
 		String stockCode = statistic.getStockCode();
-		Integer upNumber = dailyStockDao.getUpNumberByStockCode(stockCode);
-		Integer downNumber = dailyStockDao.getDownNumberByStockCode(stockCode);
-		Integer upDownNumber = dailyStockDao.getUpDownNumberByStockCode(stockCode);
-		String preOneWeekJson = this.getPreOneWeekJson(stockCode);
-		String preHalfMonthJson = this.getPreHalfMonthJson(stockCode);
-		String preOneMonthJson = this.getPreOneMonthJson(stockCode);
-		String preTwoMonthJson = this.getPreTwoMonthJson(stockCode);
-		String preThreeMonthJson = this.getPreThreeMonthJson(stockCode);
-		String preHalfYearJson = this.getPreHalfYearJson(stockCode);
-		String preOneYearJson = this.getPreOneYearJson(stockCode);
-		statistic.setUpDownNumber(upDownNumber);
-		statistic.setUpNumber(upNumber);
-		statistic.setDownNumber(downNumber);
+//		Integer upNumber = dailyStockDao.getUpNumberByStockCode(stockCode);
+//		Integer downNumber = dailyStockDao.getDownNumberByStockCode(stockCode);
+//		Integer upDownNumber = dailyStockDao.getUpDownNumberByStockCode(stockCode);
+		Date[] minMaxDate = dailyStockDao.getMinMaxDate();
+		String preOneWeekJson = this.getPreOneWeekJson(stockCode, minMaxDate[1]);
+		String preHalfMonthJson = this.getPreHalfMonthJson(stockCode, minMaxDate[1]);
+		String preOneMonthJson = this.getPreOneMonthJson(stockCode, minMaxDate[1]);
+		String preTwoMonthJson = this.getPreTwoMonthJson(stockCode, minMaxDate[1]);
+		String preThreeMonthJson = this.getPreThreeMonthJson(stockCode, minMaxDate[1]);
+		String preHalfYearJson = this.getPreHalfYearJson(stockCode, minMaxDate[1]);
+		String preOneYearJson = this.getPreOneYearJson(stockCode, minMaxDate[1]);
+//		statistic.setUpDownNumber(upDownNumber);
+//		statistic.setUpNumber(upNumber);
+//		statistic.setDownNumber(downNumber);
 		statistic.setOneWeek(preOneWeekJson);
 		statistic.setHalfMonth(preHalfMonthJson);
 		statistic.setOneMonth(preOneMonthJson);
@@ -480,6 +475,30 @@ public class OperationData extends BaseData {
 		statistic.setOneYear(preOneYearJson);
 	}
 
+	/**
+	 * 统计original_stock_表中股票的一周至一年的涨跌次数(不包括总涨跌次数)
+	 *
+	 */
+	protected void statisticUpDownNumberInOriginalStock(StatisticStock statistic) throws SQLException {
+
+		String stockCode = statistic.getStockCode();
+		Date recentDate = originalStockDao.getRecentStockDate();
+		String preOneWeekJson = this.getPreOneWeekJsonInOriginalStock(stockCode, recentDate);
+		String preHalfMonthJson = this.getPreHalfMonthJsonInOriginalStock(stockCode, recentDate);
+		String preOneMonthJson = this.getPreOneMonthJsonInOriginalStock(stockCode, recentDate);
+		String preTwoMonthJson = this.getPreTwoMonthJsonInOriginalStock(stockCode, recentDate);
+		String preThreeMonthJson = this.getPreThreeMonthJsonInOriginalStock(stockCode, recentDate);
+		String preHalfYearJson = this.getPreHalfYearJsonInOriginalStock(stockCode, recentDate);
+		String preOneYearJson = this.getPreOneYearJsonInOriginalStock(stockCode, recentDate);
+		statistic.setOneWeek(preOneWeekJson);
+		statistic.setHalfMonth(preHalfMonthJson);
+		statistic.setOneMonth(preOneMonthJson);
+		statistic.setTwoMonth(preTwoMonthJson);
+		statistic.setThreeMonth(preThreeMonthJson);
+		statistic.setHalfYear(preHalfYearJson);
+		statistic.setOneYear(preOneYearJson);
+	}
+	
 	/**
 	 * 计算股票的流通股
 	 * 
@@ -504,23 +523,28 @@ public class OperationData extends BaseData {
 	 * 验证网上获取的股票信息与实际股票信息是否一致(股票名称和开盘价)
 	 *
 	 */
-	protected boolean validateStockData(DetailStock detailStock) {
+	protected boolean validateStockData(String stockCode, String stockName, Double todayOpen) {
 
 		boolean validateFlg = true;
-		String realStockName_first = PropertiesUtils.getProperty(detailStock.getStockCode()).substring(0, 1);
-		String detailStockName_first = detailStock.getStockName().substring(0, 1);
-		if (!realStockName_first.equals(detailStockName_first))
-			validateFlg = false;
-		Double todayOpen = detailStock.getTodayOpen();
-		if (todayOpen > DataUtils.CONSTANT_TODAY_OPEN_LIMIT)
-			validateFlg = false;
+		String realStockName = PropertiesUtils.getProperty(stockCode);
+		if (!CommonUtils.isBlank(realStockName)) {
+			String realStockName_first = realStockName.substring(0, 1);
+			String detailStockName_first = stockName.substring(0, 1);
+			if (!realStockName_first.equals(detailStockName_first))
+				validateFlg = false;
+			if (todayOpen > DataUtils.CONSTANT_TODAY_OPEN_LIMIT)
+				validateFlg = false;
+		}
 		return validateFlg;
 	}
 
 	/**
-	 * 把流通股转换成Json数据(包括流通股和单位) 0.3321 亿 <1 (取4位整数) -->3321万 1.3653 亿 >=1 <10
-	 * (取小数点2位)-->1.37亿 23.265 亿 >=10 <100 (取小数点1位)-->23.3亿 362.02 亿 >=100 <1000
-	 * (取整) -->362亿 2235.1 亿 >1000 -->2235亿
+	 * 把流通股转换成Json数据(包括流通股和单位) 
+	 * 0.3321 亿 <1 (取4位整数) -->3321万 
+	 * 1.3653 亿 >=1 <10 (取小数点2位)-->1.37亿 
+	 * 23.265 亿 >=10 <100 (取小数点1位)-->23.3亿 
+	 * 362.02 亿 >=100 <1000(取整) -->362亿 
+	 * 2235.1 亿 >1000 -->2235亿
 	 */
 	private String getCirculationStockSimple(BigDecimal complexCirculationStock) {
 
@@ -549,7 +573,8 @@ public class OperationData extends BaseData {
 	}
 
 	/**
-	 * 3365.96 <10000 (取整) -->3366 55628.65 >=10000 (取前4位整数) -->5563
+	 * 3365.96 <10000 (取整) -->3366 
+	 * 55628.65 >=10000 (取前4位整数) -->5563
 	 */
 	private Double getPreFourNumber(BigDecimal value) {
 

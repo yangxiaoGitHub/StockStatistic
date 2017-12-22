@@ -25,7 +25,8 @@ public class OriginalStockDao extends OperationDao {
 		PreparedStatement state = null;
 		String sql = "insert into " + OriginalStock.TABLE_NAME + " (" + OriginalStock.ALL_FIELDS + ") values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 		try {
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			beginTransaction();
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			Long maxNum = this.getMaxNumFromOriginalStock();
 			state.setLong(1, ++maxNum);
 			state.setDate(2, new java.sql.Date(DateUtils.stringToDate(sDate).getTime()));
@@ -54,14 +55,17 @@ public class OriginalStockDao extends OperationDao {
 			}
 			state.setTimestamp(13, new java.sql.Timestamp((new Date()).getTime()));
 			state.executeUpdate();
-			connection.commit();
+			//connection.commit();
+			commitTransaction();
 		} catch (Exception e) {
-			connection.rollback();
+			//connection.rollback();
+			rollBackTransaction();
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + sDate + "原始股票数据增加失败！");
 			log.loger.error(sDate + " 原始股票数据增加失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
+			resetConnection();
 			close(state);
 		}
 	}
@@ -82,7 +86,8 @@ public class OriginalStockDao extends OperationDao {
 				.append(OriginalStock.TURNOVER_RATES_MD5).append("=?, ").append(OriginalStock.INPUT_TIME).append("=? where ")
 				.append(OriginalStock.STOCK_DATE).append("=?");
 		try {
-			state = (PreparedStatement) connection.prepareStatement(sql.toString());
+			beginTransaction();
+			state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 			int stockNumber = stockCodes.split(",").length;
 			state.setInt(1, stockNumber);
 			state.setString(2, stockCodes);
@@ -103,14 +108,17 @@ public class OriginalStockDao extends OperationDao {
 			state.setTimestamp(11, new java.sql.Timestamp((new Date()).getTime()));
 			state.setDate(12, new java.sql.Date(DateUtils.stringToDate(sDate).getTime()));
 			state.executeUpdate();
-			connection.commit();
+			//connection.commit();
+			commitTransaction();
 		} catch (Exception e) {
-			connection.rollback();
+			//connection.rollback();
+			rollBackTransaction();
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + sDate + "原始股票数据(original_stock_)更新失败！");
 			log.loger.error(sDate + " 原始股票数据(original_stock_)更新失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
+			resetConnection();
 			close(state);
 		}
 	}
@@ -125,12 +133,35 @@ public class OriginalStockDao extends OperationDao {
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ").append(OriginalStock.ALL_FIELDS).append(" from ").append(OriginalStock.TABLE_NAME).append(" order by ")
 				.append(OriginalStock.STOCK_DATE);
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			OriginalStock data = getOriginalStockFromResult(rs);
 			dataList.add(data);
 		}
+		close(rs, state);
+		return dataList;
+	}
+	
+	/**
+	 * 查询某一时间段内的原始股票数据
+	 * 
+	 */
+	public List<OriginalStock> getOriginalStockByDateInterval(Date startDate, Date endDate) throws SQLException {
+
+		List<OriginalStock> dataList = new ArrayList<OriginalStock>();
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ").append(OriginalStock.ALL_FIELDS).append(" from ").append(OriginalStock.TABLE_NAME).append(" where ")
+		   .append(OriginalStock.STOCK_DATE).append(" between ? and ? ").append(" order by ").append(OriginalStock.STOCK_DATE);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setDate(1, new java.sql.Date(startDate.getTime()));
+		state.setDate(2, new java.sql.Date(endDate.getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			OriginalStock data = getOriginalStockFromResult(rs);
+			dataList.add(data);
+		}
+		close(rs, state);
 		return dataList;
 	}
 
@@ -142,23 +173,25 @@ public class OriginalStockDao extends OperationDao {
 
 		Date recentDate = null;
 		String sql = "select max(" + OriginalStock.STOCK_DATE + ") as recent_stock_date_ from " + OriginalStock.TABLE_NAME;
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			recentDate = rs.getDate("recent_stock_date_");
 		}
+		close(rs, state);
 		return recentDate;
 	}
 
 	public int searchOriginalData(String sDate) throws SQLException {
 		int result = 0;
 		String sql = "select count(*) as count_ from " + OriginalStock.TABLE_NAME + " where " + OriginalStock.STOCK_DATE + "=?";
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		state.setDate(1, new java.sql.Date(DateUtils.stringToDate(sDate).getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			result = rs.getInt("count_");
 		}
+		close(rs, state);
 		return result;
 	}
 
@@ -166,11 +199,12 @@ public class OriginalStockDao extends OperationDao {
 
 		long maxNum = 0;
 		String sql = "select max(" + OriginalStock.NUM + ") as num_ from " + OriginalStock.TABLE_NAME;
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			maxNum = rs.getInt("num_");
 		}
+		close(rs, state);
 		return maxNum;
 	}
 
@@ -180,20 +214,24 @@ public class OriginalStockDao extends OperationDao {
 		String sql = "update " + OriginalStock.TABLE_NAME + " set " + OriginalStock.STOCK_CODES_MD5 + "=?, " + OriginalStock.CHANGE_RATES_MD5
 				+ "=?, " + OriginalStock.INPUT_TIME + "=? where " + OriginalStock.STOCK_DATE + "=?";
 		try {
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			beginTransaction();
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			state.setString(1, stockCodesMD5);
 			state.setString(2, changeRatesMD5);
 			state.setTimestamp(3, new java.sql.Timestamp((new Date()).getTime()));
 			state.setDate(4, new java.sql.Date(stockDate.getTime()));
 			state.executeUpdate();
-			connection.commit();
+			//connection.commit();
+			commitTransaction();
 		} catch (Exception e) {
-			connection.rollback();
+			//connection.rollback();
+			rollBackTransaction();
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateToString(stockDate) + "股票数据更新失败！");
 			log.loger.error(DateUtils.dateToString(stockDate) + " 股票数据更新失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
+			resetConnection();
 			close(state);
 		}
 	}
@@ -204,18 +242,22 @@ public class OriginalStockDao extends OperationDao {
 		String sql = "update " + OriginalStock.TABLE_NAME + " set " + OriginalStock.STOCK_CODES_MD5 + "=? where " + OriginalStock.STOCK_DATE
 				+ "=?";
 		try {
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			beginTransaction();
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			state.setString(1, stockCodesMD5);
 			state.setDate(2, new java.sql.Date(stockDate.getTime()));
 			state.executeUpdate();
-			connection.commit();
+			//connection.commit();
+			commitTransaction();
 		} catch (Exception e) {
-			connection.rollback();
+			//connection.rollback();
+			rollBackTransaction();
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateToString(stockDate) + "股票数据更新失败！");
 			log.loger.error(DateUtils.dateToString(stockDate) + " 股票数据更新失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
+			resetConnection();
 			close(state);
 		}
 	}
@@ -226,18 +268,22 @@ public class OriginalStockDao extends OperationDao {
 		String sql = "update " + OriginalStock.TABLE_NAME + " set " + OriginalStock.CHANGE_RATES_MD5 + "=? where " + OriginalStock.STOCK_DATE
 				+ "=?";
 		try {
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			beginTransaction();
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			state.setString(1, changeRatesMD5);
 			state.setDate(2, new java.sql.Date(stockDate.getTime()));
 			state.executeUpdate();
-			connection.commit();
+			//connection.commit();
+			commitTransaction();
 		} catch (Exception e) {
-			connection.rollback();
+			//connection.rollback();
+			rollBackTransaction();
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateToString(stockDate) + "股票数据更新失败！");
 			log.loger.error(DateUtils.dateToString(stockDate) + " 股票数据更新失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
+			resetConnection();
 			close(state);
 		}
 	}

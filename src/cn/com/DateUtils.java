@@ -25,12 +25,10 @@ public class DateUtils {
 		return date;
 	}
 
-	public static Date[] getPreOneWeek() {
+	public static Date[] getPreOneWeek(Date recentDate) {
 
 		Date[] preWeek = new Date[2];
 		try {
-			ComData comData = new ComData();
-			Date recentDate = comData.getRecentDateFromDailyStock();
 			Calendar calender = Calendar.getInstance();
 			calender.setTime(recentDate);
 			calender.add(Calendar.DATE, -7);
@@ -42,12 +40,10 @@ public class DateUtils {
 		return preWeek;
 	}
 
-	public static Date[] getPreHalfMonth() {
+	public static Date[] getPreHalfMonth(Date recentDate) {
 
 		Date[] preHalfMonth = new Date[2];
 		try {
-			ComData comData = new ComData();
-			Date recentDate = comData.getRecentDateFromDailyStock();
 			Calendar calender = Calendar.getInstance();
 			calender.setTime(recentDate);
 			calender.add(Calendar.DATE, -15);
@@ -59,12 +55,10 @@ public class DateUtils {
 		return preHalfMonth;
 	}
 
-	public static Date[] getPreOneMonth() {
+	public static Date[] getPreOneMonth(Date recentDate) {
 
 		Date[] preOneMonth = new Date[2];
 		try {
-			ComData comData = new ComData();
-			Date recentDate = comData.getRecentDateFromDailyStock();
 			Calendar calender = Calendar.getInstance();
 			calender.setTime(recentDate);
 			calender.add(Calendar.MONTH, -1);
@@ -76,12 +70,10 @@ public class DateUtils {
 		return preOneMonth;
 	}
 
-	public static Date[] getPreTwoMonth() {
+	public static Date[] getPreTwoMonth(Date recentDate) {
 
 		Date[] preTwoMonth = new Date[2];
 		try {
-			ComData comData = new ComData();
-			Date recentDate = comData.getRecentDateFromDailyStock();
 			Calendar calender = Calendar.getInstance();
 			calender.setTime(recentDate);
 			calender.add(Calendar.MONTH, -2);
@@ -93,12 +85,10 @@ public class DateUtils {
 		return preTwoMonth;
 	}
 
-	public static Date[] getPreThreeMonth() {
+	public static Date[] getPreThreeMonth(Date recentDate) {
 
 		Date[] preThreeMonth = new Date[2];
 		try {
-			ComData comData = new ComData();
-			Date recentDate = comData.getRecentDateFromDailyStock();
 			Calendar calender = Calendar.getInstance();
 			calender.setTime(recentDate);
 			calender.add(Calendar.MONTH, -3);
@@ -110,12 +100,10 @@ public class DateUtils {
 		return preThreeMonth;
 	}
 
-	public static Date[] getPreHalfYear() {
+	public static Date[] getPreHalfYear(Date recentDate) {
 
 		Date[] preHalfYear = new Date[2];
 		try {
-			ComData comData = new ComData();
-			Date recentDate = comData.getRecentDateFromDailyStock();
 			Calendar calender = Calendar.getInstance();
 			calender.setTime(recentDate);
 			calender.add(Calendar.MONTH, -6);
@@ -127,12 +115,10 @@ public class DateUtils {
 		return preHalfYear;
 	}
 
-	public static Date[] getPreOneYear() {
+	public static Date[] getPreOneYear(Date recentDate) {
 
 		Date[] preOnefYear = new Date[2];
 		try {
-			ComData comData = new ComData();
-			Date recentDate = comData.getRecentDateFromDailyStock();
 			Calendar calender = Calendar.getInstance();
 			calender.setTime(recentDate);
 			calender.add(Calendar.YEAR, -1);

@@ -1,6 +1,9 @@
 package cn.com;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +27,9 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
 import cn.db.bean.BaseStock;
+import cn.db.bean.DailyStock;
+import cn.db.bean.OriginalStock;
+import cn.db.bean.StatisticStock;
 import cn.log.Log;
 
 public class CommonUtils {
@@ -46,6 +52,13 @@ public class CommonUtils {
 
 	public static boolean isBlank(List<String> duplicateStockList) {
 		if (duplicateStockList == null || duplicateStockList.size() == 0)
+			return true;
+		else
+			return false;
+	}
+	
+	public static boolean isBlank(String[] values) {
+		if (values==null || values.length==0)
 			return true;
 		else
 			return false;
@@ -151,10 +164,10 @@ public class CommonUtils {
 	}
 
 	public static String checkDate(String startDate, String endDate) {
-		if (!isValidDate(startDate)) {
+		if (null != startDate && !isValidDate(startDate)) {
 			return "输入的开始日期格式不正确！";
 		}
-		if (!isValidDate(endDate)) {
+		if (null != endDate && !isValidDate(endDate)) {
 			return "输入的结束日期格式不正确！";
 		}
 		return null;
@@ -355,7 +368,7 @@ public class CommonUtils {
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			log.loger.error(ex);
+			log.loger.error(CommonUtils.errorInfo(ex));
 		}
 		exec.shutdown();
 		return requestInfo;
@@ -416,12 +429,12 @@ public class CommonUtils {
 			System.out.println("股票(" + stockCode + ")数据URL请求出现异常！");
 			log.loger.info("股票(" + stockCode + ")数据URL请求出现异常！");
 			ex.printStackTrace();
-			log.loger.error(ex);
+			log.loger.error(CommonUtils.errorInfo(ex));
 		} catch (IOException ex) {
 			System.out.println("股票(" + stockCode + ")数据URL请求出现异常！");
 			log.loger.info("股票(" + stockCode + ")数据URL请求出现异常！");
 			ex.printStackTrace();
-			log.loger.error(ex);
+			log.loger.error(CommonUtils.errorInfo(ex));
 		} finally {
 			if (request != null) {
 				request.abort();
@@ -438,7 +451,7 @@ public class CommonUtils {
 	private static String getSearchStockCode(String stockCode) {
 		String searchStockCode = "";
 		String firstChar = stockCode.substring(0, 1);
-		if (firstChar.equals(DataUtils.CONSTANT_SIX) || firstChar.equals(DataUtils.CONSTANT_SEVEN)) {
+		if (firstChar.equals(DataUtils.CONSTANT_STRING_SIX) || firstChar.equals(DataUtils.CONSTANT_STRING_SEVEN)) {
 			searchStockCode = DataUtils.CONSTANT_SH_SMALL + stockCode;
 		} else {
 			searchStockCode = DataUtils.CONSTANT_SH_SMALL + stockCode;
@@ -450,7 +463,7 @@ public class CommonUtils {
 
 		String aliasCode = "";
 		String firstChar = stockCode.substring(0, 1);
-		if (firstChar.equals(DataUtils.CONSTANT_SIX) || firstChar.equals(DataUtils.CONSTANT_SEVEN)) {
+		if (firstChar.equals(DataUtils.CONSTANT_STRING_SIX) || firstChar.equals(DataUtils.CONSTANT_STRING_SEVEN)) {
 			aliasCode = DataUtils.CONSTANT_SH_CAPITAL + stockCode;
 		} else {
 			aliasCode = DataUtils.CONSTANT_SZ_CAPITAL + stockCode;
@@ -499,9 +512,201 @@ public class CommonUtils {
 
 	public static boolean isMinMaxValue(Double changeRate) {
 
-		if (changeRate == DataUtils.CONSTANT_MAX_CHANGE_RATE || changeRate == DataUtils.CONSTANT_MIN_CHANGE_RATE)
+		if (DataUtils.CONSTANT_MAX_CHANGE_RATE.compareTo(changeRate)==0 
+				|| DataUtils.CONSTANT_MIN_CHANGE_RATE.compareTo(changeRate)==0)
 			return true;
 		else
 			return false;
 	}
+	
+	public static String errorInfo(Exception exception) {  
+        StringWriter sw = null;  
+        PrintWriter pw = null;  
+        try {  
+            sw = new StringWriter();  
+            pw = new PrintWriter(sw);  
+            // 将出错的栈信息输出到printWriter中  
+            exception.printStackTrace(pw);  
+            pw.flush();  
+            sw.flush();  
+        } finally {  
+            if (sw != null) {  
+                try {
+                    sw.close();  
+                } catch (IOException e1) {  
+                    e1.printStackTrace();  
+                }
+            }  
+            if (pw != null) { 
+                pw.close();  
+            }  
+        }  
+        return sw.toString();  
+    }
+	
+	/**
+	 * 从字符串数组获得DailyStock对象
+	 *
+	 */
+	public static DailyStock getDailyStockFromArray(int index, String[] codes, String[] changeRates, String[] turnoverRates, String sDate) {
+		DailyStock stockData = new DailyStock();
+		Date stockDate = DateUtils.stringToDate(sDate);
+		Timestamp inputTime = new Timestamp(System.currentTimeMillis());
+		stockData.setStockCode(codes[index]);
+		stockData.setStockDate(stockDate);
+		Double changeRate = Double.valueOf(changeRates[index]);
+		stockData.setChangeRate(changeRate);
+		if (!isBlank(turnoverRates)) {
+			Double turnoverRate = Double.valueOf(turnoverRates[index]);
+			stockData.setTurnoverRate(turnoverRate);
+		} else {
+			stockData.setTurnoverRate(DataUtils.CONSTANT_DOUBLE_ZERO);
+		}
+		String changeFlg = changeRate > 0 ? "1" : "0";
+		stockData.setChangeFlg(changeFlg);
+		stockData.setNote(DataUtils.CONSTANT_BLANK);
+		stockData.setInputTime(inputTime);
+		return stockData;
+	}
+
+	public static Map<String, StatisticStock> statisticUpAndDownNumber(List<OriginalStock> originalStockList) {
+		
+		Map<String, StatisticStock> statisticUpAndDownMap = new HashMap<String, StatisticStock>();
+		for (OriginalStock originalStock : originalStockList) {
+			Date stockDate = originalStock.getStockDate();
+			String stockCodes = originalStock.getStockCodes();
+			String changeRates = originalStock.getChangeRates();
+			String turnoverRates = originalStock.getTurnoverRates();
+			String[] codeArray = stockCodes.split(",");
+			String[] changeRateArray = changeRates.split(",");
+			String[] turnoverRateArray = turnoverRates.split(",");
+			for (int index = 0; index < codeArray.length; index++) {
+				// 对数据进行转换
+				DailyStock dailyStock = getDailyStockFromArray(index, codeArray, changeRateArray, turnoverRateArray, DateUtils.dateToString(stockDate));
+				String stockCode = dailyStock.getStockCode();
+				String changeFlg = dailyStock.getChangeFlg();
+				boolean existFlg = statisticUpAndDownMap.containsKey(stockCode);
+				if (existFlg) {
+					StatisticStock statisticStock = statisticUpAndDownMap.get(stockCode);
+					Integer upDownNumber = statisticStock.getUpDownNumber();
+					++upDownNumber;
+					statisticStock.setUpDownNumber(upDownNumber);
+					if (changeFlg.equals(DailyStock.CHANGE_FLG_ONE)) {
+						Integer upNumber = statisticStock.getUpNumber();
+						++upNumber;
+						statisticStock.setUpNumber(upNumber);
+					} else {
+						Integer downNumber = statisticStock.getDownNumber();
+						++downNumber;
+						statisticStock.setDownNumber(downNumber);
+					}
+				} else {
+					StatisticStock statisticStock = new StatisticStock(stockCode);
+					statisticStock.setUpDownNumber(DataUtils.CONSTANT_INTEGER_ONE);
+					if (changeFlg.equals(DailyStock.CHANGE_FLG_ONE)) {
+						statisticStock.setUpNumber(DataUtils.CONSTANT_INTEGER_ONE);
+						statisticStock.setDownNumber(DataUtils.CONSTANT_INTEGER_ZERO);
+					} else {
+						statisticStock.setUpNumber(DataUtils.CONSTANT_INTEGER_ZERO);
+						statisticStock.setDownNumber(DataUtils.CONSTANT_INTEGER_ONE);
+					}
+					statisticUpAndDownMap.put(stockCode, statisticStock);
+				}
+			}
+		}
+		return statisticUpAndDownMap;
+	}
+	
+	public static String[] getUpAndDownNumberKeysByFlg(String periodFlg) throws IOException {
+
+		String upDownNumberKey = "";
+		String upNumberKey = "";
+		String downNumberKey = "";
+		switch (periodFlg) {
+		case StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM: // 一周涨跌次数
+			upDownNumberKey = StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM;
+			upNumberKey = StatisticStock.PRE_ONE_WEEK_UP_NUM;
+			downNumberKey = StatisticStock.PRE_ONE_WEEK_DOWN_NUM;
+			break;
+		case StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM: // 半月涨跌次数
+			upDownNumberKey = StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM;
+			upNumberKey = StatisticStock.PRE_HALF_MONTH_UP_NUM;
+			downNumberKey = StatisticStock.PRE_HALF_MONTH_DOWN_NUM;
+			break;
+		case StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM: // 一月涨跌次数
+			upDownNumberKey = StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM;
+			upNumberKey = StatisticStock.PRE_ONE_MONTH_UP_NUM;
+			downNumberKey = StatisticStock.PRE_ONE_MONTH_DOWN_NUM;
+			break;
+		case StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM: // 二月涨跌次数
+			upDownNumberKey = StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM;
+			upNumberKey = StatisticStock.PRE_TWO_MONTH_UP_NUM;
+			downNumberKey = StatisticStock.PRE_TWO_MONTH_DOWN_NUM;
+			break;
+		case StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM: // 三月涨跌次数
+			upDownNumberKey = StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM;
+			upNumberKey = StatisticStock.PRE_THREE_MONTH_UP_NUM;
+			downNumberKey = StatisticStock.PRE_THREE_MONTH_DOWN_NUM;
+			break;
+		case StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM: // 半年涨跌次数
+			upDownNumberKey = StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM;
+			upNumberKey = StatisticStock.PRE_HALF_YEAR_UP_NUM;
+			downNumberKey = StatisticStock.PRE_HALF_YEAR_DOWN_NUM;
+			break;
+		case StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM: // 一年涨跌次数
+			upDownNumberKey = StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM;
+			upNumberKey = StatisticStock.PRE_ONE_YEAR_UP_NUM;
+			downNumberKey = StatisticStock.PRE_ONE_YEAR_DOWN_NUM;
+			break;
+		default:
+			IOException ioException = new IOException("周期标识(periodFlg)不正确: " + periodFlg);
+			throw ioException;
+		}
+		String[] upAndDownKeys = {upDownNumberKey, upNumberKey, downNumberKey};
+		return upAndDownKeys;
+	}
+
+	public static void setUpAndDownNumberJson(Map<String, StatisticStock> upAndDownNumberMap, String periodFlg) throws IOException {
+		
+		String[] upAndDownNumberKeys = getUpAndDownNumberKeysByFlg(periodFlg);
+		String upDownNumberKey = upAndDownNumberKeys[0];
+		String upNumberKey = upAndDownNumberKeys[1];
+		String downNumberKey = upAndDownNumberKeys[2];
+		for (StatisticStock statisticStock : upAndDownNumberMap.values()) {
+			Integer upDownNumber = statisticStock.getUpDownNumber();
+			Integer upNumber = statisticStock.getUpNumber();
+			Integer downNumber = statisticStock.getDownNumber();
+			Map<String, Integer> upAndDownNumberJsonMap = new HashMap<String, Integer>();
+			upAndDownNumberJsonMap.put(upDownNumberKey, upDownNumber);
+			upAndDownNumberJsonMap.put(upNumberKey, upNumber);
+			upAndDownNumberJsonMap.put(downNumberKey, downNumber);
+			String upAndDownNumberJson = JsonUtils.getJsonByMap(upAndDownNumberJsonMap);
+			switch (periodFlg) {
+			case StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM: // 一周涨跌次数
+				statisticStock.setOneWeek(upAndDownNumberJson);
+				break;
+			case StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM: // 半月涨跌次数
+				statisticStock.setHalfMonth(upAndDownNumberJson);
+				break;
+			case StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM: // 一月涨跌次数
+				statisticStock.setOneMonth(upAndDownNumberJson);
+				break;
+			case StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM: // 二月涨跌次数
+				statisticStock.setTwoMonth(upAndDownNumberJson);
+				break;
+			case StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM: // 三月涨跌次数
+				statisticStock.setThreeMonth(upAndDownNumberJson);
+				break;
+			case StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM: // 半年涨跌次数
+				statisticStock.setHalfYear(upAndDownNumberJson);
+				break;
+			case StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM: // 一年涨跌次数
+				statisticStock.setOneYear(upAndDownNumberJson);
+				break;
+			default:
+				IOException ioException = new IOException("周期标识(periodFlg)不正确: " + periodFlg);
+				throw ioException;
+			}
+		}
+	} 
 }

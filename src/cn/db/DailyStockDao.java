@@ -35,7 +35,7 @@ public class DailyStockDao extends OperationDao {
 		sql.append("select ").append(DailyStock.STOCK_DATE).append(" from ").append(DailyStock.TABLE_NAME).append(" where ")
 				.append(DailyStock.STOCK_CODE).append("=? and ").append(DailyStock.STOCK_DATE).append(" between ? and ?").append(changeFlgSql)
 				.append(" order by ").append(DailyStock.STOCK_DATE).append(" desc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		state.setString(1, stockCode);
 		state.setDate(2, new java.sql.Date(DateUtils.stringToDate(startDate).getTime()));
 		state.setDate(3, new java.sql.Date(DateUtils.stringToDate(endDate).getTime()));
@@ -44,6 +44,7 @@ public class DailyStockDao extends OperationDao {
 			Date stockDate = rs.getDate(DailyStock.STOCK_DATE);
 			dateList.add(stockDate);
 		}
+		close(rs, state);
 		return dateList;
 	}
 
@@ -51,20 +52,20 @@ public class DailyStockDao extends OperationDao {
 	 * 根据时间段统计每日股票数据
 	 * 
 	 */
-	public List<DailyStock> analysisStockByTime(String startDate, String endDate, String changeFlg) throws SQLException {
+	public List<DailyStock> analysisStockByTime(Date startDate, Date endDate, String changeFlg) throws SQLException {
 
 		List<DailyStock> dataList = new ArrayList<DailyStock>();
 		String changeFlgSql = "";
-		if (changeFlg.equals("0") || changeFlg.equals("1")) {
+		if (DailyStock.CHANGE_FLG_ZERO.equals(changeFlg) || DailyStock.CHANGE_FLG_ONE.equals(changeFlg)) {
 			changeFlgSql = " and " + DailyStock.CHANGE_FLG + "='" + changeFlg + "'";
 		}
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ").append(DailyStock.STOCK_CODE).append(", count(").append(DailyStock.STOCK_CODE).append(") as count_").append(" from ")
 				.append(DailyStock.TABLE_NAME).append(" where ").append(DailyStock.STOCK_DATE).append(" between ? and ?").append(changeFlgSql)
 				.append(" group by ").append(DailyStock.STOCK_CODE).append(" order by count_ desc, ").append(DailyStock.NUM).append(" asc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
-		state.setDate(1, new java.sql.Date(DateUtils.stringToDate(startDate).getTime()));
-		state.setDate(2, new java.sql.Date(DateUtils.stringToDate(endDate).getTime()));
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setDate(1, new java.sql.Date(startDate.getTime()));
+		state.setDate(2, new java.sql.Date(endDate.getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			DailyStock data = new DailyStock();
@@ -72,6 +73,7 @@ public class DailyStockDao extends OperationDao {
 			data.setCount(rs.getInt("count_"));
 			dataList.add(data);
 		}
+		close(rs, state);
 		return dataList;
 	}
 
@@ -85,7 +87,7 @@ public class DailyStockDao extends OperationDao {
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ").append(DailyStock.STOCK_CODE).append(", count(").append(DailyStock.STOCK_CODE).append(") as up_down_number_ from ")
 				.append(DailyStock.TABLE_NAME).append(" group by ").append(DailyStock.STOCK_CODE).append(" order by up_down_number_ desc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			StatisticStock statisticStock = new StatisticStock();
@@ -94,6 +96,7 @@ public class DailyStockDao extends OperationDao {
 			statisticStock.setUpDownNumber(rs.getInt("up_down_number_"));
 			dataMap.put(stockCode, statisticStock);
 		}
+		close(rs, state);
 		return dataMap;
 	}
 
@@ -108,7 +111,7 @@ public class DailyStockDao extends OperationDao {
 		sql.append("select ").append(DailyStock.STOCK_CODE).append(", count(").append(DailyStock.STOCK_CODE).append(") as up_number_ from ")
 				.append(DailyStock.TABLE_NAME).append(" where ").append(DailyStock.CHANGE_FLG).append("=1").append(" group by ")
 				.append(DailyStock.STOCK_CODE).append(" order by up_number_ desc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			StatisticStock statisticStock = new StatisticStock();
@@ -117,6 +120,7 @@ public class DailyStockDao extends OperationDao {
 			statisticStock.setUpNumber(rs.getInt("up_number_"));
 			dataMap.put(stockCode, statisticStock);
 		}
+		close(rs, state);
 		return dataMap;
 	}
 
@@ -131,7 +135,7 @@ public class DailyStockDao extends OperationDao {
 		sql.append("select ").append(DailyStock.STOCK_CODE).append(", count(").append(DailyStock.STOCK_CODE).append(") as down_number_ from ")
 				.append(DailyStock.TABLE_NAME).append(" where ").append(DailyStock.CHANGE_FLG).append("='0' ").append(" group by ")
 				.append(DailyStock.STOCK_CODE).append(" order by down_number_ desc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			StatisticStock statisticStock = new StatisticStock();
@@ -140,6 +144,7 @@ public class DailyStockDao extends OperationDao {
 			statisticStock.setDownNumber(rs.getInt("down_number_"));
 			dataMap.put(stockCode, statisticStock);
 		}
+		close(rs, state);
 		return dataMap;
 	}
 
@@ -154,7 +159,7 @@ public class DailyStockDao extends OperationDao {
 		sql.append("select ").append(DailyStock.STOCK_CODE).append(", count(").append(DailyStock.STOCK_CODE).append(") as up_down_number_ from ")
 				.append(DailyStock.TABLE_NAME).append(" where ").append(DailyStock.STOCK_CODE).append("=? and ").append(DailyStock.STOCK_DATE)
 				.append(" between ? and ? group by ").append(DailyStock.STOCK_CODE).append(" order by up_down_number_ desc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		state.setString(1, stockCode);
 		state.setDate(2, new java.sql.Date(startEndDate[0].getTime()));
 		state.setDate(3, new java.sql.Date(startEndDate[1].getTime()));
@@ -165,6 +170,7 @@ public class DailyStockDao extends OperationDao {
 			statisticStock.setUpDownNumber(rs.getInt("up_down_number_"));
 			dataMap.put(stockCode, statisticStock);
 		}
+		close(rs, state);
 		return dataMap;
 	}
 
@@ -180,7 +186,7 @@ public class DailyStockDao extends OperationDao {
 				.append(DailyStock.TABLE_NAME).append(" where ").append(DailyStock.STOCK_CODE).append("=? and ").append(DailyStock.CHANGE_FLG)
 				.append("='1' and ").append(DailyStock.STOCK_DATE).append(" between ? and ?").append(" group by ").append(DailyStock.STOCK_CODE)
 				.append(" order by up_number_ desc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		state.setString(1, stockCode);
 		state.setDate(2, new java.sql.Date(startEndDate[0].getTime()));
 		state.setDate(3, new java.sql.Date(startEndDate[1].getTime()));
@@ -191,6 +197,7 @@ public class DailyStockDao extends OperationDao {
 			statisticStock.setUpNumber(rs.getInt("up_number_"));
 			dataMap.put(stockCode, statisticStock);
 		}
+		close(rs, state);
 		return dataMap;
 	}
 
@@ -206,7 +213,7 @@ public class DailyStockDao extends OperationDao {
 				.append(DailyStock.TABLE_NAME).append(" where ").append(DailyStock.STOCK_CODE).append("=? and ").append(DailyStock.CHANGE_FLG)
 				.append("='0' and ").append(DailyStock.STOCK_DATE).append(" between ? and ?").append(" group by ").append(DailyStock.STOCK_CODE)
 				.append(" order by down_number_ desc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		state.setString(1, stockCode);
 		state.setDate(2, new java.sql.Date(startEndDate[0].getTime()));
 		state.setDate(3, new java.sql.Date(startEndDate[1].getTime()));
@@ -217,6 +224,7 @@ public class DailyStockDao extends OperationDao {
 			statisticStock.setDownNumber(rs.getInt("down_number_"));
 			dataMap.put(stockCode, statisticStock);
 		}
+		close(rs, state);
 		return dataMap;
 	}
 
@@ -231,7 +239,7 @@ public class DailyStockDao extends OperationDao {
 		sql.append("select ").append(DailyStock.STOCK_CODE).append(", count(").append(DailyStock.STOCK_CODE).append(") as count_, min(")
 				.append(DailyStock.STOCK_DATE).append(") as min_date_, max(" + DailyStock.STOCK_DATE + ") as max_date_ from ")
 				.append(DailyStock.TABLE_NAME).append(" group by ").append(DailyStock.STOCK_CODE).append(" order by min_date_");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			DailyStock stock = new DailyStock();
@@ -241,6 +249,7 @@ public class DailyStockDao extends OperationDao {
 			stock.setRecentStockDate(rs.getDate("max_date_"));
 			dataList.add(stock);
 		}
+		close(rs, state);
 		return dataList;
 	}
 
@@ -255,7 +264,7 @@ public class DailyStockDao extends OperationDao {
 		sql.append("select ").append(DailyStock.STOCK_DATE).append(", count(").append(DailyStock.STOCK_DATE).append(") as count_ from ")
 				.append(DailyStock.TABLE_NAME).append(" group by ").append(DailyStock.STOCK_DATE).append(" order by ")
 				.append(DailyStock.STOCK_DATE);
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			DailyStock data = new DailyStock();
@@ -263,6 +272,7 @@ public class DailyStockDao extends OperationDao {
 			data.setCount(rs.getInt("count_"));
 			dataList.add(data);
 		}
+		close(rs, state);
 		return dataList;
 	}
 
@@ -276,13 +286,14 @@ public class DailyStockDao extends OperationDao {
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ").append(DailyStock.ALL_FIELDS).append(" from ").append(DailyStock.TABLE_NAME).append(" where ")
 				.append(DailyStock.STOCK_DATE).append("=? and ").append(DailyStock.STOCK_CODE).append("=?");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		state.setDate(1, new java.sql.Date(stockDate.getTime()));
 		state.setString(2, stockCode);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			data = getDailyStockFromResult(rs);
 		}
+		close(rs, state);
 		return data;
 	}
 
@@ -296,12 +307,13 @@ public class DailyStockDao extends OperationDao {
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ").append(DailyStock.ALL_FIELDS).append(" from ").append(DailyStock.TABLE_NAME).append(" order by ")
 				.append(DailyStock.NUM);
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			DailyStock data = getDailyStockFromResult(rs);
 			dataList.add(data);
 		}
+		close(rs, state);
 		return dataList;
 	}
 
@@ -311,13 +323,14 @@ public class DailyStockDao extends OperationDao {
 		StringBuffer sql = new StringBuffer();
 		sql.append("select count(*) as count_ from ").append(DailyStock.TABLE_NAME).append(" where ").append(DailyStock.STOCK_CODE)
 				.append("=? and ").append(DailyStock.STOCK_DATE).append("=?");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		state.setString(1, data.getStockCode());
 		state.setDate(2, new java.sql.Date(data.getStockDate().getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			result = rs.getInt("count_");
 		}
+		close(rs, state);
 		return result == 0 ? false : true;
 	}
 
@@ -331,7 +344,8 @@ public class DailyStockDao extends OperationDao {
 		PreparedStatement state = null;
 		String sql = "insert into " + DailyStock.TABLE_NAME + " (" + DailyStock.ALL_FIELDS + ") values (?,?,?,?,?,?,?,?,?,?,?)";
 		try {
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			beginTransaction();
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			Long maxNum = this.getMaxNumFromDailyStock();
 			state.setLong(1, ++maxNum);
 			state.setDate(2, new java.sql.Date(data.getStockDate().getTime()));
@@ -353,16 +367,19 @@ public class DailyStockDao extends OperationDao {
 			state.setString(10, data.getNote());
 			state.setTimestamp(11, new java.sql.Timestamp(data.getInputTime().getTime()));
 			state.executeUpdate();
-			connection.commit();
+			//connection.commit();
+			commitTransaction();
 			flg = true;
 		} catch (Exception e) {
-			connection.rollback();
+			//connection.rollback();
+			rollBackTransaction();
 			System.out.println(
 					DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateToString(data.getStockDate()) + "每日股票数据(daily_stock_)增加失败！");
 			log.loger.error(DateUtils.dateToString(data.getStockDate()) + " 每日股票数据(daily_stock_)增加失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
+			resetConnection();
 			close(state);
 		}
 		return flg;
@@ -376,11 +393,12 @@ public class DailyStockDao extends OperationDao {
 
 		Date recentDate = null;
 		String sql = "select max(" + DailyStock.STOCK_DATE + ") as recent_stock_date_ from " + DailyStock.TABLE_NAME;
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			recentDate = rs.getDate("recent_stock_date_");
 		}
+		close(rs, state);
 		return recentDate;
 	}
 
@@ -399,7 +417,7 @@ public class DailyStockDao extends OperationDao {
 		sql.append("select ").append(DailyStock.ALL_FIELDS).append(" from ").append(DailyStock.TABLE_NAME).append(" where ")
 				.append(DailyStock.STOCK_CODE).append("=? ").append(dateSql).append(changeFlgSql).append(" order by ")
 				.append(DailyStock.STOCK_DATE).append(" desc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		state.setString(1, stockCode);
 		if (!dateSql.equals(DataUtils.CONSTANT_BLANK)) {
 			state.setDate(2, new java.sql.Date(DateUtils.stringToDate(startDate).getTime()));
@@ -410,6 +428,7 @@ public class DailyStockDao extends OperationDao {
 			DailyStock data = getDailyStockFromResult(rs);
 			dataList.add(data);
 		}
+		close(rs, state);
 		return dataList;
 	}
 
@@ -420,14 +439,15 @@ public class DailyStockDao extends OperationDao {
 		sql.append("select ").append(DailyStock.ALL_FIELDS).append(" from ").append(DailyStock.TABLE_NAME).append(" where ")
 				.append(DailyStock.CHANGE_RATE).append("=? or ").append(DailyStock.TURNOVER_RATE).append("=? ").append(" order by ")
 				.append(DailyStock.STOCK_DATE).append(" desc");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
-		state.setDouble(1, DataUtils.CONSTANT_ZERO_DOT_ZERO);
-		state.setDouble(2, DataUtils.CONSTANT_ZERO_DOT_ZERO);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setDouble(1, DataUtils.CONSTANT_DOUBLE_ZERO);
+		state.setDouble(2, DataUtils.CONSTANT_DOUBLE_ZERO);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			DailyStock data = getDailyStockFromResult(rs);
 			dataList.add(data);
 		}
+		close(rs, state);
 		return dataList;
 	}
 
@@ -435,21 +455,24 @@ public class DailyStockDao extends OperationDao {
 
 		Map<String, StatisticStock> upStatisticStock = statisticUpInDailyStock();
 		StatisticStock statisticStock = upStatisticStock.get(stockCode) == null ? new StatisticStock() : upStatisticStock.get(stockCode);
-		return statisticStock.getUpNumber();
+		Integer upNumber = statisticStock.getUpNumber();
+		return upNumber!=null?upNumber:0;
 	}
 
 	public Integer getDownNumberByStockCode(String stockCode) throws SQLException {
 
 		Map<String, StatisticStock> downStatisticStock = statisticDownInDailyStock();
 		StatisticStock statisticStock = downStatisticStock.get(stockCode) == null ? new StatisticStock() : downStatisticStock.get(stockCode);
-		return statisticStock.getDownNumber();
+		Integer downNumber = statisticStock.getDownNumber();
+		return downNumber!=null?downNumber:0;
 	}
 
 	public Integer getUpDownNumberByStockCode(String stockCode) throws SQLException {
 
 		Map<String, StatisticStock> upDownStatisticStock = statisticUpDownInDailyStock();
 		StatisticStock statisticStock = upDownStatisticStock.get(stockCode) == null ? new StatisticStock() : upDownStatisticStock.get(stockCode);
-		return statisticStock.getUpDownNumber();
+		Integer upDownNumber = statisticStock.getUpDownNumber();
+		return upDownNumber!=null?upDownNumber:0;
 	}
 
 	public Integer getUpNumberByStockCode(String stockCode, Date[] startEndDate) throws SQLException {
@@ -477,11 +500,12 @@ public class DailyStockDao extends OperationDao {
 
 		long maxNum = 0;
 		String sql = "select max(" + DailyStock.NUM + ") as num_ from " + DailyStock.TABLE_NAME;
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			maxNum = rs.getLong("num_");
 		}
+		close(rs, state);
 		return maxNum;
 	}
 
@@ -490,12 +514,13 @@ public class DailyStockDao extends OperationDao {
 		Date[] dateArray = new Date[2];
 		String sql = "select min(" + DailyStock.STOCK_DATE + ") as min_date_, max(" + DailyStock.STOCK_DATE + ") as max_date_ from "
 				+ DailyStock.TABLE_NAME;
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			dateArray[0] = rs.getDate("min_date_");
 			dateArray[1] = rs.getDate("max_date_");
 		}
+		close(rs, state);
 		return dateArray;
 	}
 
@@ -523,7 +548,8 @@ public class DailyStockDao extends OperationDao {
 		String sql = "update " + DailyStock.TABLE_NAME + " set " + appixSql + " where " + DailyStock.STOCK_CODE + "=? and " + DailyStock.STOCK_DATE
 				+ "=?";
 		try {
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			beginTransaction();
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			switch (fieldFlg) {
 			case 0:
 				state.setDouble(1, dailyStock.getChangeRate());
@@ -555,17 +581,20 @@ public class DailyStockDao extends OperationDao {
 				break;
 			}
 			state.executeUpdate();
-			connection.commit();
+			//connection.commit();
+			commitTransaction();
 			flg = true;
 		} catch (Exception e) {
-			connection.rollback();
+			//connection.rollback();
+			rollBackTransaction();
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "  每日股票信息表(daily_stock_)中股票" + dailyStock.getStockCode() + "("
 					+ PropertiesUtils.getProperty(dailyStock.getStockCode()) + ")更新涨跌幅和换手率失败！");
 			log.loger.error("  每日股票信息表(daily_stock_)中股票" + dailyStock.getStockCode() + "(" + PropertiesUtils.getProperty(dailyStock.getStockCode())
 					+ ")更新涨跌幅和换手率失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
+			resetConnection();
 			close(state);
 		}
 		return flg;

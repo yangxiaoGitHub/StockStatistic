@@ -22,11 +22,20 @@ public class StatisticStock extends BaseStock {
 	private String stockCodeDES;
 	private String decryptStockCode;
 	private String note;
+	// 保存验证有误数据
 	private Integer errorUpDownNumber;
 	private Integer errorUpNumber;
 	private Integer errorDownNumber;
-	// 涨跌次数标识：1:跌  2:涨跌 3:涨
-//	private Integer upDownFlg = 0;
+	private String errorOneWeek;
+	private String errorHalfMonth;
+	private String errorOneMonth;
+	private String errorTwoMonth;
+	private String errorThreeMonth;
+	private String errorHalfYear;
+	private String errorOneYear;
+	// 涨跌次数标识：0:正确  1:一年涨跌次数有误  2:半年涨跌次数有误  3:三月涨跌次数有误  
+	//              4:二月涨跌次数有误  5:一月涨跌次数有误  6:半月涨跌次数有误  7:一周涨跌次数有误
+	private Integer errorUpDownFlg = 0;
 	public final static Integer DOWN_FLG = 1; // 跌
 	public final static Integer UP_DOWN_FLG = 2; // 涨跌
 	public final static Integer UP_FLG = 3; // 涨
@@ -82,7 +91,6 @@ public class StatisticStock extends BaseStock {
 	public final static String ALL_FIELDS = NUM + "," + STOCK_CODE + "," + FIRST_DATE + ","  + UP_DOWN_NUMBER + "," + UP_NUMBER + "," + DOWN_NUMBER + "," 
 							 			  + ONE_WEEK + "," + HALF_MONTH + "," + ONE_MONTH + "," + TWO_MONTH + "," + THREE_MONTH + "," + HALF_YEAR + "," 
 							 			  + ONE_YEAR + "," + STOCK_CODE_DES + "," + INPUT_TIME + "," + NOTE;
-
 	public StatisticStock() {
 	}
 	
@@ -319,4 +327,69 @@ public class StatisticStock extends BaseStock {
 	public void setStockDate(Date stockDate) {
 		
 	}
+
+	public String getErrorOneWeek() {
+		return errorOneWeek;
+	}
+
+	public void setErrorOneWeek(String errorOneWeek) {
+		this.errorOneWeek = errorOneWeek;
+	}
+
+	public String getErrorHalfMonth() {
+		return errorHalfMonth;
+	}
+
+	public void setErrorHalfMonth(String errorHalfMonth) {
+		this.errorHalfMonth = errorHalfMonth;
+	}
+
+	public String getErrorOneMonth() {
+		return errorOneMonth;
+	}
+
+	public void setErrorOneMonth(String errorOneMonth) {
+		this.errorOneMonth = errorOneMonth;
+	}
+
+	public String getErrorTwoMonth() {
+		return errorTwoMonth;
+	}
+
+	public void setErrorTwoMonth(String errorTwoMonth) {
+		this.errorTwoMonth = errorTwoMonth;
+	}
+
+	public String getErrorThreeMonth() {
+		return errorThreeMonth;
+	}
+
+	public void setErrorThreeMonth(String errorThreeMonth) {
+		this.errorThreeMonth = errorThreeMonth;
+	}
+
+	public String getErrorHalfYear() {
+		return errorHalfYear;
+	}
+
+	public void setErrorHalfYear(String errorHalfYear) {
+		this.errorHalfYear = errorHalfYear;
+	}
+
+	public String getErrorOneYear() {
+		return errorOneYear;
+	}
+
+	public void setErrorOneYear(String errorOneYear) {
+		this.errorOneYear = errorOneYear;
+	}
+	
+	public Integer getErrorUpDownFlg() {
+		return errorUpDownFlg;
+	}
+
+	public void setErrorUpDownFlg(Integer errorUpDownFlg) {
+		this.errorUpDownFlg = errorUpDownFlg;
+	}
+
 }

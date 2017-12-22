@@ -3,6 +3,7 @@ package cn.implement;
 import java.util.Date;
 import java.util.List;
 
+import cn.com.CommonUtils;
 import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
@@ -47,7 +48,7 @@ public class ExecuteData extends OperationData {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(dailyStockDao);
 		}
@@ -81,7 +82,7 @@ public class ExecuteData extends OperationData {
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			log.loger.error(ex);
+			log.loger.error(CommonUtils.errorInfo(ex));
 		} finally {
 			closeDao(dailyStockDao, statisticStockDao);
 		}

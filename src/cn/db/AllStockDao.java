@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.mysql.jdbc.PreparedStatement;
 
+import cn.com.CommonUtils;
 import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
@@ -39,7 +40,7 @@ public class AllStockDao extends OperationDao {
 		AllStock stock = null;
 		StringBuffer sql = new StringBuffer();
 		sql.append("select " + AllStock.ALL_FIELDS + " from " + AllStock.TABLE_NAME + " where " + AllStock.STOCK_CODE + "=?");
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		state.setString(1, stockCode);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
@@ -56,7 +57,7 @@ public class AllStockDao extends OperationDao {
 		String sql = "insert into " + AllStock.TABLE_NAME + " (" + AllStock.ALL_FIELDS + ") values (?,?,?,?,?,?,?,?)";
 		try {
 			beginTransaction();
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			state.setLong(1, stock.getNum());
 			state.setString(2, stock.getStockCode());
 			state.setString(3, stock.getStockName());
@@ -77,7 +78,7 @@ public class AllStockDao extends OperationDao {
 			log.loger.error(
 					"  所有股票表(all_stock_)中增加记录失败---股票代码：" + stock.getStockCode() + "(" + PropertiesUtils.getProperty(stock.getStockCode()) + ")");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			resetConnection();
 			close(state);
@@ -94,7 +95,7 @@ public class AllStockDao extends OperationDao {
 		List<AllStock> dataList = new ArrayList<AllStock>();
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ").append(AllStock.ALL_FIELDS).append(" from ").append(AllStock.TABLE_NAME).append(" order by ").append(AllStock.NUM);
-		PreparedStatement statement = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement statement = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = statement.executeQuery();
 		while (rs.next()) {
 			AllStock data = getAllStockFromResult(rs);
@@ -116,7 +117,7 @@ public class AllStockDao extends OperationDao {
 				+ AllStock.CIRCULATION_STOCK_SIMPLE + "=?, " + AllStock.INPUT_TIME + "=? where " + AllStock.STOCK_CODE + "=?";
 		try {
 			beginTransaction();
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			state.setLong(1, stock.getCirculationValue());
 			state.setLong(2, stock.getCirculationStockComplex());
 			state.setString(3, stock.getCirculationStockSimple());
@@ -133,7 +134,7 @@ public class AllStockDao extends OperationDao {
 					+ " 所有股票信息表(all_stock_)更新股票(" + stock.getStockCode() + ")流通值失败！");
 			log.loger.error(DateUtils.dateToString(stock.getInputTime()) + " 所有股票信息表(all_stock_)更新股票(" + stock.getStockCode() + ")流通值失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			resetConnection();
 			close(state);
@@ -153,7 +154,7 @@ public class AllStockDao extends OperationDao {
 				+ AllStock.STOCK_CODE + "=?";
 		try {
 			beginTransaction();
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			state.setString(1, stock.getStockName());
 			state.setDate(2, new java.sql.Date(stock.getInputTime().getTime()));
 			state.setString(3, stock.getStockCode());
@@ -168,7 +169,7 @@ public class AllStockDao extends OperationDao {
 					+ " 所有股票表(all_stock_)更新股票信息(" + stock.getStockCode() + ")失败！");
 			log.loger.error(DateUtils.dateToString(stock.getInputTime()) + " 所有股票表(all_stock_)更新股票信息(" + stock.getStockCode() + ")失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			resetConnection();
 			close(state);
@@ -181,7 +182,7 @@ public class AllStockDao extends OperationDao {
 		long maxNum = 0;
 		StringBuffer sql = new StringBuffer();
 		sql.append("select max(").append(AllStock.NUM).append(") as num_ from ").append(AllStock.TABLE_NAME);
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			maxNum = rs.getLong("num_");

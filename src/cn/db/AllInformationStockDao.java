@@ -32,22 +32,24 @@ public class AllInformationStockDao extends OperationDao {
 		return infoStock;
 	}
 
-	public int saveOrUpdateAllInformationStock(String stockDate, String stockCode, String stockInfo) throws SQLException {
+	public int saveOrUpdateAllInformationStock(AllInformationStock allInformationStock) throws SQLException {
 		int saveUpdateFlg = 0; // 0:无效; 1:保存; 2:更新
-		AllInformationStock infoStock = getAllInformationStockByKey(DateUtils.stringToDate(stockDate), stockCode);
+		String stockCode = allInformationStock.getStockCode();
+		Date stockDate = allInformationStock.getStockDate();
+		AllInformationStock infoStock = getAllInformationStockByKey(stockDate, stockCode);
 		if (infoStock == null) {
-			boolean saveFlg = saveAllInformationStock(stockDate, stockCode, stockInfo);
+			boolean saveFlg = saveAllInformationStock(allInformationStock);
 			if (saveFlg)
 				saveUpdateFlg = 1;
 		} else if (CommonUtils.isBlank(infoStock.getStockInfo())) {
-			boolean updateFlg = updateAllInformationStock(stockDate, stockCode, stockInfo);
+			boolean updateFlg = updateAllInformationStock(allInformationStock);
 			if (updateFlg)
 				saveUpdateFlg = 2;
 		}
 		return saveUpdateFlg;
 	}
 
-	private boolean updateAllInformationStock(String stockDate, String stockCode, String stockInfo) throws SQLException {
+	private boolean updateAllInformationStock(AllInformationStock allInformationStock) throws SQLException {
 
 		boolean updateFlg = false;
 		PreparedStatement state = null;
@@ -56,15 +58,13 @@ public class AllInformationStockDao extends OperationDao {
 				+ "=? where " + AllInformationStock.STOCK_CODE + "=? and " + AllInformationStock.STOCK_DATE + "=?";
 		try {
 			beginTransaction();
-			state = (PreparedStatement) connection.prepareStatement(sql);
-			state.setString(1, stockInfo);
-			String stockInfoDES = DESUtils.encryptToHex(stockInfo);
-			state.setString(2, stockInfoDES);
-			String stockInfoMD5 = MD5Utils.getEncryptedPwd(stockInfo);
-			state.setString(3, stockInfoMD5);
-			state.setTimestamp(4, new java.sql.Timestamp((new Date()).getTime()));
-			state.setString(5, stockCode);
-			state.setDate(6, new java.sql.Date(DateUtils.stringToDate(stockDate).getTime()));
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
+			state.setString(1, allInformationStock.getStockInfo());
+			state.setString(2, allInformationStock.getStockInfoDES());
+			state.setString(3, allInformationStock.getStockInfoMD5());
+			state.setTimestamp(4, new java.sql.Timestamp(allInformationStock.getInputTime().getTime()));
+			state.setString(5, allInformationStock.getStockCode());
+			state.setDate(6, new java.sql.Date(allInformationStock.getStockDate().getTime()));
 			state.executeUpdate();
 			//connection.commit();
 			commitTransaction();
@@ -73,10 +73,10 @@ public class AllInformationStockDao extends OperationDao {
 			//connection.rollback();
 			rollBackTransaction();
 			System.out.println(
-					DateUtils.dateTimeToString(new Date()) + "  " + stockDate + "所有股票信息表(all_information_stock_)更新股票信息(" + stockCode + ")失败！");
-			log.loger.error(stockDate + "所有统计股票信息表(all_information_stock_)更新股票信息(" + stockCode + ")失败！");
+					DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateTimeToString(allInformationStock.getStockDate()) + "所有股票信息表(all_information_stock_)更新股票信息(" + allInformationStock.getStockCode() + ")失败！");
+			log.loger.error(DateUtils.dateTimeToString(allInformationStock.getStockDate()) + "所有统计股票信息表(all_information_stock_)更新股票信息(" + allInformationStock.getStockCode() + ")失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			resetConnection();
 			close(state);
@@ -84,7 +84,7 @@ public class AllInformationStockDao extends OperationDao {
 		return updateFlg;
 	}
 
-	private boolean saveAllInformationStock(String stockDate, String stockCode, String stockInfo) throws SQLException {
+	private boolean saveAllInformationStock(AllInformationStock allInformationStock) throws SQLException {
 
 		boolean saveFlg = false;
 		PreparedStatement state = null;
@@ -92,28 +92,25 @@ public class AllInformationStockDao extends OperationDao {
 		try {
 			beginTransaction();
 			state = (PreparedStatement) super.connection.prepareStatement(sql);
-			Long maxNum = getMaxNumFromAllInformationStock();
-			state.setLong(1, ++maxNum);
-			state.setString(2, stockCode);
-			state.setDate(3, new java.sql.Date(DateUtils.stringToDate(stockDate).getTime()));
-			state.setString(4, stockInfo);
-			String stockInfoDES = DESUtils.encryptToHex(stockInfo);
-			state.setString(5, stockInfoDES);
-			String stockInfoMD5 = MD5Utils.getEncryptedPwd(stockInfo);
-			state.setString(6, stockInfoMD5);
-			state.setTimestamp(7, new java.sql.Timestamp((new Date()).getTime()));
+			state.setLong(1, allInformationStock.getNum());
+			state.setString(2, allInformationStock.getStockCode());
+			state.setDate(3, new java.sql.Date(allInformationStock.getStockDate().getTime()));
+			state.setString(4, allInformationStock.getStockInfo());
+			state.setString(5, allInformationStock.getStockInfoDES());
+			state.setString(6, allInformationStock.getStockInfoMD5());
+			state.setTimestamp(7, new java.sql.Timestamp(allInformationStock.getInputTime().getTime()));
 			state.executeUpdate();
 			//super.connection.commit();
 			commitTransaction();
 			saveFlg = true;
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			//super.connection.rollback();
 			rollBackTransaction();
 			System.out.println(
-					DateUtils.dateTimeToString(new Date()) + "  " + stockDate + " 所有股票信息表(all_information_stock_)增加股票信息(" + stockCode + ")失败！");
-			log.loger.error(stockDate + " 所有股票信息表(all_information_stock_)增加股票信息(" + stockCode + ")失败！");
-			e.printStackTrace();
-			log.loger.error(e);
+					DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateTimeToString(allInformationStock.getStockDate()) + " 所有股票信息表(all_information_stock_)增加股票信息(" + allInformationStock.getStockCode() + ")失败！");
+			log.loger.error(DateUtils.dateTimeToString(allInformationStock.getStockDate()) + " 所有股票信息表(all_information_stock_)增加股票信息(" + allInformationStock.getStockCode() + ")失败！");
+			ex.printStackTrace();
+			log.loger.error(CommonUtils.errorInfo(ex));
 		} finally {
 			resetConnection();
 			close(state);
@@ -121,12 +118,12 @@ public class AllInformationStockDao extends OperationDao {
 		return saveFlg;
 	}
 
-	private Long getMaxNumFromAllInformationStock() throws SQLException {
+	public Long getMaxNumFromAllInformationStock() throws SQLException {
 
 		long maxNum = 0;
 		StringBuffer sql = new StringBuffer();
 		sql.append("select max(").append(AllInformationStock.NUM).append(") as num_ from ").append(AllInformationStock.TABLE_NAME);
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			maxNum = rs.getLong("num_");
@@ -153,7 +150,7 @@ public class AllInformationStockDao extends OperationDao {
 		List<AllInformationStock> allInformationStockList = new ArrayList<AllInformationStock>();
 		String sql = "select " + AllInformationStock.ALL_FIELDS + " from " + AllInformationStock.TABLE_NAME + " order by "
 				+ AllInformationStock.NUM;
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			AllInformationStock allInformationStock = getAllInformationStockFromResult(rs);
@@ -168,7 +165,7 @@ public class AllInformationStockDao extends OperationDao {
 		List<AllInformationStock> allInformationStockList = new ArrayList<AllInformationStock>();
 		String sql = "select " + AllInformationStock.ALL_FIELDS + " from " + AllInformationStock.TABLE_NAME + " where "
 				+ AllInformationStock.STOCK_DATE + "=? order by " + AllInformationStock.INPUT_TIME;
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		state.setDate(1, new java.sql.Date(date.getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
@@ -187,7 +184,7 @@ public class AllInformationStockDao extends OperationDao {
 				+ "=? and " + AllInformationStock.STOCK_DATE + "=?";
 		try {
 			beginTransaction();
-			state = (PreparedStatement) connection.prepareStatement(sql);
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
 			state.setLong(1, num);
 			state.setString(2, allInformationStock.getStockCode());
 			state.setDate(3, new java.sql.Date(allInformationStock.getStockDate().getTime()));
@@ -203,7 +200,7 @@ public class AllInformationStockDao extends OperationDao {
 			log.loger.error(DateUtils.dateToString(allInformationStock.getStockDate()) + "所有股票信息表(all_information_stock_)更新股票("
 					+ allInformationStock.getStockCode() + ")信息num_字段失败！");
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			resetConnection();
 			close(state);
@@ -216,7 +213,7 @@ public class AllInformationStockDao extends OperationDao {
 		int count = 0;
 		String sql = "select count(" + AllInformationStock.NUM + ") as count_ from " + AllInformationStock.TABLE_NAME + " where "
 				+ AllInformationStock.STOCK_CODE + "=? and " + AllInformationStock.STOCK_DATE + "=?";
-		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql);
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		state.setString(1, stockCode);
 		state.setDate(2, new java.sql.Date(stockDate.getTime()));
 		ResultSet rs = state.executeQuery();

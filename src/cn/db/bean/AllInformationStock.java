@@ -16,6 +16,16 @@ public class AllInformationStock extends BaseStock {
 	public final static String STOCK_INFO_MD5 = "STOCK_INFO_MD5_";
 	public final static String ALL_FIELDS = NUM + "," + STOCK_CODE + "," + STOCK_DATE + "," + STOCK_INFO + "," + STOCK_INFO_DES + "," + STOCK_INFO_MD5 + "," + INPUT_TIME;
 
+	public AllInformationStock() {
+		
+	}
+	
+	public AllInformationStock(String stockCode, Date stockDate) {
+		
+		super.stockCode = stockCode;
+		super.stockDate = stockDate;
+	}
+	
 	public String getStockInfo() {
 		return stockInfo;
 	}

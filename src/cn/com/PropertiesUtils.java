@@ -18,7 +18,7 @@ public class PropertiesUtils {
 			in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			log.loger.error(ex);
+			log.loger.error(CommonUtils.errorInfo(ex));
 		}
 	}
 	

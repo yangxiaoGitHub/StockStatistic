@@ -6,6 +6,7 @@ import java.sql.SQLException;
 
 import com.mysql.jdbc.PreparedStatement;
 
+import cn.com.CommonUtils;
 import cn.db.bean.AllDetailStock;
 import cn.db.bean.AllDetailStockTest;
 import cn.db.bean.DailyStock;
@@ -204,7 +205,7 @@ public class OperationDao extends BaseDao {
 				}
 			} catch (SQLException ex) {
 				ex.printStackTrace();
-				log.loger.error(ex);
+				log.loger.error(CommonUtils.errorInfo(ex));
 			}
 		}
 	}
@@ -222,7 +223,7 @@ public class OperationDao extends BaseDao {
 				}
 			} catch (SQLException ex) {
 				ex.printStackTrace();
-				log.loger.error(ex);
+				log.loger.error(CommonUtils.errorInfo(ex));
 			}
 		}
 	}
@@ -240,7 +241,7 @@ public class OperationDao extends BaseDao {
 				}
 			} catch (SQLException ex) {
 				ex.printStackTrace();
-				log.loger.error(ex);
+				log.loger.error(CommonUtils.errorInfo(ex));
 			}
 		}
 	}
@@ -258,7 +259,7 @@ public class OperationDao extends BaseDao {
 				}
 			} catch (SQLException ex) {
 				ex.printStackTrace();
-				log.loger.error(ex);
+				log.loger.error(CommonUtils.errorInfo(ex));
 			}
 		}
 	}
@@ -289,7 +290,7 @@ public class OperationDao extends BaseDao {
 				System.out.println("¹Ø±ÕResultSetÊ§°Ü£¡");
 				log.loger.error("¹Ø±ÕResultSetÊ§°Ü£¡");
 				ex.printStackTrace();
-				log.loger.error(ex);
+				log.loger.error(CommonUtils.errorInfo(ex));
 			}
 		}
 		if (ps != null) {
@@ -300,7 +301,7 @@ public class OperationDao extends BaseDao {
 				System.out.println("¹Ø±ÕPreparedStatementÊ§°Ü£¡");
 				log.loger.error("¹Ø±ÕPreparedStatementÊ§°Ü£¡");
 				ex.printStackTrace();
-				log.loger.error(ex);
+				log.loger.error(CommonUtils.errorInfo(ex));
 			}
 		}
 		if (conn != null) {
@@ -311,7 +312,7 @@ public class OperationDao extends BaseDao {
 				System.out.println("¹Ø±ÕConnectionÊ§°Ü£¡");
 				log.loger.error("¹Ø±ÕConnectionÊ§°Ü£¡");
 				ex.printStackTrace();
-				log.loger.error(ex);
+				log.loger.error(CommonUtils.errorInfo(ex));
 			}
 		}
 	}

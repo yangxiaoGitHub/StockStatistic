@@ -31,7 +31,7 @@ public class HandleOriginalAndDailyData extends OperationData {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(originalStockDao);
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " " + info + "了" + sDate + "的原始股票数据(original_stock_)！");
@@ -55,7 +55,7 @@ public class HandleOriginalAndDailyData extends OperationData {
 
 			for (int index = 0; index < codeArray.length; index++) {
 				// 对数据进行转换
-				DailyStock stockData = getStockData(index, codeArray, changeRateArray, turnoverRateArray, sDate);
+				DailyStock stockData = CommonUtils.getDailyStockFromArray(index, codeArray, changeRateArray, turnoverRateArray, sDate);
 				// 保存输入的股票数据
 				boolean existFlg = dailyStockDao.isExistInDailyStock(stockData);
 				if (!existFlg) {
@@ -76,7 +76,7 @@ public class HandleOriginalAndDailyData extends OperationData {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(dailyStockDao, statisticStockDao);
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + sDate + " 每日股票信息表(daily_stock_)共增加了" + dailySum + "条记录！");
@@ -98,26 +98,5 @@ public class HandleOriginalAndDailyData extends OperationData {
 			updateFlg = statisticStockDao.updateStatisticStock(statisticStock);
 		}
 		return updateFlg;
-	}
-
-	private DailyStock getStockData(int index, String[] codes, String[] changeRates, String[] turnoverRates, String sDate) {
-		DailyStock stockData = new DailyStock();
-		Date stockDate = DateUtils.stringToDate(sDate);
-		Timestamp inputTime = new Timestamp(System.currentTimeMillis());
-		stockData.setStockCode(codes[index]);
-		stockData.setStockDate(stockDate);
-		Double changeRate = Double.valueOf(changeRates[index]);
-		stockData.setChangeRate(changeRate);
-		if (turnoverRates != null) {
-			Double turnoverRate = Double.valueOf(turnoverRates[index]);
-			stockData.setTurnoverRate(turnoverRate);
-		} else {
-			stockData.setTurnoverRate(null);
-		}
-		String changeFlg = changeRate > 0 ? "1" : "0";
-		stockData.setChangeFlg(changeFlg);
-		stockData.setNote(DataUtils.CONSTANT_BLANK);
-		stockData.setInputTime(inputTime);
-		return stockData;
 	}
 }

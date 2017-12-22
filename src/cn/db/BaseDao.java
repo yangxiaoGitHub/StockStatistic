@@ -7,6 +7,7 @@ import java.sql.SQLException;
 
 import com.mysql.jdbc.PreparedStatement;
 
+import cn.com.CommonUtils;
 import cn.com.PropertiesUtils;
 import cn.log.Log;
 
@@ -28,7 +29,7 @@ public abstract class BaseDao {
 			Class.forName(DRIVE_NAME);
 		} catch (ClassNotFoundException ex) {
 			ex.printStackTrace();
-			log.loger.error(ex);
+			log.loger.error(CommonUtils.errorInfo(ex));
 		}
 	}
 
@@ -39,7 +40,7 @@ public abstract class BaseDao {
 				//connection.setAutoCommit(false);
 			} catch (Exception ex) {
 				ex.printStackTrace();
-				log.loger.error(ex);
+				log.loger.error(CommonUtils.errorInfo(ex));
 			}
 		}
 		return connection;
@@ -52,7 +53,7 @@ public abstract class BaseDao {
 			connection_.setAutoCommit(false);
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		}
 		return connection_;
 	}*/
@@ -68,7 +69,7 @@ public abstract class BaseDao {
 				connection = null;
 			} catch (SQLException ex) {
 				ex.printStackTrace();
-				log.loger.error(ex);
+				log.loger.error(CommonUtils.errorInfo(ex));
 			}
 		}
 	}

@@ -76,16 +76,13 @@ public class TestMain extends OperationData {
 						continue;
 					}
 					String[] stockInfoArray = stockInfo.split(",");
-					/*if (searchStockDate == null)
-						searchStockDate = DateUtils.StringToDate(stockInfoArray[30]);*/
+					if (!validateStockData(stockInfoArray[33], stockInfoArray[0], Double.valueOf(stockInfoArray[1]))) {
+						System.out.println("----->" + stockInfoArray[30] + "的股票" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")数据无效！");
+						continue;
+					}
 					long tradedStockNumber = Long.valueOf(stockInfoArray[8]).longValue();
 					float tradedAmount = Float.valueOf(stockInfoArray[9]).floatValue();
 					if (tradedStockNumber != 0 && tradedAmount != 0) {
-						AllDetailStockTest allDetailStockTest = getDetailStockTestFromArray(stockInfoArray);
-						if (!validateStockData(allDetailStockTest)) {
-							System.out.println("----->" + stockInfoArray[30] + " 股票(" + stockCode + ")数据无效！");
-							continue;
-						}
 						int saveUpdateFlg = allInformationStockTestDao.saveOrUpdateAllInformationStock(stockInfoArray[30], stockCode, stockInfo);
 						if (saveUpdateFlg == 1) {
 							++infoSaveNum;
@@ -95,6 +92,7 @@ public class TestMain extends OperationData {
 						} else if (saveUpdateFlg == 2) {
 							++infoUpdateNum;
 						}
+						AllDetailStockTest allDetailStockTest = getDetailStockTestFromArray(stockInfoArray);
 						// 计算股票换手率
 						calculateTurnoverRate(allDetailStockTest);
 						// saveList.add(AllDetailStockTest);
@@ -135,7 +133,7 @@ public class TestMain extends OperationData {
 			 * AllDetailStockTest.getStockName() + ")"); } } */
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(allStockDao, allInformationStockDao, allInformationStockTestDao, allDetailStockTestDao);
 			System.out.println("获取所有股票信息请求连接成功次数为: " + requestSuccess);

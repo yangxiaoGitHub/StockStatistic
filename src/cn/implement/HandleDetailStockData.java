@@ -96,7 +96,7 @@ public class HandleDetailStockData extends OperationData {
 			System.out.println("批量增加所有股票详细信息耗时: " + DateUtils.msecToTime(endTime.getTime() - startTime.getTime()));
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(allDetailStockDao, historyStockDao);
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " 所有股票详细信息表(all_detail_stock_)批量增加了" + detailSaveNum + "条记录！");
@@ -143,7 +143,7 @@ public class HandleDetailStockData extends OperationData {
 			System.out.println("批量增加所有股票详细信息耗时: " + DateUtils.msecToTime(endTime.getTime() - startTime.getTime()));
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(allStockDao, allInformationStockDao, allDetailStockDao);
 			System.out.println("所有股票详细信息表(all_detail_stock_)批量增加了" + detailSaveNum + "条记录！");
@@ -190,7 +190,7 @@ public class HandleDetailStockData extends OperationData {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(allStockDao, allDetailStockDao);
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " 所有股票详细信息表(all_detail_stock_)中更新了" + updateNum + "条记录的换手率！");
@@ -245,7 +245,7 @@ public class HandleDetailStockData extends OperationData {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(allStockDao, detailStockDao);
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " 每日选择股票详细信息表(detail_stock_)中更新了" + updateNum + "条记录的换手率！");
@@ -284,7 +284,7 @@ public class HandleDetailStockData extends OperationData {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(detailStockDao, allDetailStockDao);
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " 股票详细信息表(detail_stock_)更新了" + updateNum + "条记录的换手率(turnover_rate_)字段！");

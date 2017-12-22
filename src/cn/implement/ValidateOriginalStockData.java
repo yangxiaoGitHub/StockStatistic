@@ -47,7 +47,7 @@ public class ValidateOriginalStockData extends OperationData {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(originalStockDao);
 		}
@@ -113,7 +113,7 @@ public class ValidateOriginalStockData extends OperationData {
 			}
 		} catch(Exception ex) {
 			ex.printStackTrace();
-			log.loger.error(ex);
+			log.loger.error(CommonUtils.errorInfo(ex));
 		} finally {
 			closeDao(allDetailStockDao);
 		}
@@ -251,7 +251,7 @@ public class ValidateOriginalStockData extends OperationData {
 			recentStockDate = dailyStockDao.getRecentStockDate();
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(dailyStockDao);
 		}
@@ -271,7 +271,7 @@ public class ValidateOriginalStockData extends OperationData {
 			recentStockDate = originalStockDao.getRecentStockDate();
 		} catch (Exception e) {
 			e.printStackTrace();
-			log.loger.error(e);
+			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
 			closeDao(originalStockDao);
 		}

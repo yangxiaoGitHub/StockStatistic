@@ -6,7 +6,7 @@
 6、验证以下表中的数据：-statistic_stock_, detail_stock_, information_stock_, all_information_stock_;
 7、自动生成股票数据图片；
 8、--验证每日选股的涨跌幅；
-9、统计近期涨跌幅大的股票；
+9、统计近期涨跌幅大的股票(最大涨、跌幅，输入日涨、跌幅，输入日涨、跌次数)；
 10、--PropertyUtils.copyProperties(allDetailStock, detailStock);
 11、--closeDao(dailyStockDao, statisticStockDao);
 12、--每日备份数据库；
@@ -26,4 +26,5 @@
 26、--使用单例模式实现获取Connection实例；
 27、计算每日选择的股票从首选日期到最近日期的涨跌幅度；
 28、测试每个Dao中的Connection对象是不是同一个对象，并加快操作数据库的速度(保证多线程并发操作数据库没问题)；
-29、循环操作2张表速度慢问题；
+29、--循环操作2张表速度慢问题；
+30、正确使用换手率(turnover_rate_)；
