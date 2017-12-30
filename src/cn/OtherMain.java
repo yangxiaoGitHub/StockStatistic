@@ -5,14 +5,15 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import cn.com.CommonUtils;
-import cn.implement.HandleDetailStockData;
 import cn.implement.OtherData;
+import cn.implement.ValidateStatisticStockData;
 
 public class OtherMain {
 
 	public static void main(String[] args) {
 		try {
 			OtherData other = new OtherData();
+			ValidateStatisticStockData validateStatisticData = new ValidateStatisticStockData();
 			//HandleDetailStockData handleDetailStockData = new HandleDetailStockData();
 			//对原始股票数据进行MD5加密
 			//other.handleOriginalMD5();
@@ -25,7 +26,7 @@ public class OtherMain {
 			//更新所有股票信息表(all_information_stock_)中的num_字段
 			//other.updateNumOfAllInformationStock();
 			//统计每日股票数据的涨跌次数到statistic_stock_表中(一般不使用)
-			other.statisticUpAndDownToStatisticStock();
+			//other.statisticUpAndDownToStatisticStock();
 			//计算所有股票(all_stock_)的流通股
 			//handleAllCirculationStock();
 			//计算每日所有股票(all_detail_stock_)的换手率
@@ -33,7 +34,7 @@ public class OtherMain {
 			//计算每日选择股票(detail_stock_)的换手率
 			//handleDetailStockData.handDetailStockTurnoverRate();
 			//导入下载的股票数据到股票历史数据表(history_stock_)中
-			//other.handleDownloadDailyData();
+			other.handleDownloadDailyData();
 			//填补每日股票信息表(daily_stock_)中的涨跌幅(change_rate_)和换手率(turnover_rate_)
 			//other.handleChangeRateAndTurnoverRateInDailyStock();
 			//填补股票详细信息表(detail_stock_)中的换手率(turnover_rate_)

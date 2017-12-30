@@ -56,7 +56,7 @@ public class DESUtils {
 			String password = PropertiesUtils.getProperty("encryptPassword");
 			byte[] encryptData = encrypt(data.getBytes(), password);
 			// 加密后的byte数组转换成十六进制
-			bytesToHex = CommonUtils.bytesToHexString(encryptData);
+			bytesToHex = DataUtils.bytesToHexString(encryptData);
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
@@ -71,7 +71,7 @@ public class DESUtils {
 		try {
 			String password = PropertiesUtils.getProperty("encryptPassword");
 			// 十六进制转化成byte数组
-			byte[] hexToBytes = CommonUtils.hexStringToBytes(data);
+			byte[] hexToBytes = DataUtils.hexStringToBytes(data);
 			byte[] decryResult = decrypt(hexToBytes, password);
 			decryptData = new String(decryResult);
 		} catch (Exception ex) {

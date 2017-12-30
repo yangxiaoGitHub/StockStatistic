@@ -1,20 +1,26 @@
 package cn.com;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import cn.db.bean.DetailStock;
 
 public class DataUtils {
 	
 	// 整型常量
-	public final static int CONSTANT_INTEGER_ZERO = 0;
-	public final static int CONSTANT_INTEGER_ONE = 1;
-	public final static int CONSTANT_INTEGER_TWO = 2;
-	public final static int CONSTANT_INTEGER_THREE = 3;
-	public final static int CONSTANT_INTEGER_FOUR = 4;
-	public final static int CONSTANT_INTEGER_FIVE = 5;
-	public final static int CONSTANT_INTEGER_SIX = 6;
-	public final static int CONSTANT_INTEGER_SEVEN = 7;
-	public final static int CONSTANT_INTEGER_EIGHT = 8;
+	public final static int CONSTANT_INT_ZERO = 0;
+	public final static int CONSTANT_INT_ONE = 1;
+	public final static int CONSTANT_INT_TWO = 2;
+	public final static int CONSTANT_INT_THREE = 3;
+	public final static int CONSTANT_INT_FOUR = 4;
+	public final static int CONSTANT_INT_FIVE = 5;
+	public final static int CONSTANT_INT_SIX = 6;
+	public final static int CONSTANT_INT_SEVEN = 7;
+	public final static int CONSTANT_INT_EIGHT = 8;
 	public final static Integer CONSTANT_LONG_DAY = 12; //A股休市时间最高限制
 	public final static Double CONSTANT_MAX_CHANGE_RATE = 11.0;
 	public final static Double CONSTANT_MIN_CHANGE_RATE = -11.0;
@@ -53,17 +59,6 @@ public class DataUtils {
 		return decimal.format(changeRate);
 	}
 
-	public static boolean isStockAliasCode(String stockAliasCode) {
-
-		if (stockAliasCode.contains("SH") || stockAliasCode.contains("SZ")) {
-			String stockCode = stockAliasCode.substring(2);
-			if (isNumeric(stockCode)) return true;
-			else return false;
-		} else {
-			return false;
-		}
-	}
-
 	/**
 	 * 正则表达式去掉多余的.与0
 	 *
@@ -75,5 +70,180 @@ public class DataUtils {
 	    	value = value.replaceAll("[.]$", ""); //如最后一位是.则去掉
 	    }
 	    return value;
+	}
+	
+	/**
+	 * 获得最晚(最小)日期的股票详细信息
+	 *
+	 */
+	public static DetailStock getLastDetailStock(List<DetailStock> detailStockList) {
+		
+		DetailStock lastDetailStock = detailStockList.get(0);
+		for (DetailStock detailStock : detailStockList) {
+			Date stockDate = detailStock.getStockDate();
+			Date lastStockDate = lastDetailStock.getStockDate();
+			if (stockDate.compareTo(lastStockDate) > 0) lastDetailStock = detailStock;
+		}
+		return lastDetailStock;
+	}
+    
+	/**
+	 * 获得最早(最大)日期的股票详细信息
+	 *
+	 */
+	public static DetailStock getFirstDetailStock(List<DetailStock> detailStockList) {
+		
+		DetailStock firstDetailStock = detailStockList.get(0);
+		for (DetailStock detailStock : detailStockList) {
+			Date stockDate = detailStock.getStockDate();
+			Date firstStockDate = firstDetailStock.getStockDate();
+			if (stockDate.compareTo(firstStockDate) < 0) firstDetailStock = detailStock;
+		}
+		return firstDetailStock;
+	}
+	
+	/**
+	 * 验证统计的Json涨跌次数和statistic_stock_表中的Json涨跌次数是否相等
+	 *
+	 */
+	public static boolean validateJsonUpAndDownNumber(String upAndDownJson, String upAndDownStatisticJson, String periodFlg) throws IOException {
+
+		boolean validateFlg = true;
+		String[] upAndDownNumberKeys = StockUtils.getUpAndDownNumberKeysByFlg(periodFlg);
+		String upDownNumberKey = upAndDownNumberKeys[0];
+		String upNumberKey = upAndDownNumberKeys[1];
+		String downNumberKey = upAndDownNumberKeys[2];
+		Map<String, Integer> upAndDownMap = JsonUtils.getMapByJson(upAndDownJson);
+		Map<String, Integer> upAndDownStatisticMap = JsonUtils.getMapByJson(upAndDownStatisticJson);
+		Integer upDownNumber = upAndDownMap.get(upDownNumberKey);
+		Integer upNumber = upAndDownMap.get(upNumberKey);
+		Integer downNumber = upAndDownMap.get(downNumberKey);
+		Integer upDownStatisticNumber = upAndDownStatisticMap.get(upDownNumberKey);
+		Integer upStatisticNumber = upAndDownStatisticMap.get(upNumberKey);
+		Integer downStatisticNumber = upAndDownStatisticMap.get(downNumberKey);
+		if (upDownNumber.compareTo(upDownStatisticNumber)!=0
+			|| upNumber.compareTo(upStatisticNumber)!=0
+			|| downNumber.compareTo(downStatisticNumber)!=0) {
+			validateFlg = false;
+		}
+		return validateFlg;
+	}
+	
+	public static boolean isEqualsTurnoverRate(Double inputTurnoverRate, Double realTurnoverRate) {
+
+		double difference = inputTurnoverRate - realTurnoverRate;
+		if (Math.abs(difference) <= DataUtils.CONSTANT_ZERO_DOT_ONE)
+			return true;
+		else
+			return false;
+	}
+	
+	/**
+	 * 将字符串编码成16进制数字
+	 * 
+	 */
+	public static String stringToHex(String str) {
+		char[] chars = "0123456789ABCDEF".toCharArray();
+		StringBuilder sb = new StringBuilder("");
+		byte[] bs = str.getBytes();
+		int bit;
+		for (int i = 0; i < bs.length; i++) {
+			bit = (bs[i] & 0x0f0) >> 4;
+			sb.append(chars[bit]);
+			bit = bs[i] & 0x0f;
+			sb.append(chars[bit]);
+		}
+		return sb.toString().trim();
+	}
+
+	/**
+	 * 16进制直接转换成为字符串
+	 *
+	 */
+	public static String hexToString(String hexStr) {
+		String str = "0123456789ABCDEF";
+		char[] hexs = hexStr.toCharArray();
+		byte[] bytes = new byte[hexStr.length() / 2];
+		int n;
+		for (int i = 0; i < bytes.length; i++) {
+			n = str.indexOf(hexs[2 * i]) * 16;
+			n += str.indexOf(hexs[2 * i + 1]);
+			bytes[i] = (byte) (n & 0xff);
+		}
+		return new String(bytes);
+	}
+	
+	/**
+	 * 将bytes数组转换成十六进制
+	 * 
+	 */
+	public static String bytesToHexString(byte[] src) {
+		StringBuilder stringBuilder = new StringBuilder("");
+		if (src == null || src.length <= 0) {
+			return null;
+		}
+		for (int i = 0; i < src.length; i++) {
+			int v = src[i] & 0xFF;
+			String hv = Integer.toHexString(v);
+			if (hv.length() < 2) {
+				stringBuilder.append(0);
+			}
+			stringBuilder.append(hv);
+		}
+		return stringBuilder.toString();
+	}
+
+	/**
+	 * 将十六进制转换成bytes数组
+	 * 
+	 */
+	public static byte[] hexStringToBytes(String hexString) {
+		if (hexString == null || hexString.equals(DataUtils.CONSTANT_BLANK)) {
+			return null;
+		}
+		hexString = hexString.toUpperCase();
+		int length = hexString.length() / 2;
+		char[] hexChars = hexString.toCharArray();
+		byte[] d = new byte[length];
+		for (int i = 0; i < length; i++) {
+			int pos = i * 2;
+			d[i] = (byte) (charToByte(hexChars[pos]) << 4 | charToByte(hexChars[pos + 1]));
+		}
+		return d;
+	}
+
+	private static byte charToByte(char c) {
+		return (byte) "0123456789ABCDEF".indexOf(c);
+	}
+	
+	/**
+	 * 数字长度不够补0
+	 *
+	 */
+	public static String supplyNumber(int num, int size) {
+		String result = "";
+		int numBit = String.valueOf(num).length();
+		int sizeBit = String.valueOf(size).length();
+		int differ = sizeBit - numBit;
+		for (int index = 0; index < differ; index++) {
+			result += "0";
+		}
+		return result + num;
+	}
+	
+	public static boolean isZeroOrNull(Double value) {
+		if (value == null || value.floatValue() == 0)
+			return true;
+		else
+			return false;
+	}
+	
+	public static boolean isMinMaxValue(Double changeRate) {
+
+		if (CONSTANT_MAX_CHANGE_RATE.compareTo(changeRate)==0 
+				|| CONSTANT_MIN_CHANGE_RATE.compareTo(changeRate)==0)
+			return true;
+		else
+			return false;
 	}
 }

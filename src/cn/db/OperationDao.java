@@ -14,6 +14,7 @@ import cn.db.bean.DetailStock;
 import cn.db.bean.HistoryStock;
 import cn.db.bean.InformationStock;
 import cn.db.bean.OriginalStock;
+import cn.db.bean.StatisticDetailStock;
 import cn.db.bean.StatisticStock;
 
 public class OperationDao extends BaseDao {
@@ -61,7 +62,7 @@ public class OperationDao extends BaseDao {
 		data.setNum(rs.getLong(DailyStock.NUM));
 		data.setStockDate(rs.getDate(DailyStock.STOCK_DATE));
 		data.setStockCode(rs.getString(DailyStock.STOCK_CODE));
-		data.setEncryptStockCode(rs.getString(DailyStock.STOCK_CODE_ENCRYPT));
+		data.setStockCodeDES(rs.getString(DailyStock.STOCK_CODE_DES));
 		data.setChangeRate(rs.getDouble(DailyStock.CHANGE_RATE));
 		data.setEncryptChangeRate(rs.getString(DailyStock.CHANGE_RATE_ENCRYPT));
 		data.setChangeFlg(rs.getString(DailyStock.CHANGE_FLG));
@@ -82,28 +83,31 @@ public class OperationDao extends BaseDao {
 		data.setChangeRates(rs.getString(OriginalStock.CHANGE_RATES));
 		data.setChangeRatesEncrypt(rs.getString(OriginalStock.CHANGE_RATES_ENCRYPT));
 		data.setChangeRatesMD5(rs.getString(OriginalStock.CHANGE_RATES_MD5));
+		data.setTurnoverRates(rs.getString(OriginalStock.TURNOVER_RATES));
+		data.setTurnoverRatesEncrypt(rs.getString(OriginalStock.TURNOVER_RATES_ENCRYPT));
+		data.setTurnoverRatesMD5(rs.getString(OriginalStock.TURNOVER_RATES_MD5));
 		data.setInputTime(rs.getDate(OriginalStock.INPUT_TIME));
 		return data;
 	}
 
-	protected StatisticStock getStatisticStockFromResult(ResultSet rs) throws SQLException {
-		StatisticStock data = new StatisticStock();
-		data.setNum(rs.getLong(StatisticStock.NUM));
-		data.setStockCode(rs.getString(StatisticStock.STOCK_CODE));
-		data.setStockCodeDES(rs.getString(StatisticStock.STOCK_CODE_DES));
-		data.setUpDownNumber(rs.getInt(StatisticStock.UP_DOWN_NUMBER));
-		data.setUpNumber(rs.getInt(StatisticStock.UP_NUMBER));
-		data.setDownNumber(rs.getInt(StatisticStock.DOWN_NUMBER));
-		data.setOneWeek(rs.getString(StatisticStock.ONE_WEEK));
-		data.setHalfMonth(rs.getString(StatisticStock.HALF_MONTH));
-		data.setOneMonth(rs.getString(StatisticStock.ONE_MONTH));
-		data.setTwoMonth(rs.getString(StatisticStock.TWO_MONTH));
-		data.setThreeMonth(rs.getString(StatisticStock.THREE_MONTH));
-		data.setHalfYear(rs.getString(StatisticStock.HALF_YEAR));
-		data.setOneYear(rs.getString(StatisticStock.ONE_YEAR));
-		data.setFirstDate(rs.getDate(StatisticStock.FIRST_DATE));
-		data.setInputTime(rs.getDate(StatisticStock.INPUT_TIME));
-		data.setNote(rs.getString(StatisticStock.NOTE));
+	protected StatisticDetailStock getStatisticDetailStockFromResult(ResultSet rs) throws SQLException {
+		StatisticDetailStock data = new StatisticDetailStock();
+		data.setNum(rs.getLong(StatisticDetailStock.NUM));
+		data.setStockCode(rs.getString(StatisticDetailStock.STOCK_CODE));
+		data.setStockDate(rs.getDate(StatisticDetailStock.STOCK_DATE));
+		data.setStockCodeDES(rs.getString(StatisticDetailStock.STOCK_CODE_DES));
+		data.setUpDownNumber(rs.getInt(StatisticDetailStock.UP_DOWN_NUMBER));
+		data.setUpNumber(rs.getInt(StatisticDetailStock.UP_NUMBER));
+		data.setDownNumber(rs.getInt(StatisticDetailStock.DOWN_NUMBER));
+		data.setOneWeek(rs.getString(StatisticDetailStock.ONE_WEEK));
+		data.setHalfMonth(rs.getString(StatisticDetailStock.HALF_MONTH));
+		data.setOneMonth(rs.getString(StatisticDetailStock.ONE_MONTH));
+		data.setTwoMonth(rs.getString(StatisticDetailStock.TWO_MONTH));
+		data.setThreeMonth(rs.getString(StatisticDetailStock.THREE_MONTH));
+		data.setHalfYear(rs.getString(StatisticDetailStock.HALF_YEAR));
+		data.setOneYear(rs.getString(StatisticDetailStock.ONE_YEAR));
+		data.setInputTime(rs.getDate(StatisticDetailStock.INPUT_TIME));
+		data.setNote(rs.getString(StatisticDetailStock.NOTE));
 		return data;
 	}
 
@@ -130,7 +134,7 @@ public class OperationDao extends BaseDao {
 		data.setStockName(rs.getString(DetailStock.STOCK_NAME));
 		data.setTodayOpen(rs.getDouble(DetailStock.TODAY_OPEN));
 		data.setYesterdayClose(rs.getDouble(DetailStock.YESTERDAY_CLOSE));
-		data.setCurrent(rs.getDouble(DetailStock.CHANGE_RATE));
+		data.setCurrent(rs.getDouble(DetailStock.CURRENT));
 		data.setTodayHigh(rs.getDouble(DetailStock.TODAY_HIGH));
 		data.setTodayLow(rs.getDouble(DetailStock.TODAY_LOW));
 		data.setTradedStockNumber(rs.getLong(DetailStock.TRADED_STOCK_NUMBER));

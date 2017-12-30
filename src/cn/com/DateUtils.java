@@ -1,5 +1,6 @@
 package cn.com;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -207,6 +208,81 @@ public class DateUtils {
 		c.setTime(date);
 		c.add(Calendar.DAY_OF_MONTH, -1); // -1天
 		return c.getTime();
+	}
+	
+	/** 
+	 * 判断时间格式必须为"YYYY-MM-dd"
+	 * 
+	 */
+	public static boolean isValidDate(String sDate) {
+		DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+		try {
+			Date date = formatter.parse(sDate);
+			return sDate.equals(formatter.format(date));
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	/**
+	 * 根据输入的时间，获取时间段
+	 *
+	 */
+	public static String getTimeInterval(Date[] preOneWeek) {
+		
+		String startDate = DateUtils.dateToString(preOneWeek[0]);
+		String endDate = DateUtils.dateToString(preOneWeek[1]);
+		return startDate + "至" + endDate;
+	}
+	
+	public static String checkDate(String startDate, String endDate) {
+		if (null != startDate && !DateUtils.isValidDate(startDate)) {
+			return "输入的开始日期格式不正确！";
+		}
+		if (null != endDate && !DateUtils.isValidDate(endDate)) {
+			return "输入的结束日期格式不正确！";
+		}
+		return null;
+	}
+	
+	public static String inspectDate(String startDate, String endDate) {
+
+		if (startDate.trim().equals(DataUtils.CONSTANT_BLANK) && endDate.trim().equals(DataUtils.CONSTANT_BLANK)) {
+			return null;
+		}
+		if ((startDate.trim().equals(DataUtils.CONSTANT_BLANK) && !endDate.trim().equals(DataUtils.CONSTANT_BLANK))
+				|| !startDate.trim().equals(DataUtils.CONSTANT_BLANK) && endDate.trim().equals(DataUtils.CONSTANT_BLANK)) {
+			return "输入的开始日期和结束日期同时为空，或者同时不为空！";
+		}
+		if (!DateUtils.isValidDate(startDate)) {
+			return "输入的开始日期格式不正确！";
+		}
+		if (!DateUtils.isValidDate(endDate)) {
+			return "输入的结束日期格式不正确！";
+		}
+		return null;
+	}
+	
+	public static boolean isEqualsTime(Date date1, Date date2) {
+
+		if (date1 == null || date2 == null)
+			return false;
+		if (date1.getTime() == date2.getTime()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public static boolean isLegalDate(String sDate, Date maxStockDate) {
+
+		Date limitDate = DateUtils.stringToDate("2015-01-05");
+		if (maxStockDate != null)
+			limitDate = maxStockDate;
+		Date stockDate = DateUtils.stringToDate(sDate);
+		if (stockDate.compareTo(limitDate) > 0)
+			return true;
+		else
+			return false;
 	}
 
 	/**

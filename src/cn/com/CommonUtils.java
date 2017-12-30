@@ -26,8 +26,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
+import cn.db.bean.AllStock;
 import cn.db.bean.BaseStock;
 import cn.db.bean.DailyStock;
+import cn.db.bean.DetailStock;
 import cn.db.bean.OriginalStock;
 import cn.db.bean.StatisticStock;
 import cn.log.Log;
@@ -49,19 +51,42 @@ public class CommonUtils {
 		else
 			return false;
 	}
+	
+	public static boolean isJsonBlank(String jsonObj) {
 
-	public static boolean isBlank(List<String> duplicateStockList) {
-		if (duplicateStockList == null || duplicateStockList.size() == 0)
+		if (jsonObj==null || jsonObj.trim().equals(DataUtils.CONSTANT_BLANK))
+			return true;
+		boolean jsonFlg = true;
+		Map<String, ? extends Object> jsonMap = JsonUtils.getMapByJson(jsonObj);
+		for (Object value : jsonMap.values()) {
+			if (null!=value || !DataUtils.CONSTANT_BLANK.equals(value)) {
+				jsonFlg = false;
+				break;
+			}
+		}
+		return jsonFlg;
+	}
+
+	public static boolean isBlank(List<? extends Object> dataList) {
+		if (dataList == null || dataList.size() == 0)
 			return true;
 		else
 			return false;
 	}
 	
 	public static boolean isBlank(String[] values) {
-		if (values==null || values.length==0)
+		if (values==null || values.length==0 || DataUtils.CONSTANT_BLANK.equals(values[0]))
 			return true;
 		else
 			return false;
+	}
+	
+	public static boolean validateSortFlg(String sortFlg, Integer beginInt, Integer endInt) {
+		if (!DataUtils.isNumeric(sortFlg)) return false;
+		if (sortFlg.length()!=1) return false;
+		Integer intSortFlg = Integer.valueOf(sortFlg);
+		if (intSortFlg.compareTo(beginInt)<0 || intSortFlg.compareTo(endInt)>0) return false;
+		return true;
 	}
 
 	public static List<String> getDuplicateStocks(String[] stockArray) {
@@ -75,6 +100,16 @@ public class CommonUtils {
 				singleStockList.add(stockCode);
 		}
 		return duplicateStockList;
+	}
+	
+	public static String addSpaceInMiddle(String para) {
+		int length = para.length();
+		char[] value = new char[length << 1];
+		for (int i = 0, j = 0; i < length; ++i, j = i << 1) {
+			value[j] = para.charAt(i);
+			value[1 + j] = ' ';
+		}
+		return new String(value);
 	}
 
 	public static String getDuplicateMessage(List<String> duplicateStockList) {
@@ -140,15 +175,6 @@ public class CommonUtils {
 		return errorStockList;
 	}
 
-	public static boolean isEqualsTurnoverRate(Double inputTurnoverRate, Double realTurnoverRate) {
-
-		double difference = inputTurnoverRate - realTurnoverRate;
-		if (Math.abs(difference) <= DataUtils.CONSTANT_ZERO_DOT_ONE)
-			return true;
-		else
-			return false;
-	}
-
 	public static String isExistStockCode(String[] codeArray) {
 
 		List<String> codeList = new ArrayList<String>();
@@ -162,134 +188,58 @@ public class CommonUtils {
 		}
 		return null;
 	}
-
-	public static String checkDate(String startDate, String endDate) {
-		if (null != startDate && !isValidDate(startDate)) {
-			return "输入的开始日期格式不正确！";
-		}
-		if (null != endDate && !isValidDate(endDate)) {
-			return "输入的结束日期格式不正确！";
-		}
-		return null;
-	}
-
-	public static String inspectDate(String startDate, String endDate) {
-
-		if (startDate.trim().equals(DataUtils.CONSTANT_BLANK) && endDate.trim().equals(DataUtils.CONSTANT_BLANK)) {
-			return null;
-		}
-		if ((startDate.trim().equals(DataUtils.CONSTANT_BLANK) && !endDate.trim().equals(DataUtils.CONSTANT_BLANK))
-				|| !startDate.trim().equals(DataUtils.CONSTANT_BLANK) && endDate.trim().equals(DataUtils.CONSTANT_BLANK)) {
-			return "输入的开始日期和结束日期同时为空，或者同时不为空！";
-		}
-		if (!isValidDate(startDate)) {
-			return "输入的开始日期格式不正确！";
-		}
-		if (!isValidDate(endDate)) {
-			return "输入的结束日期格式不正确！";
-		}
-		return null;
-	}
-
-	/** 
-	 * 判断时间格式必须为"YYYY-MM-dd"
+	
+	/**
+	 * 根据stockCode从List中获取AllStock
 	 * 
 	 */
-	public static boolean isValidDate(String sDate) {
-		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		try {
-			Date date = formatter.parse(sDate);
-			return sDate.equals(formatter.format(date));
-		} catch (Exception e) {
-			return false;
-		}
-	}
+	public static AllStock getAllStockByStockCode(String stockCode, List<AllStock> allStockList) {
 
-	/**
-	 * 将字符串编码成16进制数字
-	 * 
-	 */
-	public static String stringToHex(String str) {
-		char[] chars = "0123456789ABCDEF".toCharArray();
-		StringBuilder sb = new StringBuilder("");
-		byte[] bs = str.getBytes();
-		int bit;
-		for (int i = 0; i < bs.length; i++) {
-			bit = (bs[i] & 0x0f0) >> 4;
-			sb.append(chars[bit]);
-			bit = bs[i] & 0x0f;
-			sb.append(chars[bit]);
+		AllStock allStock = null;
+		for (AllStock stock : allStockList) {
+			String code = stock.getStockCode();
+			if (code.equals(stockCode)) {
+				allStock = stock;
+				break;
+			}
 		}
-		return sb.toString().trim();
+		return allStock;
 	}
-
+	
 	/**
-	 * 16进制直接转换成为字符串
+	 * 验证网上获取的股票信息与实际股票信息是否一致(股票名称和开盘价)
 	 *
 	 */
-	public static String hexToString(String hexStr) {
-		String str = "0123456789ABCDEF";
-		char[] hexs = hexStr.toCharArray();
-		byte[] bytes = new byte[hexStr.length() / 2];
-		int n;
-		for (int i = 0; i < bytes.length; i++) {
-			n = str.indexOf(hexs[2 * i]) * 16;
-			n += str.indexOf(hexs[2 * i + 1]);
-			bytes[i] = (byte) (n & 0xff);
+	public static boolean validateStockData(String stockCode, String stockName, Double todayOpen) {
+
+		boolean validateFlg = true;
+		String realStockName = PropertiesUtils.getProperty(stockCode);
+		if (!CommonUtils.isBlank(realStockName)) {
+			String realStockName_first = realStockName.substring(0, 1);
+			String detailStockName_first = stockName.substring(0, 1);
+			if (!realStockName_first.equals(detailStockName_first))
+				validateFlg = false;
+			if (todayOpen > DataUtils.CONSTANT_TODAY_OPEN_LIMIT)
+				validateFlg = false;
 		}
-		return new String(bytes);
+		return validateFlg;
 	}
 
-	public static boolean compareDate(Date date1, Date date2) {
+	/**
+	 * 判断是否是股票别名
+	 *
+	 */
+	public static boolean isStockAliasCode(String stockAliasCode) {
 
-		if (date1 == null || date2 == null)
-			return false;
-		if (date1.getTime() == date2.getTime()) {
-			return true;
+		if (stockAliasCode.contains(DataUtils.CONSTANT_SH_CAPITAL) || stockAliasCode.contains(DataUtils.CONSTANT_SZ_CAPITAL)) {
+			String stockCode = stockAliasCode.substring(2);
+			if (DataUtils.isNumeric(stockCode)) return true;
+			else return false;
 		} else {
 			return false;
 		}
 	}
-
-	/**
-	 * 将bytes数组转换成十六进制
-	 * 
-	 */
-	public static String bytesToHexString(byte[] src) {
-		StringBuilder stringBuilder = new StringBuilder("");
-		if (src == null || src.length <= 0) {
-			return null;
-		}
-		for (int i = 0; i < src.length; i++) {
-			int v = src[i] & 0xFF;
-			String hv = Integer.toHexString(v);
-			if (hv.length() < 2) {
-				stringBuilder.append(0);
-			}
-			stringBuilder.append(hv);
-		}
-		return stringBuilder.toString();
-	}
-
-	/**
-	 * 将十六进制转换成bytes数组
-	 * 
-	 */
-	public static byte[] hexStringToBytes(String hexString) {
-		if (hexString == null || hexString.equals(DataUtils.CONSTANT_BLANK)) {
-			return null;
-		}
-		hexString = hexString.toUpperCase();
-		int length = hexString.length() / 2;
-		char[] hexChars = hexString.toCharArray();
-		byte[] d = new byte[length];
-		for (int i = 0; i < length; i++) {
-			int pos = i * 2;
-			d[i] = (byte) (charToByte(hexChars[pos]) << 4 | charToByte(hexChars[pos + 1]));
-		}
-		return d;
-	}
-
+	
 	/**
 	 * 根据字符串获得需要补充的空格串 
 	 *
@@ -319,28 +269,6 @@ public class CommonUtils {
 			}
 		}
 		return valueLength;
-	}
-
-	private static byte charToByte(char c) {
-		return (byte) "0123456789ABCDEF".indexOf(c);
-	}
-
-	public static String supplyNumber(int num, int size) {
-		String result = "";
-		int numBit = String.valueOf(num).length();
-		int sizeBit = String.valueOf(size).length();
-		int differ = sizeBit - numBit;
-		for (int index = 0; index < differ; index++) {
-			result += "0";
-		}
-		return result + num;
-	}
-
-	public static boolean isZeroOrNull(Double value) {
-		if (value == null || value.floatValue() == 0)
-			return true;
-		else
-			return false;
 	}
 
 	public static String getRequestByTimeOut(final String stockCode) {
@@ -416,23 +344,18 @@ public class CommonUtils {
 				// 连接成功
 				String strResponse = EntityUtils.toString(response.getEntity(), HTTP.UTF_8);
 				stockInfo = strResponse.substring(strResponse.indexOf('"') + 1, strResponse.lastIndexOf('"')); // + "," + stockCode;
-				/*System.out.print("--(" + stockInfo + ")--");
-				String[] stockInfoArray = stockInfo.split(",");
-				if (stockInfoArray.length == 34) {
-					returnInfo = stockInfo;
-				}*/
 			} else {
 				System.out.println("股票(" + stockCode + ")获取状态码为:" + statusCode + ", URL连接失败！");
-				log.loger.info("股票(" + stockCode + ")获取状态码为:" + statusCode + ", URL连接失败！");
+				log.loger.warn("股票(" + stockCode + ")获取状态码为:" + statusCode + ", URL连接失败！");
 			}
 		} catch (ClientProtocolException ex) {
 			System.out.println("股票(" + stockCode + ")数据URL请求出现异常！");
-			log.loger.info("股票(" + stockCode + ")数据URL请求出现异常！");
+			log.loger.error("股票(" + stockCode + ")数据URL请求出现异常！");
 			ex.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(ex));
 		} catch (IOException ex) {
 			System.out.println("股票(" + stockCode + ")数据URL请求出现异常！");
-			log.loger.info("股票(" + stockCode + ")数据URL请求出现异常！");
+			log.loger.error("股票(" + stockCode + ")数据URL请求出现异常！");
 			ex.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(ex));
 		} finally {
@@ -478,7 +401,7 @@ public class CommonUtils {
 	public static String getStockCodeByAliasCode(String stockAliasCode) {
 
 		String stockCode = null;
-		if (stockAliasCode.contains("SH") || stockAliasCode.contains("SZ"))
+		if (stockAliasCode.contains(DataUtils.CONSTANT_SH_CAPITAL) || stockAliasCode.contains(DataUtils.CONSTANT_SZ_CAPITAL))
 			stockCode = stockAliasCode.substring(2);
 		else
 			stockCode = stockAliasCode;
@@ -498,27 +421,6 @@ public class CommonUtils {
 		return map;
 	}
 
-	public static boolean isLegalDate(String sDate, Date maxStockDate) {
-
-		Date limitDate = DateUtils.stringToDate("2015-01-01");
-		if (maxStockDate != null)
-			limitDate = maxStockDate;
-		Date stockDate = DateUtils.stringToDate(sDate);
-		if (stockDate.compareTo(limitDate) > 0)
-			return true;
-		else
-			return false;
-	}
-
-	public static boolean isMinMaxValue(Double changeRate) {
-
-		if (DataUtils.CONSTANT_MAX_CHANGE_RATE.compareTo(changeRate)==0 
-				|| DataUtils.CONSTANT_MIN_CHANGE_RATE.compareTo(changeRate)==0)
-			return true;
-		else
-			return false;
-	}
-	
 	public static String errorInfo(Exception exception) {  
         StringWriter sw = null;  
         PrintWriter pw = null;  
@@ -568,145 +470,101 @@ public class CommonUtils {
 		stockData.setInputTime(inputTime);
 		return stockData;
 	}
+    
+	public static String getLineBreak() {
+		return System.getProperty("line.separator");
+	}
 
-	public static Map<String, StatisticStock> statisticUpAndDownNumber(List<OriginalStock> originalStockList) {
+	public static boolean compareUpAndDownJson(String newUpAndDownJson, String oldUpAndDownJson) throws IOException {
 		
-		Map<String, StatisticStock> statisticUpAndDownMap = new HashMap<String, StatisticStock>();
-		for (OriginalStock originalStock : originalStockList) {
-			Date stockDate = originalStock.getStockDate();
-			String stockCodes = originalStock.getStockCodes();
-			String changeRates = originalStock.getChangeRates();
-			String turnoverRates = originalStock.getTurnoverRates();
-			String[] codeArray = stockCodes.split(",");
-			String[] changeRateArray = changeRates.split(",");
-			String[] turnoverRateArray = turnoverRates.split(",");
-			for (int index = 0; index < codeArray.length; index++) {
-				// 对数据进行转换
-				DailyStock dailyStock = getDailyStockFromArray(index, codeArray, changeRateArray, turnoverRateArray, DateUtils.dateToString(stockDate));
-				String stockCode = dailyStock.getStockCode();
-				String changeFlg = dailyStock.getChangeFlg();
-				boolean existFlg = statisticUpAndDownMap.containsKey(stockCode);
-				if (existFlg) {
-					StatisticStock statisticStock = statisticUpAndDownMap.get(stockCode);
-					Integer upDownNumber = statisticStock.getUpDownNumber();
-					++upDownNumber;
-					statisticStock.setUpDownNumber(upDownNumber);
-					if (changeFlg.equals(DailyStock.CHANGE_FLG_ONE)) {
-						Integer upNumber = statisticStock.getUpNumber();
-						++upNumber;
-						statisticStock.setUpNumber(upNumber);
-					} else {
-						Integer downNumber = statisticStock.getDownNumber();
-						++downNumber;
-						statisticStock.setDownNumber(downNumber);
-					}
-				} else {
-					StatisticStock statisticStock = new StatisticStock(stockCode);
-					statisticStock.setUpDownNumber(DataUtils.CONSTANT_INTEGER_ONE);
-					if (changeFlg.equals(DailyStock.CHANGE_FLG_ONE)) {
-						statisticStock.setUpNumber(DataUtils.CONSTANT_INTEGER_ONE);
-						statisticStock.setDownNumber(DataUtils.CONSTANT_INTEGER_ZERO);
-					} else {
-						statisticStock.setUpNumber(DataUtils.CONSTANT_INTEGER_ZERO);
-						statisticStock.setDownNumber(DataUtils.CONSTANT_INTEGER_ONE);
-					}
-					statisticUpAndDownMap.put(stockCode, statisticStock);
-				}
-			}
-		}
-		return statisticUpAndDownMap;
+		Map<String, Integer> newJsonMap = JsonUtils.getMapByJson(newUpAndDownJson);
+		Map<String, Integer> oldJsonMap = JsonUtils.getMapByJson(oldUpAndDownJson);
+		return compareMap(newJsonMap, oldJsonMap);
 	}
 	
-	public static String[] getUpAndDownNumberKeysByFlg(String periodFlg) throws IOException {
+	private static boolean compareMap(Map<String, Integer> newMap, Map<String, Integer> oldMap) {
 
-		String upDownNumberKey = "";
-		String upNumberKey = "";
-		String downNumberKey = "";
-		switch (periodFlg) {
-		case StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM: // 一周涨跌次数
-			upDownNumberKey = StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_ONE_WEEK_UP_NUM;
-			downNumberKey = StatisticStock.PRE_ONE_WEEK_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM: // 半月涨跌次数
-			upDownNumberKey = StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_HALF_MONTH_UP_NUM;
-			downNumberKey = StatisticStock.PRE_HALF_MONTH_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM: // 一月涨跌次数
-			upDownNumberKey = StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_ONE_MONTH_UP_NUM;
-			downNumberKey = StatisticStock.PRE_ONE_MONTH_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM: // 二月涨跌次数
-			upDownNumberKey = StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_TWO_MONTH_UP_NUM;
-			downNumberKey = StatisticStock.PRE_TWO_MONTH_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM: // 三月涨跌次数
-			upDownNumberKey = StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_THREE_MONTH_UP_NUM;
-			downNumberKey = StatisticStock.PRE_THREE_MONTH_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM: // 半年涨跌次数
-			upDownNumberKey = StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_HALF_YEAR_UP_NUM;
-			downNumberKey = StatisticStock.PRE_HALF_YEAR_DOWN_NUM;
-			break;
-		case StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM: // 一年涨跌次数
-			upDownNumberKey = StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM;
-			upNumberKey = StatisticStock.PRE_ONE_YEAR_UP_NUM;
-			downNumberKey = StatisticStock.PRE_ONE_YEAR_DOWN_NUM;
-			break;
-		default:
-			IOException ioException = new IOException("周期标识(periodFlg)不正确: " + periodFlg);
-			throw ioException;
-		}
-		String[] upAndDownKeys = {upDownNumberKey, upNumberKey, downNumberKey};
-		return upAndDownKeys;
-	}
-
-	public static void setUpAndDownNumberJson(Map<String, StatisticStock> upAndDownNumberMap, String periodFlg) throws IOException {
-		
-		String[] upAndDownNumberKeys = getUpAndDownNumberKeysByFlg(periodFlg);
-		String upDownNumberKey = upAndDownNumberKeys[0];
-		String upNumberKey = upAndDownNumberKeys[1];
-		String downNumberKey = upAndDownNumberKeys[2];
-		for (StatisticStock statisticStock : upAndDownNumberMap.values()) {
-			Integer upDownNumber = statisticStock.getUpDownNumber();
-			Integer upNumber = statisticStock.getUpNumber();
-			Integer downNumber = statisticStock.getDownNumber();
-			Map<String, Integer> upAndDownNumberJsonMap = new HashMap<String, Integer>();
-			upAndDownNumberJsonMap.put(upDownNumberKey, upDownNumber);
-			upAndDownNumberJsonMap.put(upNumberKey, upNumber);
-			upAndDownNumberJsonMap.put(downNumberKey, downNumber);
-			String upAndDownNumberJson = JsonUtils.getJsonByMap(upAndDownNumberJsonMap);
-			switch (periodFlg) {
-			case StatisticStock.PRE_ONE_WEEK_UP_DOWN_NUM: // 一周涨跌次数
-				statisticStock.setOneWeek(upAndDownNumberJson);
+		if (newMap.size() != oldMap.size()) return false;
+		boolean flg = true;
+		//判断键是否相同
+		for (String newKey : newMap.keySet()) {
+			if (!oldMap.containsKey(newKey)) {
+				flg = false;
 				break;
-			case StatisticStock.PRE_HALF_MONTH_UP_DOWN_NUM: // 半月涨跌次数
-				statisticStock.setHalfMonth(upAndDownNumberJson);
-				break;
-			case StatisticStock.PRE_ONE_MONTH_UP_DOWN_NUM: // 一月涨跌次数
-				statisticStock.setOneMonth(upAndDownNumberJson);
-				break;
-			case StatisticStock.PRE_TWO_MONTH_UP_DOWN_NUM: // 二月涨跌次数
-				statisticStock.setTwoMonth(upAndDownNumberJson);
-				break;
-			case StatisticStock.PRE_THREE_MONTH_UP_DOWN_NUM: // 三月涨跌次数
-				statisticStock.setThreeMonth(upAndDownNumberJson);
-				break;
-			case StatisticStock.PRE_HALF_YEAR_UP_DOWN_NUM: // 半年涨跌次数
-				statisticStock.setHalfYear(upAndDownNumberJson);
-				break;
-			case StatisticStock.PRE_ONE_YEAR_UP_DOWN_NUM: // 一年涨跌次数
-				statisticStock.setOneYear(upAndDownNumberJson);
-				break;
-			default:
-				IOException ioException = new IOException("周期标识(periodFlg)不正确: " + periodFlg);
-				throw ioException;
 			}
 		}
-	} 
+		//判断值是否相同
+		for (Integer newValue : newMap.values()) {
+			if (!oldMap.containsValue(newValue)) {
+				flg = false;
+				break;
+			}
+		}
+		return flg;
+	}
+
+	/**
+	 * 获得最大值和最小值
+	 *
+	 */
+	public static Double[] getMinMaxPrices(List<DetailStock> detailStockList) {
+		
+		DetailStock detailStock = detailStockList.get(0);
+		Double minValue = detailStock.getCurrent();
+		Double maxValue = detailStock.getCurrent();
+		for (DetailStock detaiStock : detailStockList) {
+			Double stockPrice = detaiStock.getCurrent();
+			if (stockPrice < minValue) minValue = stockPrice;
+			if (stockPrice > maxValue) maxValue = stockPrice;
+		}
+		Double[] minMaxValues = {minValue, maxValue};
+		return minMaxValues;
+	}
+	
+	/**
+	 * 根据固定长度从后面补足空格
+	 *
+	 */
+	public static String appendSpace(String values, final int length) {
+		
+		String spaces = "";
+		int differ = length - values.length();
+		for (int index=0; index<differ; index++) {
+			spaces += " ";
+		}
+		return values + spaces;
+	}
+	
+	/**
+	 * List是否包含DailyStock
+	 * 
+	 */
+	public static DailyStock containStockCode(String stockCode, List<DailyStock> dailyStockList) {
+
+		DailyStock reDailyStock = null;
+		for (DailyStock dailyStock : dailyStockList) {
+			String stockCode_ = dailyStock.getStockCode();
+			if (stockCode.equals(stockCode_)) {
+				reDailyStock = dailyStock;
+				break;
+			}
+		}
+		return reDailyStock;
+	}
+	
+	/**
+	 * 验证BaseStock类中的stockCode加密
+	 *
+	 */
+	public static <T extends BaseStock> List<T> listErrorStockCodeDES(List<T> stockList) {
+
+		List<T> invalidList = new ArrayList<T>();
+		for (T data : stockList) {
+			String decryptStockCode = DESUtils.decryptHex(data.getStockCodeDES());
+			if (!decryptStockCode.equals(data.getStockCode())) {
+				invalidList.add(data);
+			}
+		}
+		return invalidList;
+	}
 }

@@ -53,7 +53,7 @@ public class PropertiesUtils {
         	Entry<Object, Object> entry = (Entry<Object, Object>)itr.next();
         	String stockAliasCode = entry.getKey().toString();
         	String stockPriceValue = entry.getValue().toString();
-        	if (DataUtils.isStockAliasCode(stockAliasCode)) {
+        	if (CommonUtils.isStockAliasCode(stockAliasCode)) {
         		properties.put(stockAliasCode, stockPriceValue);
         	}
         }

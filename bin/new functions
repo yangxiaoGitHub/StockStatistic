@@ -3,10 +3,10 @@
 3、--OtherData.java operation.updateAllStock(stock);
 4、统计分析detail_stock_表中的数据；
 5、--解析all_information_stock_表中的数据；
-6、验证以下表中的数据：-statistic_stock_, detail_stock_, information_stock_, all_information_stock_;
+6、验证以下表中的数据：--statistic_stock_, -statistic_detail_stock_, detail_stock_, information_stock_, all_information_stock_;
 7、自动生成股票数据图片；
 8、--验证每日选股的涨跌幅；
-9、统计近期涨跌幅大的股票(最大涨、跌幅，输入日涨、跌幅，输入日涨、跌次数)；
+9、--统计近期涨跌幅大的股票(最大涨、跌幅，输入日涨、跌幅，输入日涨、跌次数)；
 10、--PropertyUtils.copyProperties(allDetailStock, detailStock);
 11、--closeDao(dailyStockDao, statisticStockDao);
 12、--每日备份数据库；

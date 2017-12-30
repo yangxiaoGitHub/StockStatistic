@@ -99,4 +99,15 @@ public class AllStock extends BaseStock {
 	public void setStockDate(Date stockDate) {
 
 	}
+
+	@Override
+	public String getStockCodeDES() {
+
+		return null;
+	}
+
+	@Override
+	public void setStockCodeDES(String stockCodeDES) {
+
+	}
 }

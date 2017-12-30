@@ -34,11 +34,9 @@ public class HistoryStockDao extends OperationDao {
 			state.setFloat(9, historyStock.getTradedAmount());
 			state.setTimestamp(10, new java.sql.Timestamp((new Date()).getTime()));
 			state.executeUpdate();
-			//connection.commit();
 			commitTransaction();
 			saveFlg = true;
 		} catch (Exception e) {
-			//connection.rollback();
 			rollBackTransaction();
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " 历史股票信息表(history_stock_)中增加记录失败---股票代码：" + historyStock.getStockCode()
 					+ "(" + PropertiesUtils.getProperty(historyStock.getStockCode()) + ")");

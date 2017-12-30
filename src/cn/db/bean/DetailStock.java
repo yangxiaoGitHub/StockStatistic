@@ -5,7 +5,6 @@ import java.util.Date;
 public class DetailStock extends BaseStock {
 	private static final long serialVersionUID = 928675550402133001L;
 	
-	private String stockCodeDES;
 	private String stockName;
 	private Double todayOpen;
 	private Double current;
@@ -38,9 +37,11 @@ public class DetailStock extends BaseStock {
 	public final static String ALL_FIELDS = NUM + "," + STOCK_DATE + "," + STOCK_CODE + "," + STOCK_CODE_DES + "," + STOCK_NAME + "," + TODAY_OPEN + "," 
 											+ YESTERDAY_CLOSE + "," + CURRENT + "," + TODAY_HIGH + "," + TODAY_LOW + "," + TRADED_STOCK_NUMBER + "," + TRADED_AMOUNT + "," 
 											+ CHANGE_RATE + "," + CHANGE_RATE_DES + "," + TURNOVER_RATE + "," + TURNOVER_RATE_DES + "," + TRADED_TIME + "," + INPUT_TIME;
+	@Override
 	public String getStockCodeDES() {
 		return stockCodeDES;
 	}
+	@Override
 	public void setStockCodeDES(String stockCodeDES) {
 		this.stockCodeDES = stockCodeDES;
 	}

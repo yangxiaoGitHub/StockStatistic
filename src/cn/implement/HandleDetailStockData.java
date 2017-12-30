@@ -11,6 +11,7 @@ import cn.com.DESUtils;
 import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
+import cn.com.StockUtils;
 import cn.db.AllDetailStockDao;
 import cn.db.AllInformationStockDao;
 import cn.db.AllStockDao;
@@ -73,9 +74,10 @@ public class HandleDetailStockData extends OperationData {
 					allDetailStock.setTradedAmount(historyStock.getTradedAmount());
 					allDetailStock.setInputTime(new Date());
 					// 计算涨跌幅
-					this.calculateStockChangeRate(allDetailStock);
+					StockUtils.calculateStockChangeRate(allDetailStock);
+					AllStock allStock = allStockDao.getAllStockByStockCode(allDetailStock.getStockCode());
 					// 计算换手率
-					this.calculateTurnoverRate(allDetailStock);
+					StockUtils.calculateTurnoverRate(allDetailStock, allStock);
 					// System.out.println("---stock_code_:" + stockCode + "(" +
 					// PropertiesUtils.getProperty(stockCode) + ") stock_date_:"
 					// + DateUtils.Date2String(allDetailStock.getStockDate()) +
@@ -100,7 +102,7 @@ public class HandleDetailStockData extends OperationData {
 		} finally {
 			closeDao(allDetailStockDao, historyStockDao);
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " 所有股票详细信息表(all_detail_stock_)批量增加了" + detailSaveNum + "条记录！");
-			log.loger.info(" 所有股票详细信息表(all_detail_stock_)批量增加了" + detailSaveNum + "条记录！");
+			log.loger.warn(" 所有股票详细信息表(all_detail_stock_)批量增加了" + detailSaveNum + "条记录！");
 		}
 	}
 
@@ -125,9 +127,10 @@ public class HandleDetailStockData extends OperationData {
 				for (AllInformationStock stock : allInformationStockList) {
 					String stockInfo = stock.getStockInfo();
 					String[] stockInfoArray = stockInfo.split(",");
-					AllDetailStock allDetailStock = getDetailStockFromArray(stockInfoArray);
+					AllDetailStock allDetailStock = StockUtils.getDetailStockFromArray(stockInfoArray);
+					AllStock allStock = allStockDao.getAllStockByStockCode(allDetailStock.getStockCode());
 					// 计算股票换手率
-					calculateTurnoverRate(allDetailStock);
+					StockUtils.calculateTurnoverRate(allDetailStock, allStock);
 					boolean saveFlg = allDetailStockDao.saveOrUpdateAllDetailStock(allDetailStock);
 					if (saveFlg) {
 						++detailSaveNum;
@@ -147,7 +150,7 @@ public class HandleDetailStockData extends OperationData {
 		} finally {
 			closeDao(allStockDao, allInformationStockDao, allDetailStockDao);
 			System.out.println("所有股票详细信息表(all_detail_stock_)批量增加了" + detailSaveNum + "条记录！");
-			log.loger.info("所有股票详细信息表(all_detail_stock_)批量增加了" + detailSaveNum + "条记录！");
+			log.loger.warn("所有股票详细信息表(all_detail_stock_)批量增加了" + detailSaveNum + "条记录！");
 		}
 	}
 
@@ -172,7 +175,7 @@ public class HandleDetailStockData extends OperationData {
 					if (oldTurnoverRate != null && oldTurnoverRate != 0)
 						continue;
 					String stockCode = allDetailStock.getStockCode();
-					AllStock allStock = getAllStockByStockCode(stockCode, allStockList);
+					AllStock allStock = CommonUtils.getAllStockByStockCode(stockCode, allStockList);
 					Long circulationStock = allStock.getCirculationStockComplex();
 					if (circulationStock == null || circulationStock == 0)
 						continue;
@@ -194,7 +197,7 @@ public class HandleDetailStockData extends OperationData {
 		} finally {
 			closeDao(allStockDao, allDetailStockDao);
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " 所有股票详细信息表(all_detail_stock_)中更新了" + updateNum + "条记录的换手率！");
-			log.loger.info(" 所有股票详细信息表(all_detail_stock_)中更新了" + updateNum + "条记录的换手率！");
+			log.loger.warn(" 所有股票详细信息表(all_detail_stock_)中更新了" + updateNum + "条记录的换手率！");
 		}
 	}
 
@@ -218,8 +221,9 @@ public class HandleDetailStockData extends OperationData {
 					Double oldTurnoverRate = detailStock.getTurnoverRate();
 					if (oldTurnoverRate != null && oldTurnoverRate != 0)
 						continue;
+					AllStock allStock = allStockDao.getAllStockByStockCode(detailStock.getStockCode());
 					// 计算股票的换手率
-					calculateTurnoverRate(detailStock);
+					StockUtils.calculateTurnoverRate(detailStock, allStock);
 					/*
 					 * String stockCode = detailStock.getStockCode(); AllStock
 					 * allStock = getAllStockByStockCode(stockCode,
@@ -249,7 +253,7 @@ public class HandleDetailStockData extends OperationData {
 		} finally {
 			closeDao(allStockDao, detailStockDao);
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " 每日选择股票详细信息表(detail_stock_)中更新了" + updateNum + "条记录的换手率！");
-			log.loger.info(" 每日选择股票详细信息表(detail_stock_)中更新了" + updateNum + "条记录的换手率！");
+			log.loger.warn(" 每日选择股票详细信息表(detail_stock_)中更新了" + updateNum + "条记录的换手率！");
 		}
 	}
 
@@ -288,7 +292,7 @@ public class HandleDetailStockData extends OperationData {
 		} finally {
 			closeDao(detailStockDao, allDetailStockDao);
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " 股票详细信息表(detail_stock_)更新了" + updateNum + "条记录的换手率(turnover_rate_)字段！");
-			log.loger.info(" 股票详细信息表(detail_stock_)更新了" + updateNum + "条记录的换手率(turnover_rate_)字段！");
+			log.loger.warn(" 股票详细信息表(detail_stock_)更新了" + updateNum + "条记录的换手率(turnover_rate_)字段！");
 		}
 	}
 
@@ -306,18 +310,5 @@ public class HandleDetailStockData extends OperationData {
 			return CommonUtils.convertListToMap(historyStockList);
 		else
 			return null;
-	}
-
-	private AllStock getAllStockByStockCode(String stockCode, List<AllStock> allStockList) {
-
-		AllStock allStock = null;
-		for (AllStock stock : allStockList) {
-			String code = stock.getStockCode();
-			if (code.equals(stockCode)) {
-				allStock = stock;
-				break;
-			}
-		}
-		return allStock;
 	}
 }

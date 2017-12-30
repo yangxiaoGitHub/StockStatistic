@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import cn.com.CommonUtils;
+import cn.com.DateUtils;
 import cn.implement.ExecuteData;
 
 public class ExecuteMain {
@@ -63,7 +64,7 @@ public class ExecuteMain {
 				System.out.println("输入的股票代码不能为空！");
 				continue;
 			}
-			String message = CommonUtils.inspectDate(startDate, endDate);
+			String message = DateUtils.inspectDate(startDate, endDate);
 			if (message != null) {
 				System.out.println(message + "！");
 				continue;

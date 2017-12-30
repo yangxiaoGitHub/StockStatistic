@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 import cn.com.CommonUtils;
+import cn.com.DateUtils;
 import cn.implement.AnalysisDailyAndDetailStockData;
 
 public class AnalysisMain {
@@ -20,8 +21,9 @@ public class AnalysisMain {
 				System.out.println("请输入结束日期(格式:2000-01-01)：");
 				String endDate = br.readLine();
 				if (CommonUtils.isEnd(endDate)) break;
-				System.out.println("请输入涨跌标识(0:跌, 1:涨, 2:全部)：2");
+				System.out.println("请输入涨跌标识(0:跌, 1:涨, 2:涨跌)：2");
 				String changeFlg = br.readLine();
+				if (CommonUtils.isBlank(changeFlg)) changeFlg = "2";
 				if (CommonUtils.isEnd(changeFlg)) break;
 
 				if (CommonUtils.isBlank(startDate) ||
@@ -29,7 +31,7 @@ public class AnalysisMain {
 					System.out.println("输入的日期不能为空！");
 					continue;
 				}
-				String message = CommonUtils.checkDate(startDate, endDate);
+				String message = DateUtils.checkDate(startDate, endDate);
 				if (message != null) {
 					System.out.println(message + "！");
 					continue;

@@ -11,12 +11,14 @@ import cn.db.HistoryStockDao;
 import cn.db.InformationStockDao;
 import cn.db.OperationDao;
 import cn.db.OriginalStockDao;
+import cn.db.StatisticDetailStockDao;
 import cn.db.StatisticStockDao;
 
 public abstract class BaseData {
 
 	protected DailyStockDao dailyStockDao = null;
 	protected StatisticStockDao statisticStockDao = null;
+	protected StatisticDetailStockDao statisticDetailStockDao = null;
 	protected OriginalStockDao originalStockDao = null;
 	protected AllDetailStockDao allDetailStockDao = null;
 	protected AllInformationStockDao allInformationStockDao = null;
@@ -36,6 +38,10 @@ public abstract class BaseData {
 		if (statisticStockDao != null) {
 			statisticStockDao.close();
 			statisticStockDao = null;
+		}
+		if (statisticDetailStockDao != null) {
+			statisticDetailStockDao.close();
+			statisticDetailStockDao = null;
 		}
 		if (originalStockDao != null) {
 			originalStockDao.close();

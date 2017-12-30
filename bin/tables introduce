@@ -30,7 +30,9 @@ statistic_stock_£º±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢(°´¹ÉÆ±Í³¼
 Íâ¼ü£ºstatistic_stock_(stock_code_)-daily_stock_(stock_code_)--¼Ó
 --num_<bigint(5)>£º¼ÇÂ¼ÊıÁ¿
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
+--stock_code_DES_<varchar(30)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
 --first_date_<date>£ºµÚÒ»´ÎÔö¼Óµ½Ã¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞµÄÈÕÆÚ
+--statistic_date_<date>: ×î½üÍ³¼ÆÈÕÆÚ
 --up_down_number_<int(5)>: ×ÜÕÇµø´ÎÊı
 --up_number_<int(5)>: ×ÜÕÇ´ÎÊı
 --down_number_<int(5)>: ×Üµø´ÎÊı
@@ -41,7 +43,6 @@ statistic_stock_£º±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢(°´¹ÉÆ±Í³¼
 --three_month_<varchar(100)>: ÈıÔÂÕÇµø´ÎÊıJson´®
 --half_year_<varchar(100)>: °ëÄêÕÇµø´ÎÊıJson´®
 --one_year_<varchar(100)>: Ò»ÄêÕÇµø´ÎÊıJson´®
---stock_code_DES_<varchar(30)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
 --note_<varchar(500)>£º×¢ÊÍ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 

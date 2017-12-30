@@ -204,4 +204,22 @@ public class DetailStockDao extends OperationDao {
 		close(rs, state);
 		return dataList;
 	}
+
+	public List<DetailStock> getDetailStockByTime(String stockCode, Date beginDate, Date endDate) throws SQLException {
+
+		List<DetailStock> detailStockList = new ArrayList<DetailStock>();
+		String sql = "select " + DetailStock.ALL_FIELDS + " from " + DetailStock.TABLE_NAME + " where " + DetailStock.STOCK_CODE + "=? and " 
+				    + DetailStock.STOCK_DATE + " between ? and ? " + " order by " + DetailStock.NUM + ", " + DetailStock.INPUT_TIME;
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
+		state.setString(1, stockCode);
+		state.setDate(2, new java.sql.Date(beginDate.getTime()));
+		state.setDate(3, new java.sql.Date(endDate.getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			DetailStock detailStock = getDetailStockFromResult(rs);
+			detailStockList.add(detailStock);
+		}
+		close(rs, state);
+		return detailStockList;
+	}
 }

@@ -8,11 +8,13 @@ public abstract class BaseStock implements Serializable {
 
 	private Long num;
 	protected String stockCode;
+	protected String stockCodeDES;
 	protected Date stockDate;
 	private Date inputTime;
-	
+
 	public final static String NUM = "NUM_";
 	public final static String STOCK_CODE = "STOCK_CODE_";
+	public final static String STOCK_CODE_DES = "STOCK_CODE_DES_";
 	public final static String STOCK_DATE = "STOCK_DATE_";
 	public final static String INPUT_TIME = "INPUT_TIME_";
 	
@@ -22,10 +24,13 @@ public abstract class BaseStock implements Serializable {
 	public void setNum(Long lineNum) {
 		this.num = lineNum;
 	}
+
 	public abstract String getStockCode();
 	public abstract void setStockCode(String stockCode);
 	public abstract Date getStockDate();
 	public abstract void setStockDate(Date stockDate);
+	public abstract String getStockCodeDES();
+	public abstract void setStockCodeDES(String stockCodeDES);
 
 	public Date getInputTime() {
 		return inputTime;
@@ -33,5 +38,4 @@ public abstract class BaseStock implements Serializable {
 	public void setInputTime(Date inputTime) {
 		this.inputTime = inputTime;
 	}
-	
 }

@@ -38,12 +38,12 @@ public class ValidateOriginalStockData extends OperationData {
 				// 验证原始股票数量
 				boolean originalNumberFlg = checkOriginalStockNumber(originalList);
 				if (originalDataMD5Flg && originalDataDESFlg && originalNumberFlg) {
-					System.out.println("原始股票数据(original_stock_)验证成功！");
-					log.loger.info("原始股票数据(original_stock_)验证成功！");
+					System.out.println(DateUtils.dateTimeToString(new Date()) + "=====>原始股票数据(original_stock_)验证成功！" + CommonUtils.getLineBreak());
+					log.loger.warn(DateUtils.dateTimeToString(new Date()) + "=====>原始股票数据(original_stock_)验证成功！" + CommonUtils.getLineBreak());
 				}
 			} else {
 				System.out.println("数据库中没有原始股票数据！");
-				log.loger.info("数据库中没有原始股票数据！");
+				log.loger.warn("数据库中没有原始股票数据！");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -59,7 +59,7 @@ public class ValidateOriginalStockData extends OperationData {
 	 */
 	public String checkInputStockData(String sDate, String codes, String names, String changeRates, String turnoverRates) throws Exception {
 		
-		if (!CommonUtils.isValidDate(sDate)) {
+		if (!DateUtils.isValidDate(sDate)) {
 			return "输入的日期格式不正确！";
 		}
 		Date recentStockDate = isRecentStockDate(sDate);
@@ -100,11 +100,11 @@ public class ValidateOriginalStockData extends OperationData {
 				return "输入的股票为：" + CommonUtils.getErrorStockName(errorStockNameList) + "  实际股票为：" + CommonUtils.getActualStockName(errorStockNameList);
 			}
 	
-			// 验证输入股票涨跌幅和实际股票涨跌幅
-			List<String[]> errorStockChangeRateList = listErrorStockChangeRate(sDate, codeArray, changeRateArray);
-			if (errorStockChangeRateList.size() > 0) {
-				return "输入股票涨跌幅为：" + CommonUtils.getErrorStockMessage(errorStockChangeRateList) + "  实际股票涨跌幅为：" + CommonUtils.getActualStockMessage(errorStockChangeRateList);
-			}
+//			// 验证输入股票涨跌幅和实际股票涨跌幅
+//			List<String[]> errorStockChangeRateList = listErrorStockChangeRate(sDate, codeArray, changeRateArray);
+//			if (errorStockChangeRateList.size() > 0) {
+//				return "输入股票涨跌幅为：" + CommonUtils.getErrorStockMessage(errorStockChangeRateList) + "  实际股票涨跌幅为：" + CommonUtils.getActualStockMessage(errorStockChangeRateList);
+//			}
 			
 			// 验证输入股票的换手率
 			List<String[]> errorTurnoverRateList = listErrorStockTurnoverRate(sDate, codeArray, turnoverRateArray);
@@ -159,7 +159,7 @@ public class ValidateOriginalStockData extends OperationData {
 			AllDetailStock allDetailStock = allDetailStockDao.getAllDetailStockByKey(DateUtils.stringToDate(sDate), codeArray[index]);
 			if (allDetailStock != null) {
 				Double realTurnoverRate = allDetailStock.getTurnoverRate();
-				if (!CommonUtils.isZeroOrNull(realTurnoverRate) && !CommonUtils.isEqualsTurnoverRate(Double.valueOf(inputTurnoverRate), realTurnoverRate)) {
+				if (!DataUtils.isZeroOrNull(realTurnoverRate) && !DataUtils.isEqualsTurnoverRate(Double.valueOf(inputTurnoverRate), realTurnoverRate)) {
 					String[] errorStock = new String[3];
 					errorStock[0] = codeArray[index];
 					errorStock[1] = inputTurnoverRate;
@@ -200,11 +200,12 @@ public class ValidateOriginalStockData extends OperationData {
 			throws NoSuchAlgorithmException, UnsupportedEncodingException {
 		
 		boolean flg = true;
+		System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(original_stock_)中字段(stock_code_)MD5加密验证开始...");
 		List<OriginalStock> invalidList = validateOriginalDataMD5(originalList);
 		if (invalidList.size() > 0) {
 			flg = false;
 			System.out.println("---------------MD5验证原始股票数据验证无效数据----------------");
-			log.loger.info("---------------MD5验证原始股票数据验证无效数据----------------");
+			log.loger.warn("---------------MD5验证原始股票数据验证无效数据----------------");
 			for (int index=0; index<invalidList.size(); index++) {
 				OriginalStock data = invalidList.get(index);
 				System.out.println("MD5验证出的无效数据---" + (index+1) +": stock_date_=" 
@@ -213,13 +214,15 @@ public class ValidateOriginalStockData extends OperationData {
 									+ " stock_codes_=" + data.getStockCodes()
 									+ " change_rates_=" + data.getChangeRates());
 
-				log.loger.info("MD5验证出的无效数据---" + (index+1) +": stock_date_=" 
+				log.loger.warn("MD5验证出的无效数据---" + (index+1) +": stock_date_=" 
 									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " stock_number_=" + data.getStockNumber()
 									+ " stock_codes_=" + data.getStockCodes()
 									+ " change_rates_=" + data.getChangeRates());
 			}
-		} 
+		} else {
+			System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(original_stock_)中字段(stock_code_)MD5加密验证成功！");
+		}
 		return flg;
 	}
 	
@@ -282,11 +285,12 @@ public class ValidateOriginalStockData extends OperationData {
 	private boolean checkOriginalDataDES(List<OriginalStock> originalList) {
 		
 		boolean flg = true;
+		System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(original_stock_)中字段(stock_code_)DES加密验证开始...");
 		List<OriginalStock> invalidList = validateOriginalDataDES(originalList);
 		if (invalidList.size() > 0) {
 			flg = false;
 			System.out.println("---------------DES验证原始股票数据验证无效数据----------------");
-			log.loger.info("---------------DES验证原始股票数据验证无效数据----------------");
+			log.loger.warn("---------------DES验证原始股票数据验证无效数据----------------");
 			for (int index=0; index<invalidList.size(); index++) {
 				OriginalStock data = invalidList.get(index);
 				System.out.println("DES验证出的无效数据---" + (index+1) +": stock_date_=" 
@@ -297,7 +301,7 @@ public class ValidateOriginalStockData extends OperationData {
 									+ " change_rates_=" + data.getChangeRates()
 									+ " 解密的change_rates=" + data.getDecryptChangeRates());
 
-				log.loger.info("DES验证出的无效数据---" + (index+1) +": stock_date_=" 
+				log.loger.warn("DES验证出的无效数据---" + (index+1) +": stock_date_=" 
 									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " stock_number_=" + data.getStockNumber()
 									+ " stock_codes_=" + data.getStockCodes()
@@ -305,7 +309,9 @@ public class ValidateOriginalStockData extends OperationData {
 									+ " change_rates_=" + data.getChangeRates()
 									+ " 解密的change_rates=" + data.getDecryptChangeRates());
 			}
-		} 
+		} else {
+			System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(original_stock_)中字段(stock_code_)DES加密验证成功！");
+		}
 		return flg;
 	}
 	
@@ -327,6 +333,7 @@ public class ValidateOriginalStockData extends OperationData {
 	private boolean checkOriginalStockNumber(List<OriginalStock> originalList) {
 		
 		boolean flg = true;
+		System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(original_stock_)中股票数量的正确性验证开始...");
 		List<OriginalStock> invalidateOriginalList = new ArrayList<OriginalStock>();
 		for (OriginalStock stock : originalList) {
 			String stockCodes = stock.getStockCodes();
@@ -340,7 +347,7 @@ public class ValidateOriginalStockData extends OperationData {
 		if (invalidateOriginalList.size() > 0) {
 			flg = false;
 			System.out.println("---------------原始股票数量验证无效数据----------------");
-			log.loger.info("---------------原始股票数量验证无效数据----------------");
+			log.loger.warn("---------------原始股票数量验证无效数据----------------");
 			for (int index=0; index<invalidateOriginalList.size(); index++) {
 				OriginalStock data = invalidateOriginalList.get(index);
 				System.out.println("验证出的无效数据---" + (index+1) +": stock_date_=" 
@@ -349,13 +356,15 @@ public class ValidateOriginalStockData extends OperationData {
 									+ " stock_codes_=" + data.getStockCodes()
 									+ " change_rates_=" + data.getChangeRates());
 
-				log.loger.info("验证出的无效数据---" + (index+1) +": stock_date_=" 
+				log.loger.warn("验证出的无效数据---" + (index+1) +": stock_date_=" 
 									+  DateUtils.dateToString(data.getStockDate()) 
 									+ " stock_number_=" + data.getStockNumber()
 									+ " stock_codes_=" + data.getStockCodes()
 									+ " change_rates_=" + data.getChangeRates());
 			}
-		} 
+		} else {
+			System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(original_stock_)中股票数量的正确性验证成功！");
+		}
 		return flg;
 	}
 }
