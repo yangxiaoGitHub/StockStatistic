@@ -14,6 +14,7 @@ original_stock_£º±£´æÊäÈëµÄÔ­Ê¼¹ÉÆ±Êı¾İ(ÒÔ¶ººÅ·Ö¸îµÄ¹ÉÆ±´úÂë¡¢ÕÇµø·ù¡¢»»ÊÖÂÊµÈ)£
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 daily_stock_£º±£´æÃ¿ÈÕÑ¡Ôñ¹ÉÆ±µÄĞÅÏ¢(¹ÉÆ±´úÂë¡¢ÕÇµø·ù¡¢»»ÊÖÂÊµÈ)£¬Êı¾İÀ´Ô´ÓÚÔ­Ê¼¹ÉÆ±ĞÅÏ¢±í(original_stock_)ÖĞ
+Íâ¼ü£ºdaily_stock_(stock_code_)-all_stock_(stock_code_)
 --num_<bigint(5)>£º¼ÇÂ¼ÊıÁ¿
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
@@ -26,25 +27,33 @@ daily_stock_£º±£´æÃ¿ÈÕÑ¡Ôñ¹ÉÆ±µÄĞÅÏ¢(¹ÉÆ±´úÂë¡¢ÕÇµø·ù¡¢»»ÊÖÂÊµÈ)£¬Êı¾İÀ´Ô´ÓÚÔ­Ê¼
 --note_<varchar(500)>£º×¢ÊÍ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
-statistic_stock_£º±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢(°´¹ÉÆ±Í³¼Æ)
-Íâ¼ü£ºstatistic_stock_(stock_code_)-daily_stock_(stock_code_)--¼Ó
+statistic_stock_£º±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢
+Íâ¼ü£ºstatistic_stock_(stock_code_)-daily_stock_(stock_code_)
 --num_<bigint(5)>£º¼ÇÂ¼ÊıÁ¿
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
---stock_code_DES_<varchar(30)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
+--stock_code_DES_<varchar(20)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
 --first_date_<date>£ºµÚÒ»´ÎÔö¼Óµ½Ã¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞµÄÈÕÆÚ
---statistic_date_<date>: ×î½üÍ³¼ÆÈÕÆÚ
---up_down_number_<int(5)>: ×ÜÕÇµø´ÎÊı
---up_number_<int(5)>: ×ÜÕÇ´ÎÊı
---down_number_<int(5)>: ×Üµø´ÎÊı
---one_week_<varchar(100)>: Ò»ÖÜÕÇµø´ÎÊıJson´®
---half_month_<varchar(100)>: °ëÔÂÕÇµø´ÎÊıJson´®
---one_month_<varchar(100)>: Ò»ÔÂÕÇµø´ÎÊıJson´®
---two_month_<varchar(100)>: ¶şÔÂÕÇµø´ÎÊıJson´®
---three_month_<varchar(100)>: ÈıÔÂÕÇµø´ÎÊıJson´®
---half_year_<varchar(100)>: °ëÄêÕÇµø´ÎÊıJson´®
---one_year_<varchar(100)>: Ò»ÄêÕÇµø´ÎÊıJson´®
 --note_<varchar(500)>£º×¢ÊÍ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
+
+statistic_detail_stock_: ±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄÄ³Ò»Ê±¼ä¶ÎÄÚ¹ÉÆ±µÄÕÇµø´ÎÊı
+Íâ¼ü£ºstatistic_detail_stock_(stock_code_)-statistic_stock_(stock_code_)
+--num_<bigint(10)>£º¼ÇÂ¼ÊıÁ¿
+--stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
+--stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
+--stock_code_DES_<varchar(20)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
+--up_down_number_<int(5)>£º×ÜÕÇµø´ÎÊı
+--up_number_<int(5)>£º×ÜÕÇ´ÎÊı
+--down_number_<int(5)>£º×Üµø´ÎÊı
+--one_week_<varchar(100)>£ºÇ°Ò»ÖÜÕÇµø´ÎÊı
+--half_month_<varchar(100)>£ºÇ°°ëÔÂÕÇµø´ÎÊı
+--one_month_<varchar(100)>£ºÇ°Ò»ÔÂÕÇµø´ÎÊı
+--two_month_<varchar(100)>£ºÇ°¶şÔÂÕÇµø´ÎÊı
+--three_month_<varchar(100)>£ºÇ°ÈıÔÂÕÇµø´ÎÊı
+--half_year_<varchar(100)>£ºÇ°°ëÄêÕÇµø´ÎÊı
+--one_year_<varchar(100)>£ºÇ°Ò»ÄêÕÇµø´ÎÊı
+--input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
+--note_<varchar(300)>£º±¸×¢
 
 information_stock_£º±£´æÍ³¼Æ¹ÉÆ±Êı¾İ±í(statistic_stock_)ÖĞµÄ¹ÉÆ±´ÓÍøÉÏ»ñÈ¡µÄÏêÏ¸ĞÅÏ¢´®£¬
 					¹ÉÆ±À´Ô´ÓÚÍ³¼Æ¹ÉÆ±Êı¾İ±í(statistic_stock_)ÖĞ£¬²¢½âÎöµ½¹ÉÆ±ÏêÏ¸ĞÅÏ¢±í(detail_stock_)ÖĞ
@@ -58,6 +67,7 @@ information_stock_£º±£´æÍ³¼Æ¹ÉÆ±Êı¾İ±í(statistic_stock_)ÖĞµÄ¹ÉÆ±´ÓÍøÉÏ»ñÈ¡µÄÏêÏ¸
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 detail_stock_£º±£´æ´Ó¹ÉÆ±ĞÅÏ¢±í(information_stock_)ÖĞ½âÎö³öµÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢£¬Êı¾İÀ´Ô´ÓÚ¹ÉÆ±ĞÅÏ¢±í(information_stock_)ÖĞ
+Íâ¼ü£ºdetail_stock_(stock_code_)-statistic_stock_(stock_code_)
 --num_<bigint(10)>£º¼ÇÂ¼ÊıÁ¿
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
@@ -98,6 +108,7 @@ all_information_stock_£º±£´æËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_stock_)ÖĞµÄ¹ÉÆ±´ÓÍøÉÏ»ñÈ¡µÄÏêÏ¸ĞÅ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 all_detail_stock_£º±£´æ´ÓËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_information_stock_)ÖĞ½âÎö³öµÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢£¬Êı¾İÀ´Ô´ÓÚËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_information_stock_)ÖĞ
+Íâ¼ü£ºdetail_stock_(stock_code_)-statistic_stock_(stock_code_)
 --num_<bigint(10)>£º¼ÇÂ¼ÊıÁ¿
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
@@ -141,3 +152,25 @@ statistic_date_: ±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢(°´ÈÕÆÚÍ³¼Æ
 --large_up_down_<varchar(100)>
 --small_up_down_<varchar(100)>
 --input_time_<datetime>
+
+all_import_stock_£º±£´æ´ÓExcelÎÄ¼şÖĞµ¼ÈëµÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢
+Íâ¼ü£ºall_import_stock_(stock_code_)-all_stock_(stock_code_)
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
+--
