@@ -12,36 +12,38 @@ import cn.db.bean.DetailStock;
 public class DataUtils {
 	
 	// 整型常量
-	public final static int CONSTANT_INT_ZERO = 0;
-	public final static int CONSTANT_INT_ONE = 1;
-	public final static int CONSTANT_INT_TWO = 2;
-	public final static int CONSTANT_INT_THREE = 3;
-	public final static int CONSTANT_INT_FOUR = 4;
-	public final static int CONSTANT_INT_FIVE = 5;
-	public final static int CONSTANT_INT_SIX = 6;
-	public final static int CONSTANT_INT_SEVEN = 7;
-	public final static int CONSTANT_INT_EIGHT = 8;
-	public final static Integer CONSTANT_LONG_DAY = 12; //A股休市时间最高限制
-	public final static Double CONSTANT_MAX_CHANGE_RATE = 11.0;
-	public final static Double CONSTANT_MIN_CHANGE_RATE = -11.0;
-	public final static BigDecimal CONSTANT_ONE = new BigDecimal("1");
-	public final static BigDecimal CONSTANT_TEN = new BigDecimal("10");
-	public final static BigDecimal CONSTANT_HUNDRED = new BigDecimal("100");
-	public final static BigDecimal CONSTANT_TEN_THOUSAND = new BigDecimal("10000"); //万
-	public final static BigDecimal CONSTANT_HUNDRED_MILLION = new BigDecimal("100000000");  //亿
+	public final static int _INT_ZERO = 0;
+	public final static int _INT_ONE = 1;
+	public final static int _INT_TWO = 2;
+	public final static int _INT_THREE = 3;
+	public final static int _INT_FOUR = 4;
+	public final static int _INT_FIVE = 5;
+	public final static int _INT_SIX = 6;
+	public final static int _INT_SEVEN = 7;
+	public final static int _INT_EIGHT = 8;
+	public final static Integer _LONG_DAY = 12; //A股休市时间最高限制
+	public final static Double _MAX_CHANGE_RATE = 11.0;
+	public final static Double _MIN_CHANGE_RATE = -11.0;
+	public final static BigDecimal _ONE = new BigDecimal("1");
+	public final static BigDecimal _TEN = new BigDecimal("10");
+	public final static BigDecimal _HUNDRED = new BigDecimal("100");
+	public final static BigDecimal _TEN_THOUSAND = new BigDecimal("10000"); //万
+	public final static BigDecimal _HUNDRED_MILLION = new BigDecimal("100000000");  //亿
 	// 字符串常量
-	public final static String CONSTANT_SPACES = "   ";
-	public final static String CONSTANT_BLANK = "";
-	public static final String CONSTANT_SH_CAPITAL = "SH";
-	public static final String CONSTANT_SZ_CAPITAL = "SZ";
-	public static final String CONSTANT_SH_SMALL = "sh";
-	public static final String CONSTANT_SZ_SMALL = "sz";
-	public static final String CONSTANT_STRING_SIX = "6";
-	public static final String CONSTANT_STRING_SEVEN = "7";
+	public final static String _DASH = "--";
+	public final static String _SPACES = "   ";
+	public final static String _BLANK = "";
+	public static final String _SH_CAPITAL = "SH";
+	public static final String _SZ_CAPITAL = "SZ";
+	public static final String _SH_SMALL = "sh";
+	public static final String _SZ_SMALL = "sz";
+	public static final String _ZERO = "0";
+	public static final String _STRING_SIX = "6";
+	public static final String _STRING_SEVEN = "7";
 	// 小数常量
-	public final static Double CONSTANT_ZERO_DOT_ONE = 0.1;
-	public final static Double CONSTANT_DOUBLE_ZERO = 0.0;
-	public static final Double CONSTANT_TODAY_OPEN_LIMIT = 800.00;
+	public final static Double _ZERO_DOT_ONE = 0.1;
+	public final static Double _DOUBLE_ZERO = 0.0;
+	public static final Double _TODAY_OPEN_LIMIT = 800.00;
 
 	public static boolean isNumeric(String value) {
 		
@@ -132,7 +134,7 @@ public class DataUtils {
 	public static boolean isEqualsTurnoverRate(Double inputTurnoverRate, Double realTurnoverRate) {
 
 		double difference = inputTurnoverRate - realTurnoverRate;
-		if (Math.abs(difference) <= DataUtils.CONSTANT_ZERO_DOT_ONE)
+		if (Math.abs(difference) <= DataUtils._ZERO_DOT_ONE)
 			return true;
 		else
 			return false;
@@ -198,7 +200,7 @@ public class DataUtils {
 	 * 
 	 */
 	public static byte[] hexStringToBytes(String hexString) {
-		if (hexString == null || hexString.equals(DataUtils.CONSTANT_BLANK)) {
+		if (hexString == null || hexString.equals(DataUtils._BLANK)) {
 			return null;
 		}
 		hexString = hexString.toUpperCase();
@@ -240,8 +242,8 @@ public class DataUtils {
 	
 	public static boolean isMinMaxValue(Double changeRate) {
 
-		if (CONSTANT_MAX_CHANGE_RATE.compareTo(changeRate)==0 
-				|| CONSTANT_MIN_CHANGE_RATE.compareTo(changeRate)==0)
+		if (_MAX_CHANGE_RATE.compareTo(changeRate)==0 
+				|| _MIN_CHANGE_RATE.compareTo(changeRate)==0)
 			return true;
 		else
 			return false;

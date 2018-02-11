@@ -20,7 +20,6 @@ public class DetailStock extends BaseStock {
 	private Date tradedTime;
 	
 	public final static String TABLE_NAME = "DETAIL_STOCK_";
-	public final static String STOCK_CODE_DES = "STOCK_CODE_DES_";
 	public final static String STOCK_NAME = "STOCK_NAME_";
 	public final static String TODAY_OPEN = "TODAY_OPEN_";
 	public final static String YESTERDAY_CLOSE = "YESTERDAY_CLOSE_";

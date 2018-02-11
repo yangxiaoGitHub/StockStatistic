@@ -11,6 +11,7 @@ import com.mysql.jdbc.PreparedStatement;
 import cn.com.CommonUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
+import cn.db.bean.AllDetailStock;
 import cn.db.bean.StatisticStock;
 
 public class StatisticStockDao extends OperationDao {
@@ -59,6 +60,32 @@ public class StatisticStockDao extends OperationDao {
 		}
 		close(rs, state);
 		return count == 0 ? false : true;
+	}
+	
+	public boolean updateFirstDate(String stockCode, Date firstDate) {
+
+		boolean updateFlg = false;
+		PreparedStatement state = null;
+		String sql = "update " + StatisticStock.TABLE_NAME + " set " + StatisticStock.FIRST_DATE + "=?" + " where " + StatisticStock.STOCK_CODE + "=?";
+		try {
+			beginTransaction();
+			state = (PreparedStatement) super.connection.prepareStatement(sql);
+			state.setDate(1, new java.sql.Date(firstDate.getTime()));
+			state.setString(2, stockCode);
+			state.executeUpdate();
+			commitTransaction();
+			updateFlg = true;
+		} catch (Exception e) {
+			rollBackTransaction();
+			System.out.println(DateUtils.dateTimeToString(new Date()) + " 表(statistic_stock_)更新股票" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")的字段(first_date_)失败！");
+			log.loger.error(" 表(statistic_stock_)更新股票" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")的字段(first_date_)失败！");
+			e.printStackTrace();
+			log.loger.error(CommonUtils.errorInfo(e));
+		} finally {
+			resetConnection();
+			close(state);
+		}
+		return updateFlg;
 	}
 
 	public boolean saveStatisticStock(StatisticStock statistic) throws SQLException {

@@ -361,8 +361,8 @@ public class DailyStockDao extends OperationDao {
 				String turnoverRateEncrypt = DESUtils.encryptToHex(data.getTurnoverRate().toString());
 				state.setString(8, turnoverRateEncrypt);
 			} else {
-				state.setDouble(7, 0.0);
-				state.setString(8, null);
+				state.setDouble(7, DataUtils._DOUBLE_ZERO);
+				state.setString(8, DataUtils._BLANK);
 			}
 			state.setString(9, data.getChangeFlg());
 			state.setString(10, data.getNote());
@@ -375,8 +375,8 @@ public class DailyStockDao extends OperationDao {
 			//connection.rollback();
 			rollBackTransaction();
 			System.out.println(
-					DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateToString(data.getStockDate()) + "每日股票数据(daily_stock_)增加失败！");
-			log.loger.error(DateUtils.dateToString(data.getStockDate()) + " 每日股票数据(daily_stock_)增加失败！");
+					DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateToString(data.getStockDate()) + "每日股票数据表(daily_stock_)增加股票" + data.getStockCode() + "(" + PropertiesUtils.getProperty(data.getStockCode()) + ")" + "失败！");
+			log.loger.error(DateUtils.dateToString(data.getStockDate()) + "每日股票数据表(daily_stock_)增加股票" + data.getStockCode() + "(" + PropertiesUtils.getProperty(data.getStockCode()) + ")" + "失败！");
 			e.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
@@ -411,7 +411,7 @@ public class DailyStockDao extends OperationDao {
 			changeFlgSql = " and " + DailyStock.CHANGE_FLG + "='" + changeFlg + "'";
 		}
 		String dateSql = "";
-		if (!startDate.equals(DataUtils.CONSTANT_BLANK) && !endDate.equals(DataUtils.CONSTANT_BLANK)) {
+		if (!startDate.equals(DataUtils._BLANK) && !endDate.equals(DataUtils._BLANK)) {
 			dateSql = " and " + DailyStock.STOCK_DATE + "  between ? and ?";
 		}
 		StringBuffer sql = new StringBuffer();
@@ -420,7 +420,7 @@ public class DailyStockDao extends OperationDao {
 				.append(DailyStock.STOCK_DATE).append(" desc");
 		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		state.setString(1, stockCode);
-		if (!dateSql.equals(DataUtils.CONSTANT_BLANK)) {
+		if (!dateSql.equals(DataUtils._BLANK)) {
 			state.setDate(2, new java.sql.Date(DateUtils.stringToDate(startDate).getTime()));
 			state.setDate(3, new java.sql.Date(DateUtils.stringToDate(endDate).getTime()));
 		}
@@ -441,8 +441,8 @@ public class DailyStockDao extends OperationDao {
 				.append(DailyStock.CHANGE_RATE).append("=? or ").append(DailyStock.TURNOVER_RATE).append("=? ").append(" order by ")
 				.append(DailyStock.STOCK_DATE).append(" desc");
 		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
-		state.setDouble(1, DataUtils.CONSTANT_DOUBLE_ZERO);
-		state.setDouble(2, DataUtils.CONSTANT_DOUBLE_ZERO);
+		state.setDouble(1, DataUtils._DOUBLE_ZERO);
+		state.setDouble(2, DataUtils._DOUBLE_ZERO);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			DailyStock data = getDailyStockFromResult(rs);
@@ -480,21 +480,21 @@ public class DailyStockDao extends OperationDao {
 
 		Map<String, StatisticDetailStock> upStatisticDetailStock = statisticUpInDailyStock(stockCode, startEndDate);
 		StatisticDetailStock statisticDetailStock = upStatisticDetailStock.get(stockCode);
-		return statisticDetailStock!=null?statisticDetailStock.getUpNumber():DataUtils.CONSTANT_INT_ZERO;
+		return statisticDetailStock!=null?statisticDetailStock.getUpNumber():DataUtils._INT_ZERO;
 	}
 
 	public Integer getDownNumberByStockCode(String stockCode, Date[] startEndDate) throws SQLException {
 
 		Map<String, StatisticDetailStock> downStatisticDetailStock = statisticDownInDailyStock(stockCode, startEndDate);
 		StatisticDetailStock statisticDetailStock = downStatisticDetailStock.get(stockCode);
-		return statisticDetailStock!=null?statisticDetailStock.getDownNumber():DataUtils.CONSTANT_INT_ZERO;
+		return statisticDetailStock!=null?statisticDetailStock.getDownNumber():DataUtils._INT_ZERO;
 	}
 
 	public Integer getUpDownNumberByStockCode(String stockCode, Date[] startEndDate) throws SQLException {
 
 		Map<String, StatisticDetailStock> upDownStatisticDetailStock = statisticUpDownInDailyStock(stockCode, startEndDate);
 		StatisticDetailStock statisticDetailStock = upDownStatisticDetailStock.get(stockCode);
-		return statisticDetailStock!=null?statisticDetailStock.getUpDownNumber():DataUtils.CONSTANT_INT_ZERO;
+		return statisticDetailStock!=null?statisticDetailStock.getUpDownNumber():DataUtils._INT_ZERO;
 	}
 
 	public Long getMaxNumFromDailyStock() throws SQLException {

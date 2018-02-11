@@ -1,5 +1,7 @@
 package cn.log;
 
+import java.net.URL;
+
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -11,10 +13,13 @@ public final class Log {
 
 	// 构造函数，用于初始化Logger配置需要的属性
 	private Log() {
-		// 获得当前目录路径
-		String filePath = this.getClass().getResource("/").getPath();
-		// 找到log4j.properties配置文件所在的目录(已经创建好)
-		filePath = filePath.substring(1).replace("bin", "src");
+		// 获得本类所在的文件夹
+		String filePath = this.getClass().getResource("").getFile();
+		//System.out.println("----->filePath: " + filePath);
+		String packageName = this.getClass().getPackage().getName().replace(".", "/");
+		//System.out.println("----->package: " + packageName);
+		filePath = filePath.substring(1).replace(packageName, "");
+		//System.out.println("----->filePath: " + filePath);
 		// 获得日志类loger的实例
 		loger = Logger.getLogger(this.getClass());
 		// loger所需的配置文件路径

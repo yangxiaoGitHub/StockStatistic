@@ -139,7 +139,7 @@ public class GetDailyAndAllStockDetailData extends OperationData {
 			allInformationStockDao = new AllInformationStockDao();
 			allDetailStockDao = new AllDetailStockDao(); //AllDetailStockDao.getInstance();
 			List<AllStock> allStockList = allStockDao.listAllStock();
-			List<AllDetailStock> allDetailStockList = new ArrayList<AllDetailStock>();
+			//List<AllDetailStock> allDetailStockList = new ArrayList<AllDetailStock>();
 			Long maxNumInAllInformationStock = allInformationStockDao.getMaxNumFromAllInformationStock();
 			Long maxNumInAllDetailStock = allDetailStockDao.getMaxNumFromAllDetailStock();
 			System.out.println("--------------------所有股票获取详细信息(" + DateUtils.dateToString(new Date()) + ")-----------------------");

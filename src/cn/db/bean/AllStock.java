@@ -3,6 +3,7 @@ package cn.db.bean;
 import java.util.Date;
 import java.util.Map;
 
+import cn.com.CommonUtils;
 import cn.com.DataUtils;
 import cn.com.JsonUtils;
 
@@ -69,7 +70,8 @@ public class AllStock extends BaseStock {
 	
 	public String getCirculationStockSimple_NoJson() {
 		
-		if (circulationStockSimple==null) return DataUtils.CONSTANT_BLANK; 
+		if (CommonUtils.isBlank(circulationStockSimple)) return DataUtils._BLANK; 
+		System.out.println("json value: " + circulationStockSimple);
 		Map<String, String> map = JsonUtils.getMapByJson(circulationStockSimple);
 		String value = map.get(AllStock.JSON_VALUE);
 		String unit = map.get(AllStock.JSON_UNIT);

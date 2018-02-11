@@ -9,6 +9,7 @@ import com.mysql.jdbc.PreparedStatement;
 import cn.com.CommonUtils;
 import cn.db.bean.AllDetailStock;
 import cn.db.bean.AllDetailStockTest;
+import cn.db.bean.AllInformationStock;
 import cn.db.bean.DailyStock;
 import cn.db.bean.DetailStock;
 import cn.db.bean.HistoryStock;
@@ -40,6 +41,20 @@ public class OperationDao extends BaseDao {
 		if (this.connection == null || this.connection.isClosed()) return true;
 		else return false;
 	}*/
+	
+	public Long getMaxNum(String tableName) throws SQLException {
+
+		long maxNum = 0;
+		StringBuffer sql = new StringBuffer();
+		sql.append("select max(num_) as max_num_ from ").append(tableName);
+		PreparedStatement state = (PreparedStatement) connection.prepareStatement(sql.toString());
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			maxNum = rs.getLong("max_num_");
+		}
+		close(rs, state);
+		return maxNum;
+	}
 
 	protected HistoryStock getHistoryStockFromResult(ResultSet rs) throws SQLException {
 

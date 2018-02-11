@@ -300,7 +300,7 @@ public class HandleDetailStockData extends OperationData {
 
 		Date preDate = stockDate;
 		List<HistoryStock> historyStockList = null;
-		for (int index = 0; index < DataUtils.CONSTANT_LONG_DAY; index++) {
+		for (int index = 0; index < DataUtils._LONG_DAY; index++) {
 			preDate = DateUtils.minusOneDay(preDate);
 			historyStockList = historyStockDao.getHistoryStockByStockDate(preDate);
 			if (historyStockList.size() > 0)

@@ -28,7 +28,7 @@ public class StatisticMain {
 					System.out.println("输入的开始日期不能为空！");
 					continue;
 				}
-				if (!CommonUtils.validateSortFlg(sortFlg, DataUtils.CONSTANT_INT_ZERO, DataUtils.CONSTANT_INT_FIVE)) {
+				if (!CommonUtils.validateSortFlg(sortFlg, DataUtils._INT_ZERO, DataUtils._INT_FIVE)) {
 					System.out.println("选择的排序标识不正确:" + sortFlg + ", 应该为:0～5");
 					continue;
 				}

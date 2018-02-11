@@ -20,7 +20,7 @@ public class ExecuteData extends OperationData {
 		dailyStockDao = new DailyStockDao();
 		try {
 			String sDate = "";
-			if (!startDate.trim().equals(DataUtils.CONSTANT_BLANK) && !endDate.trim().equals(DataUtils.CONSTANT_BLANK)) {
+			if (!startDate.trim().equals(DataUtils._BLANK) && !endDate.trim().equals(DataUtils._BLANK)) {
 				sDate = startDate + "жа" + endDate;
 			} else {
 				Date[] minMaxDate = dailyStockDao.getMinMaxDate();
@@ -79,7 +79,7 @@ public class ExecuteData extends OperationData {
 				String preThreeMonthNum = statisticDetailStock.getThreeMonth_NoJson();
 				String preHalfYearNum = statisticDetailStock.getHalfYear_NoJson();
 				String preOneYearNum = statisticDetailStock.getOneYear_NoJson();
-				String lineContent = stockCodeName + DataUtils.CONSTANT_SPACES + allUpDownNum + DataUtils.CONSTANT_SPACES + preOneWeekNum + DataUtils.CONSTANT_SPACES + preHalfMonthNum + DataUtils.CONSTANT_SPACES + preOneMonthNum + DataUtils.CONSTANT_SPACES + preTwoMonthNum + DataUtils.CONSTANT_SPACES + preThreeMonthNum + DataUtils.CONSTANT_SPACES + preHalfYearNum + DataUtils.CONSTANT_SPACES + preOneYearNum;
+				String lineContent = stockCodeName + DataUtils._SPACES + allUpDownNum + DataUtils._SPACES + preOneWeekNum + DataUtils._SPACES + preHalfMonthNum + DataUtils._SPACES + preOneMonthNum + DataUtils._SPACES + preTwoMonthNum + DataUtils._SPACES + preThreeMonthNum + DataUtils._SPACES + preHalfYearNum + DataUtils._SPACES + preOneYearNum;
 				System.out.println(lineContent);
 				// change the content of .log file to hex
 				log.loger.warn(DataUtils.stringToHex(lineContent));

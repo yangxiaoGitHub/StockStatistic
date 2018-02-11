@@ -2,6 +2,7 @@ package cn.implement;
 
 import cn.db.AllDetailStockDao;
 import cn.db.AllDetailStockTestDao;
+import cn.db.AllImportStockDao;
 import cn.db.AllInformationStockDao;
 import cn.db.AllInformationStockTestDao;
 import cn.db.AllStockDao;
@@ -26,6 +27,7 @@ public abstract class BaseData {
 	protected DetailStockDao detailStockDao = null;
 	protected InformationStockDao informationStockDao = null;
 	protected HistoryStockDao historyStockDao = null;
+	protected AllImportStockDao allImportStockDao = null;
 
 	protected AllInformationStockTestDao allInformationStockTestDao = null;
 	protected AllDetailStockTestDao allDetailStockTestDao = null;
@@ -70,6 +72,10 @@ public abstract class BaseData {
 		if (historyStockDao != null) {
 			historyStockDao.close();
 			historyStockDao = null;
+		}
+		if (allImportStockDao != null) {
+			allImportStockDao.close();
+			allImportStockDao = null;
 		}
 	}
 

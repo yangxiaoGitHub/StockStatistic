@@ -24,8 +24,8 @@ public class GetDetailMain {
 		calendar.set(Calendar.HOUR_OF_DAY, 0);
 		calendar.set(Calendar.MINUTE, 0);
 		calendar.set(Calendar.SECOND, 0);
-		//第一次执行定时任务的时间 
-		Date startTime = calendar.getTime(); 
+		//第一次执行定时任务的时间
+		Date startTime = calendar.getTime();
         Timer  timer = new Timer();
         RunTask runTask = new RunTask();
 		//如果今天首次运行时间过了，立即执行任务，并把首次运行时间就改为明天

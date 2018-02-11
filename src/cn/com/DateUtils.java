@@ -246,11 +246,11 @@ public class DateUtils {
 	
 	public static String inspectDate(String startDate, String endDate) {
 
-		if (startDate.trim().equals(DataUtils.CONSTANT_BLANK) && endDate.trim().equals(DataUtils.CONSTANT_BLANK)) {
+		if (startDate.trim().equals(DataUtils._BLANK) && endDate.trim().equals(DataUtils._BLANK)) {
 			return null;
 		}
-		if ((startDate.trim().equals(DataUtils.CONSTANT_BLANK) && !endDate.trim().equals(DataUtils.CONSTANT_BLANK))
-				|| !startDate.trim().equals(DataUtils.CONSTANT_BLANK) && endDate.trim().equals(DataUtils.CONSTANT_BLANK)) {
+		if ((startDate.trim().equals(DataUtils._BLANK) && !endDate.trim().equals(DataUtils._BLANK))
+				|| !startDate.trim().equals(DataUtils._BLANK) && endDate.trim().equals(DataUtils._BLANK)) {
 			return "输入的开始日期和结束日期同时为空，或者同时不为空！";
 		}
 		if (!DateUtils.isValidDate(startDate)) {

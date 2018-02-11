@@ -65,7 +65,7 @@ public class AllDetailStockTestDao extends OperationDao {
 			state.setLong(11, allDetailStockTest.getTradedStockNumber());
 			state.setFloat(12, allDetailStockTest.getTradedAmount());
 			state.setDouble(13, allDetailStockTest.getChangeRate() != null ? allDetailStockTest.getChangeRate() : 0);
-			state.setString(14, allDetailStockTest.getChangeRateDES() != null ? allDetailStockTest.getChangeRateDES() : DataUtils.CONSTANT_BLANK);
+			state.setString(14, allDetailStockTest.getChangeRateDES() != null ? allDetailStockTest.getChangeRateDES() : DataUtils._BLANK);
 			state.setDouble(15, allDetailStockTest.getTurnoverRate() != null ? allDetailStockTest.getTurnoverRate() : 0);
 			state.setString(16, allDetailStockTest.getTurnoverRateDES());
 			Date tradedTime = allDetailStockTest.getTradedTime() == null ? allDetailStockTest.getStockDate() : allDetailStockTest.getTradedTime();

@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.sql.Timestamp;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,8 +28,6 @@ import cn.db.bean.AllStock;
 import cn.db.bean.BaseStock;
 import cn.db.bean.DailyStock;
 import cn.db.bean.DetailStock;
-import cn.db.bean.OriginalStock;
-import cn.db.bean.StatisticStock;
 import cn.log.Log;
 
 public class CommonUtils {
@@ -46,7 +42,7 @@ public class CommonUtils {
 	}
 
 	public static boolean isBlank(String obj) {
-		if (obj == null || obj.trim().equals(DataUtils.CONSTANT_BLANK))
+		if (obj == null || obj.trim().equals(DataUtils._BLANK))
 			return true;
 		else
 			return false;
@@ -54,12 +50,12 @@ public class CommonUtils {
 	
 	public static boolean isJsonBlank(String jsonObj) {
 
-		if (jsonObj==null || jsonObj.trim().equals(DataUtils.CONSTANT_BLANK))
+		if (jsonObj==null || jsonObj.trim().equals(DataUtils._BLANK))
 			return true;
 		boolean jsonFlg = true;
 		Map<String, ? extends Object> jsonMap = JsonUtils.getMapByJson(jsonObj);
 		for (Object value : jsonMap.values()) {
-			if (null!=value || !DataUtils.CONSTANT_BLANK.equals(value)) {
+			if (null!=value || !DataUtils._BLANK.equals(value)) {
 				jsonFlg = false;
 				break;
 			}
@@ -75,7 +71,7 @@ public class CommonUtils {
 	}
 	
 	public static boolean isBlank(String[] values) {
-		if (values==null || values.length==0 || DataUtils.CONSTANT_BLANK.equals(values[0]))
+		if (values==null || values.length==0 || DataUtils._BLANK.equals(values[0]))
 			return true;
 		else
 			return false;
@@ -219,7 +215,7 @@ public class CommonUtils {
 			String detailStockName_first = stockName.substring(0, 1);
 			if (!realStockName_first.equals(detailStockName_first))
 				validateFlg = false;
-			if (todayOpen > DataUtils.CONSTANT_TODAY_OPEN_LIMIT)
+			if (todayOpen > DataUtils._TODAY_OPEN_LIMIT)
 				validateFlg = false;
 		}
 		return validateFlg;
@@ -231,7 +227,7 @@ public class CommonUtils {
 	 */
 	public static boolean isStockAliasCode(String stockAliasCode) {
 
-		if (stockAliasCode.contains(DataUtils.CONSTANT_SH_CAPITAL) || stockAliasCode.contains(DataUtils.CONSTANT_SZ_CAPITAL)) {
+		if (stockAliasCode.contains(DataUtils._SH_CAPITAL) || stockAliasCode.contains(DataUtils._SZ_CAPITAL)) {
 			String stockCode = stockAliasCode.substring(2);
 			if (DataUtils.isNumeric(stockCode)) return true;
 			else return false;
@@ -374,38 +370,12 @@ public class CommonUtils {
 	private static String getSearchStockCode(String stockCode) {
 		String searchStockCode = "";
 		String firstChar = stockCode.substring(0, 1);
-		if (firstChar.equals(DataUtils.CONSTANT_STRING_SIX) || firstChar.equals(DataUtils.CONSTANT_STRING_SEVEN)) {
-			searchStockCode = DataUtils.CONSTANT_SH_SMALL + stockCode;
+		if (firstChar.equals(DataUtils._STRING_SIX) || firstChar.equals(DataUtils._STRING_SEVEN)) {
+			searchStockCode = DataUtils._SH_SMALL + stockCode;
 		} else {
-			searchStockCode = DataUtils.CONSTANT_SH_SMALL + stockCode;
+			searchStockCode = DataUtils._SH_SMALL + stockCode;
 		}
 		return searchStockCode;
-	}
-
-	public static String getAliasCodeByStockCode(String stockCode) {
-
-		String aliasCode = "";
-		String firstChar = stockCode.substring(0, 1);
-		if (firstChar.equals(DataUtils.CONSTANT_STRING_SIX) || firstChar.equals(DataUtils.CONSTANT_STRING_SEVEN)) {
-			aliasCode = DataUtils.CONSTANT_SH_CAPITAL + stockCode;
-		} else {
-			aliasCode = DataUtils.CONSTANT_SZ_CAPITAL + stockCode;
-		}
-		return aliasCode;
-	}
-
-	/**
-	 * 根据股票别代码，获得股票代码
-	 *
-	 */
-	public static String getStockCodeByAliasCode(String stockAliasCode) {
-
-		String stockCode = null;
-		if (stockAliasCode.contains(DataUtils.CONSTANT_SH_CAPITAL) || stockAliasCode.contains(DataUtils.CONSTANT_SZ_CAPITAL))
-			stockCode = stockAliasCode.substring(2);
-		else
-			stockCode = stockAliasCode;
-		return stockCode;
 	}
 
 	/**
@@ -462,11 +432,11 @@ public class CommonUtils {
 			Double turnoverRate = Double.valueOf(turnoverRates[index]);
 			stockData.setTurnoverRate(turnoverRate);
 		} else {
-			stockData.setTurnoverRate(DataUtils.CONSTANT_DOUBLE_ZERO);
+			stockData.setTurnoverRate(DataUtils._DOUBLE_ZERO);
 		}
 		String changeFlg = changeRate > 0 ? "1" : "0";
 		stockData.setChangeFlg(changeFlg);
-		stockData.setNote(DataUtils.CONSTANT_BLANK);
+		stockData.setNote(DataUtils._BLANK);
 		stockData.setInputTime(inputTime);
 		return stockData;
 	}

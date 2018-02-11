@@ -13,6 +13,7 @@ import cn.com.JsonUtils;
 import cn.com.StockUtils;
 import cn.db.AllDetailStockDao;
 import cn.db.AllDetailStockTestDao;
+import cn.db.AllImportStockDao;
 import cn.db.AllInformationStockTestDao;
 import cn.db.AllStockDao;
 import cn.db.DailyStockDao;
@@ -77,6 +78,11 @@ public class OperationData extends BaseData {
 					if (allDetailStockTestDao != null) {
 						allDetailStockTestDao.close();
 						allDetailStockTestDao = null;
+					}
+				} else if (className.equals(AllImportStockDao.class.getSimpleName())) {
+					if (allImportStockDao != null) {
+						allImportStockDao.close();
+						allDetailStockDao = null;
 					}
 				}
 			}
@@ -246,6 +252,25 @@ public class OperationData extends BaseData {
 		};
 		String preOneWeekUpAndDownJson = JsonUtils.getJsonByMap(preOneWeekUpAndDownMap);
 		return preOneWeekUpAndDownJson;
+	}
+	
+	/**
+	 * 获得总涨跌次数
+	 * 
+	 */
+	protected Map<String, Integer> getUpAndDownNumber(String stockCode) throws SQLException {
+		
+		final Integer upDownNumber = dailyStockDao.getUpDownNumberByStockCode(stockCode);
+		final Integer upNumber = dailyStockDao.getUpNumberByStockCode(stockCode);
+		final Integer downNumber = dailyStockDao.getDownNumberByStockCode(stockCode);
+		Map<String, Integer> upDownMap = new HashMap<String, Integer>() {
+			{
+				put(StatisticDetailStock.UP_DOWN_KEY, upDownNumber);
+				put(StatisticDetailStock.UP_KEY, upNumber);
+				put(StatisticDetailStock.DOWN_KEY, downNumber);
+			}
+		};
+		return upDownMap;
 	}
 
 	/**

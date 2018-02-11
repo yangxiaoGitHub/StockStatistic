@@ -62,7 +62,7 @@ public abstract class BaseDao {
 	 * πÿ±’¡¨Ω”
 	 * 
 	 */
-	protected static void closeConnection() {
+	protected static synchronized void closeConnection() {
 		if (connection != null) {
 			try {
 				connection.close();

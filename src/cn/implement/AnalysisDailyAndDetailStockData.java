@@ -129,22 +129,22 @@ public class AnalysisDailyAndDetailStockData extends OperationData {
 		    public int compare(ExtStatisticStock firstStock, ExtStatisticStock secondStock) {
 		    	int flg = 0;
 		    	switch (sortFlg){
-		    	case DataUtils.CONSTANT_INT_ZERO:
+		    	case DataUtils._INT_ZERO:
 		    		flg = firstStock.getNowChangeRate().compareTo(secondStock.getNowChangeRate());
 		    		break;
-		    	case DataUtils.CONSTANT_INT_ONE:
+		    	case DataUtils._INT_ONE:
 		    		flg = firstStock.getRecentMaxDeclineRate().compareTo(secondStock.getRecentMaxDeclineRate());
 		    		break;
-		    	case DataUtils.CONSTANT_INT_TWO:
+		    	case DataUtils._INT_TWO:
 		    		flg = secondStock.getRecentMaxRiseRate().compareTo(firstStock.getRecentMaxRiseRate());
 		    		break;
-		    	case DataUtils.CONSTANT_INT_THREE:
+		    	case DataUtils._INT_THREE:
 		    		flg = secondStock.getUpDownNumber().compareTo(firstStock.getUpDownNumber());
 		    		break;
-		    	case DataUtils.CONSTANT_INT_FOUR:
+		    	case DataUtils._INT_FOUR:
 		    		flg = secondStock.getUpNumber().compareTo(firstStock.getUpNumber());
 		    		break;
-		    	case DataUtils.CONSTANT_INT_FIVE:
+		    	case DataUtils._INT_FIVE:
 		    		flg = secondStock.getDownNumber().compareTo(firstStock.getDownNumber());
 		    		break;
 		    	default:
@@ -169,19 +169,19 @@ public class AnalysisDailyAndDetailStockData extends OperationData {
 			lineContent = lineContent.replace("STOCKC", stockCode);
 			// 股票名称
 			String stockName = PropertiesUtils.getProperty(stockCode);
-			if (stockName.length() <= DataUtils.CONSTANT_INT_THREE)
+			if (stockName.length() <= DataUtils._INT_THREE)
 				stockName = CommonUtils.addSpaceInMiddle(stockName);
 			lineContent = lineContent.replace("STOCKNAM", stockName);
 			// 涨跌幅
-			lineContent = lineContent.replace("RECENTC", CommonUtils.appendSpace(extStatisticStock.getNowChangeRate() + "%", DataUtils.CONSTANT_INT_SEVEN));
+			lineContent = lineContent.replace("RECENTC", CommonUtils.appendSpace(extStatisticStock.getNowChangeRate() + "%", DataUtils._INT_SEVEN));
 			// 最大跌幅
-			lineContent = lineContent.replace("MAXDOWN", CommonUtils.appendSpace(extStatisticStock.getMaxDeclineRate() + "%", DataUtils.CONSTANT_INT_SEVEN));
+			lineContent = lineContent.replace("MAXDOWN", CommonUtils.appendSpace(extStatisticStock.getMaxDeclineRate() + "%", DataUtils._INT_SEVEN));
 			// 最大涨幅
-			lineContent = lineContent.replace("MAXUPR", CommonUtils.appendSpace(extStatisticStock.getMaxRiseRate() + "%", DataUtils.CONSTANT_INT_SIX));
+			lineContent = lineContent.replace("MAXUPR", CommonUtils.appendSpace(extStatisticStock.getMaxRiseRate() + "%", DataUtils._INT_SIX));
 			// 最近最大跌幅
-			lineContent = lineContent.replace("RECENTD", CommonUtils.appendSpace(extStatisticStock.getRecentMaxDeclineRate() + "%", DataUtils.CONSTANT_INT_SEVEN));
+			lineContent = lineContent.replace("RECENTD", CommonUtils.appendSpace(extStatisticStock.getRecentMaxDeclineRate() + "%", DataUtils._INT_SEVEN));
 			// 最近最大涨幅
-			lineContent = lineContent.replace("RECENTU", CommonUtils.appendSpace(extStatisticStock.getRecentMaxRiseRate() + "%", DataUtils.CONSTANT_INT_SIX));
+			lineContent = lineContent.replace("RECENTU", CommonUtils.appendSpace(extStatisticStock.getRecentMaxRiseRate() + "%", DataUtils._INT_SIX));
 			// 涨跌次数
 			lineContent = lineContent.replace("UPD", extStatisticStock.getUpDownNumber().toString());
 			// 涨次数

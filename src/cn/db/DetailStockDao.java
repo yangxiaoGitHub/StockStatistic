@@ -195,7 +195,7 @@ public class DetailStockDao extends OperationDao {
 		sql.append("select ").append(DetailStock.ALL_FIELDS).append(" from ").append(DetailStock.TABLE_NAME).append(" where ")
 				.append(DetailStock.TURNOVER_RATE).append("=? ").append(" order by ").append(DetailStock.STOCK_DATE).append(" desc");
 		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
-		state.setDouble(1, DataUtils.CONSTANT_DOUBLE_ZERO);
+		state.setDouble(1, DataUtils._DOUBLE_ZERO);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			DetailStock data = getDetailStockFromResult(rs);

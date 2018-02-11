@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
@@ -19,6 +20,7 @@ import cn.com.DESUtils;
 import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.MD5Utils;
+import cn.com.ObjectUtils;
 import cn.com.PropertiesUtils;
 import cn.com.StockUtils;
 import cn.db.AllDetailStockDao;
@@ -78,7 +80,7 @@ public class OtherData extends OperationData {
 			log.loger.warn("原始股票数据表中更新了" + codesMD5 + "条stockCodeMD5记录和" + ratesMD5 + "条changeRatesMD5记录！");
 		}
 	}
-
+	
 	/**
 	 * 统计每日股票数据到statistic_stock_表中
 	 * 
@@ -97,6 +99,13 @@ public class OtherData extends OperationData {
 			Long maxNumInStaDetail = statisticDetailStockDao.getMaxNumFromStatisticDetailStock();
 			for (DailyStock dailyStock : dailyStockList) {
 				String stockCode = dailyStock.getStockCode();
+				/*Date firstDate = dailyStock.getStockDate();
+				boolean updateFlg = statisticStockDao.updateFirstDate(stockCode, firstDate);				
+				if (updateFlg) {
+					++saveStaStockNum;
+					System.out.println(DateUtils.dateTimeToString(new Date()) + " 表(statistic_stock_)中更新了股票--->" + saveStaStockNum + ": "
+							+ stockCode + "(" + PropertiesUtils.getProperty(stockCode) + "), 首选日: " + DateUtils.dateToString(firstDate));
+				}*/
 				StatisticStock statisticStock = statisticStockDao.getStatisticStockByStockCode(stockCode);
 				if (statisticStock == null) {
 					Date firstStockDate = dailyStock.getStockDate();
@@ -104,12 +113,12 @@ public class OtherData extends OperationData {
 					String stockCodeDES = DESUtils.encryptToHex(stockCode);
 					StatisticStock newStatisticStock = new StatisticStock(stockCode, firstStockDate, stockCodeDES);
 					newStatisticStock.setNum(++maxNumInSta);
-					newStatisticStock.setNote(DataUtils.CONSTANT_BLANK);
+					newStatisticStock.setNote(DataUtils._BLANK);
 					newStatisticStock.setInputTime(new Date());
 					boolean saveStaStockFlg = statisticStockDao.saveStatisticStock(newStatisticStock);
 					if (saveStaStockFlg) {
 						++saveStaStockNum;
-						System.out.print(DateUtils.dateTimeToString(new Date()) + " 表(statistic_stock_)中增加了股票--->" + saveStaStockNum + ": "
+						System.out.println(DateUtils.dateTimeToString(new Date()) + " 表(statistic_stock_)中增加了股票--->" + saveStaStockNum + ": "
 								+ stockCode + "(" + PropertiesUtils.getProperty(stockCode) + "), 首选日: " + DateUtils.dateToString(firstStockDate)
 								+ ", 统计次数: " + count);
 						log.loger.warn(DateUtils.dateTimeToString(new Date()) + " 表(statistic_stock_)中增加了股票--->" + saveStaStockNum + ": "
@@ -122,7 +131,7 @@ public class OtherData extends OperationData {
 						// 计算股票的涨跌次数
 						calculateUpDownNumber(statisticDetailStock, newDailyStock.getChangeFlg());
 						statisticDetailStock.setNum(++maxNumInStaDetail);
-						statisticDetailStock.setNote(DataUtils.CONSTANT_BLANK);
+						statisticDetailStock.setNote(DataUtils._BLANK);
 						statisticDetailStock.setInputTime(new Date());
 						boolean saveStaDetailStockFlg = statisticDetailStockDao.saveStatisticDetailStock(statisticDetailStock);
 						if (saveStaDetailStockFlg) {
@@ -173,19 +182,19 @@ public class OtherData extends OperationData {
 		String oldHalfYearJson = oldStatisticDetailStock.getHalfYear();
 		String oldOneYearJson = oldStatisticDetailStock.getOneYear();
 		if (!CommonUtils.compareUpAndDownJson(newOneWeekJson, oldOneWeekJson)) {
-			errorUpDownFlg = DataUtils.CONSTANT_INT_EIGHT;
+			errorUpDownFlg = DataUtils._INT_EIGHT;
 		} else if (!CommonUtils.compareUpAndDownJson(newHalfMonthJson, oldHalfMonthJson)) {
-			errorUpDownFlg = DataUtils.CONSTANT_INT_SEVEN;
+			errorUpDownFlg = DataUtils._INT_SEVEN;
 		} else if (!CommonUtils.compareUpAndDownJson(newOneMonthJson, oldOneMonthJson)) {
-			errorUpDownFlg = DataUtils.CONSTANT_INT_SIX;
+			errorUpDownFlg = DataUtils._INT_SIX;
 		} else if (!CommonUtils.compareUpAndDownJson(newTwoMonthJson, oldTwoMonthJson)) {
-			errorUpDownFlg = DataUtils.CONSTANT_INT_FIVE;
+			errorUpDownFlg = DataUtils._INT_FIVE;
 		} else if (!CommonUtils.compareUpAndDownJson(newThreeMonthJson, oldThreeMonthJson)) {
-			errorUpDownFlg = DataUtils.CONSTANT_INT_FOUR;
+			errorUpDownFlg = DataUtils._INT_FOUR;
 		} else if (!CommonUtils.compareUpAndDownJson(newHalfYearJson, oldHalfYearJson)) {
-			errorUpDownFlg = DataUtils.CONSTANT_INT_THREE;
+			errorUpDownFlg = DataUtils._INT_THREE;
 		} else if (!CommonUtils.compareUpAndDownJson(newOneYearJson, oldOneYearJson)) {
-			errorUpDownFlg = DataUtils.CONSTANT_INT_TWO;
+			errorUpDownFlg = DataUtils._INT_TWO;
 		}
 		if (errorUpDownFlg != 0)
 			updateFlg = statisticDetailStockDao.updateAllJsonRow(newStatisticDetailStock);
@@ -221,12 +230,12 @@ public class OtherData extends OperationData {
 				String stockCode = entry.getKey().toString();
 				String stockName = entry.getValue().toString();
 				AllStock stock = new AllStock(stockCode, stockName);
-				stock.setNum(++maxNum);
 				stock.setInputTime(new Date());
 				// 计算股票的流通股
 				StockUtils.setCirculationInAllStock(stock);
 				AllStock allStock = allStockDao.getAllStockByStockCode(stockCode);
 				if (allStock == null) {
+					stock.setNum(++maxNum);
 					boolean saveFlg = allStockDao.saveAllStock(stock);
 					if (saveFlg) {
 						++saveNum;
@@ -307,17 +316,16 @@ public class OtherData extends OperationData {
 	}
 
 	/**
-	 * 统计每日股票数据的涨跌次数到statistic_stock_表中(一般不使用)
+	 * 统计每日股票数据的涨跌次数到表(statistic_detail_stock_)中(一般不使用)
 	 * 
 	 */
 	public void statisticUpAndDownToStatisticDetailStock() {
 
 		dailyStockDao = new DailyStockDao();
+		statisticStockDao = new StatisticStockDao();
 		statisticDetailStockDao = new StatisticDetailStockDao();
-		int upDownNum = 0;
-		int upNum = 0;
-		int downNum = 0;
-		int jsonNum = 0;
+		int saveNum = 0;
+		int updateNum = 0;
 		try {
 			// 更新字段up_down_number_
 			/*Map<String, StatisticStock> dailyStockUpDownMap = dailyStockDao.statisticUpDownInDailyStock();
@@ -362,13 +370,20 @@ public class OtherData extends OperationData {
 				}
 			}*/
 			Date[] minMaxDate = dailyStockDao.getMinMaxDate();
-			// 更新字段one_week_,half_month_,one_month_,two_month_,three_month_,half_year_,one_year_
+			long maxNum = statisticDetailStockDao.getMaxNum(StatisticDetailStock.TABLE_NAME);
+			// 新增或修改字段one_week_,half_month_,one_month_,two_month_,three_month_,half_year_,one_year_
 			List<StatisticStock> statisticStockList = statisticStockDao.listStatisticStock();
 			for (StatisticStock statisticStock : statisticStockList) {
 				String stockCode = statisticStock.getStockCode();
 				StatisticDetailStock statisticDetailStock = new StatisticDetailStock(stockCode, minMaxDate[1]);
+				statisticDetailStock.setStockCodeDES(DESUtils.encryptToHex(stockCode));
 				// 统计日期
 				statisticDetailStock.setStockDate(minMaxDate[1]);
+				// 总涨跌次数
+				Map<String, Integer> upDownMap = getUpAndDownNumber(stockCode);
+				statisticDetailStock.setUpDownNumber(upDownMap.get(StatisticDetailStock.UP_DOWN_KEY));
+				statisticDetailStock.setUpNumber(upDownMap.get(StatisticDetailStock.UP_KEY));
+				statisticDetailStock.setDownNumber(upDownMap.get(StatisticDetailStock.DOWN_KEY));
 				// 前一周的涨跌次数
 				String preOneWeekUpAndDownJson = getPreOneWeekJson(stockCode, minMaxDate[1]);
 				statisticDetailStock.setOneWeek(preOneWeekUpAndDownJson);
@@ -390,28 +405,49 @@ public class OtherData extends OperationData {
 				// 前一年的涨跌次数
 				String preOneYearUpAndDownJson = getPreOneYearJson(stockCode, minMaxDate[1]);
 				statisticDetailStock.setOneYear(preOneYearUpAndDownJson);
+				statisticDetailStock.setNote(DataUtils._BLANK);
 				statisticDetailStock.setInputTime(new Date());
-				boolean updateFlg = statisticDetailStockDao.updateAllJsonRow(statisticDetailStock);
-				if (updateFlg) {
-					jsonNum++;
-					System.out.println(DateUtils.dateTimeToString(new Date()) + "----->" + jsonNum + ": 表(statistic_detail_stock_)更新了股票" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")的json字段！");
-					log.loger.warn("----->" + jsonNum + ": 表(statistic_detail_stock_)更新了股票" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")的json字段！");
+				boolean isExistFlg = statisticDetailStockDao.isExistInStatisticDetailStock(stockCode, minMaxDate[1]);
+				if (!isExistFlg) {
+					statisticDetailStock.setNum(++maxNum);
+					ObjectUtils.printProperties(statisticDetailStock);
+					boolean saveFlg = statisticDetailStockDao.saveStatisticDetailStock(statisticDetailStock);
+					if (saveFlg) {
+						saveNum++;
+						System.out.println(DateUtils.dateTimeToString(new Date()) + "----->" + saveNum + ": 表(statistic_detail_stock_)新增了股票" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")的json字段！");
+						log.loger.warn("----->" + saveNum + ": 表(statistic_detail_stock_)新增了股票" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")的json字段！");
+					}
+				} else {
+					/*boolean updateFlg = statisticDetailStockDao.updateAllJsonRow(statisticDetailStock);
+					if (updateFlg) {
+						updateNum++;
+						System.out.println(DateUtils.dateTimeToString(new Date()) + "----->" + updateNum + ": 表(statistic_detail_stock_)新增了股票" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")的json字段！");
+						log.loger.warn("----->" + updateNum + ": 表(statistic_detail_stock_)新增了股票" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")的json字段！");
+					}*/
 				}
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
-			closeDao(dailyStockDao, statisticStockDao);
-			System.out.println("表(statistic_detail_stock_)中更新了" + upDownNum + "条记录的字段(up_down_number_), " + upNum + "条记录的字段(up_number_), " + downNum
-					+ "条记录的字段(down_number_), " + jsonNum + "条记录的Json字段！");
-			log.loger.warn("表(statistic_detail_stock_)中更新了" + upDownNum + "条记录的字段(up_down_number_), " + upNum + "条记录的字段(up_number_), " + downNum
-					+ "条记录的字段(down_number_), " + jsonNum + "条记录的Json字段！");
+			closeDao(dailyStockDao, statisticStockDao, statisticDetailStockDao);
+			System.out.println(DateUtils.dateTimeToString(new Date()) + " 表(statistic_detail_stock_)中增加了" + saveNum + "条记录的Json字段，" + "更新了" + updateNum + "条记录的Json字段！");
+			log.loger.warn(" 表(statistic_detail_stock_)中增加了" + saveNum + "条记录的Json字段，" + "更新了" + updateNum + "条记录的Json字段！");
 		}
 	}
 
 	/**
 	 * 计算所有股票(all_stock_)的流通股
+	 * newSimple: 新流通股(简)   oldSimple：旧流通股(简)
+	 * newComplex: 新流通股(详)  oldComplex：旧流通股(详)
+	 * newValue：新流通值      oldValue：旧流通值
+	 * 1：newSimple!=oldSimple && newComplex!=oldComplex && newValue!=oldValue
+   	 *    提示更新流通股(简)、流通股(详)、流通值，如果提示flg=1则更新三项，如果提示flg=0则打印出三项新旧值比较情况
+	 * 2：newSimple==oldSimple && newComplex!=oldComplex && newValue!=oldValue
+   	 *    更新三项字段：流通股(简)、流通股(详)、流通值
+	 * 3：newSimple==oldSimple && newComplex==oldComplex && newValue==oldValue
+   	 *    不做任何操作
 	 * 
 	 */
 	public void handleAllCirculationStock(String handleFlg) {
@@ -424,7 +460,7 @@ public class OtherData extends OperationData {
 			while (itrator.hasNext()) {
 				Entry<Object, Object> entry = itrator.next();
 				String stockAliasCode = entry.getKey().toString();
-				String stockCode = CommonUtils.getStockCodeByAliasCode(stockAliasCode);
+				String stockCode = StockUtils.getStockCodeByAliasCode(stockAliasCode);
 				AllStock newAllStock = new AllStock(stockCode, null);
 				newAllStock.setInputTime(new Date());
 				// 计算股票的流通股
@@ -445,7 +481,7 @@ public class OtherData extends OperationData {
 				if (oldAllStock != null) {
 					boolean updateFlg = false;
 					String messages = "";
-					int equalFlg = isEqualAllStock(oldAllStock, newAllStock); // 0:都不等,
+					int equalFlg = isEqualAllStock(oldAllStock, newAllStock);   // 0:都不等,
 																				// 1:简单流通股相等,其它不等,
 																				// 2:都相等
 					if (equalFlg == 0) { // 提示更新

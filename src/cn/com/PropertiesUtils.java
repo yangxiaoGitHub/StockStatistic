@@ -26,7 +26,7 @@ public class PropertiesUtils {
 		if (pro.containsKey(name)) {
 			return pro.getProperty(name).trim();
 		} else {
-			return DataUtils.CONSTANT_BLANK;
+			return DataUtils._BLANK;
 		}
 	}
 	

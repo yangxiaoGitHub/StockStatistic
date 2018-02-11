@@ -64,7 +64,7 @@ public class AllStockDao extends OperationDao {
 			state.setLong(4, stock.getCirculationValue());
 			state.setLong(5, stock.getCirculationStockComplex());
 			state.setString(6, stock.getCirculationStockSimple());
-			state.setString(7, DataUtils.CONSTANT_BLANK);
+			state.setString(7, DataUtils._BLANK);
 			state.setTimestamp(8, new java.sql.Timestamp((new Date()).getTime()));
 			state.executeUpdate();
 			//connection.commit();
