@@ -2,7 +2,9 @@ package cn.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import com.mysql.jdbc.PreparedStatement;
 
@@ -10,7 +12,6 @@ import cn.com.CommonUtils;
 import cn.com.DateUtils;
 import cn.db.bean.AllDetailStock;
 import cn.db.bean.AllImportStock;
-import cn.db.bean.AllInformationStock;
 import cn.db.bean.OriginalStock;
 
 public class AllImportStockDao extends OperationDao {
@@ -98,6 +99,24 @@ public class AllImportStockDao extends OperationDao {
 		super.close(rs, state);
 		return data;
 	}
+	
+	public List<AllImportStock> getAllImportStockByStockDate(Date[] startEndDate) throws SQLException {
+
+		List<AllImportStock> allImportStockList = new ArrayList<AllImportStock>();
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ").append(AllImportStock.ALL_FIELDS).append(" from ").append(AllImportStock.TABLE_NAME)
+		   .append(" where ").append(AllImportStock.STOCK_DATE).append(" between ? and ?");
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setDate(1, new java.sql.Date(startEndDate[0].getTime()));
+		state.setDate(2, new java.sql.Date(startEndDate[1].getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			AllImportStock allImportStock = getAllImportStockFromResult(rs);
+			allImportStockList.add(allImportStock);
+		}
+		super.close(rs, state);
+		return allImportStockList;
+	}
 
 	private AllImportStock getAllImportStockFromResult(ResultSet rs) throws SQLException {
 
@@ -130,4 +149,24 @@ public class AllImportStockDao extends OperationDao {
 		data.setInputTime(rs.getDate(OriginalStock.INPUT_TIME));
 		return data;
 	}
+
+	public List<AllImportStock> getAllImportStockByCodesAndDate(String stockCodes, Date[] startEndDate) throws SQLException {
+
+		List<AllImportStock> allImportStockList = new ArrayList<AllImportStock>();
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ").append(AllImportStock.ALL_FIELDS).append(" from ").append(AllImportStock.TABLE_NAME).append(" where ")
+		   .append(AllImportStock.STOCK_CODE).append(" in (").append(stockCodes).append(") and ").append(AllImportStock.STOCK_DATE)
+		   .append(" between ? and ?");
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setDate(1, new java.sql.Date(startEndDate[0].getTime()));
+		state.setDate(2, new java.sql.Date(startEndDate[1].getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			AllImportStock data = getAllImportStockFromResult(rs);
+			allImportStockList.add(data);
+		}
+		super.close(rs, state);
+		return allImportStockList;
+	}
+
 }

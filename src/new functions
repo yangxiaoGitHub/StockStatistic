@@ -1,5 +1,5 @@
 1、--获取URL数据开始结束时间；
-2、获取历史股票小时数据和日数据，生成周数据、半月数据和月数据；
+2、获取历史股票日数据，生成周数据、半月数据和月数据；
 3、--OtherData.java operation.updateAllStock(stock);
 4、统计分析detail_stock_表中的数据；
 5、--解析all_information_stock_表中的数据；
@@ -28,3 +28,4 @@
 28、测试每个Dao中的Connection对象是不是同一个对象，并加快操作数据库的速度(保证多线程并发操作数据库没问题)；
 29、--循环操作2张表速度慢问题；
 30、正确使用换手率(turnover_rate_)；
+31、验证每日输入股票的涨跌幅和换手率(all_detail_stock_、all_import_stock_、history_stock_)；

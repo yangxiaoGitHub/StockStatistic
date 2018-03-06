@@ -1,16 +1,20 @@
 package cn.implement;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import cn.com.CommonUtils;
 import cn.com.DESUtils;
 import cn.com.DataUtils;
 import cn.com.DateUtils;
+import cn.com.ObjectUtils;
 import cn.com.PropertiesUtils;
 import cn.db.DailyStockDao;
 import cn.db.OriginalStockDao;
+import cn.db.StatisticDetailStockDao;
 import cn.db.StatisticStockDao;
 import cn.db.bean.DailyStock;
 import cn.db.bean.OriginalStock;
@@ -76,22 +80,26 @@ public class HandleOriginalAndDailyData extends OperationData {
 	}
 	
 	/**
-	 * 解析原始股票数据到每日股票数据表(daily_stock_)和表(statistic_stock_)中
+	 * 解析原始股票数据到每日股票数据表(daily_stock_)、表(statistic_stock_)和表(statistic_detail_stock_)中
 	 *
 	 */
 	public void handleDailyStockData(String sDate, String stockCodes, String changeRates, String turnoverRates) {
 
 		int dailySum = 0;
 		int statisticSum = 0;
+		int statisticDetailSum = 0;
 		try {
 			dailyStockDao = new DailyStockDao();
 			statisticStockDao = new StatisticStockDao();
+			statisticDetailStockDao = new StatisticDetailStockDao();
+			List<DailyStock> dailyStockList = new ArrayList<DailyStock>();
 			String[] codeArray = stockCodes.split(",");
 			String[] changeRateArray = changeRates.split(",");
 			String[] turnoverRateArray = null;
 			if (!CommonUtils.isBlank(turnoverRates)) {
 				turnoverRateArray = turnoverRates.split(",");
 			}
+			System.out.println("-----------------------增加每日股票数据(daily_stock_)---------------------------");
 			// 增加每日股票数据(daily_stock_)
 			for (int index = 0; index < codeArray.length; index++) {
 				// 对数据进行转换
@@ -102,31 +110,50 @@ public class HandleOriginalAndDailyData extends OperationData {
 					boolean saveFlg = dailyStockDao.saveDailyStock(dailyStock);
 					if (saveFlg) {
 						dailySum++;
+						dailyStockList.add(dailyStock);
 						System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(daily_stock_)增加了股票  " + dailySum + "："
 								+ dailyStock.getStockCode() + "(" + PropertiesUtils.getProperty(dailyStock.getStockCode()) + ")");
 						log.loger.warn("----->表(daily_stock_)增加了股票  " + dailySum + "：" + dailyStock.getStockCode() + "("
 								+ PropertiesUtils.getProperty(dailyStock.getStockCode()) + ")");
-						//boolean updateFlg = updateStatisticDetailStock(dailyStock);
-						boolean saveStatisticFlg = saveStatisticStock(dailyStock);
-						if (saveStatisticFlg) {
-							++statisticSum;
-							System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(statistic_stock_)增加了第" + statisticSum + "只股票：" + dailyStock.getStockCode() + "("
-									+ PropertiesUtils.getProperty(dailyStock.getStockCode()) + "), 统计日: " + DateUtils.dateToString(dailyStock.getStockDate()));
-							log.loger.warn("----->表(statistic_stock_)增加了第" + statisticSum + "只股票：" + dailyStock.getStockCode() + "("
-									+ PropertiesUtils.getProperty(dailyStock.getStockCode()) + "), 统计日: " + DateUtils.dateToString(dailyStock.getStockDate()));
-						}
 					}
+				}
+			}
+			System.out.println("-----------------------增加统计股票数据(statistic_stock_)---------------------------");
+			// 增加统计股票数据(statistic_stock_)
+			for (DailyStock dailyStock : dailyStockList) {
+				boolean saveStatisticFlg = saveStatisticStock(dailyStock);
+				if (saveStatisticFlg) {
+					++statisticSum;
+					System.out.println(DateUtils.dateTimeToString(new Date()) + "=====>表(statistic_stock_)增加了第" + statisticSum + "只股票：" + dailyStock.getStockCode() + "("
+							+ PropertiesUtils.getProperty(dailyStock.getStockCode()) + "), 统计日: " + DateUtils.dateToString(dailyStock.getStockDate()));
+					log.loger.warn("=====>表(statistic_stock_)增加了第" + statisticSum + "只股票：" + dailyStock.getStockCode() + "("
+							+ PropertiesUtils.getProperty(dailyStock.getStockCode()) + "), 统计日: " + DateUtils.dateToString(dailyStock.getStockDate()));
+				}
+			}
+			System.out.println("-----------------------增加每日股票涨跌次数统计数据(statistic_detail_stock_)---------------------------");
+			// 增加每日股票涨跌次数统计数据(statistic_detail_stock_)
+			for (DailyStock dailyStock : dailyStockList) {
+				boolean saveStatisticDetailFlg = saveStatisticDetailStock(dailyStock);
+				if (saveStatisticDetailFlg) {
+					++statisticDetailSum;
+					System.out.println(DateUtils.dateTimeToString(new Date()) + ">>>>>>表(statistic_detail_stock_)增加了股票  " + statisticDetailSum + "："
+							+ dailyStock.getStockCode() + "(" + PropertiesUtils.getProperty(dailyStock.getStockCode()) + ")");
+					log.loger.warn(">>>>>>表(statistic_detail_stock_)增加了股票  " + statisticDetailSum + "："
+							+ dailyStock.getStockCode() + "(" + PropertiesUtils.getProperty(dailyStock.getStockCode()) + ")");
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
-			closeDao(dailyStockDao, statisticStockDao);
+			closeDao(dailyStockDao, statisticStockDao, statisticDetailStockDao);
+			System.out.println("");
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "----->" + sDate + " 表(daily_stock_)共增加了" + dailySum + "条记录！");
 			log.loger.warn("----->" + sDate + " 表(daily_stock_)共增加了" + dailySum + "条记录！");
-			System.out.println(DateUtils.dateTimeToString(new Date()) + "----->" + sDate + " 表(statistic_detail_stock_)共更新了" + statisticSum + "条记录！");
-			log.loger.warn("----->" + sDate + " 表(statistic_detail_stock_)共更新了" + statisticSum + "条记录！");
+			System.out.println(DateUtils.dateTimeToString(new Date()) + "----->" + sDate + " 表(statistic_stock_)共增加了" + statisticSum + "条记录！");
+			log.loger.warn("----->" + sDate + " 表(statistic_stock_)共增加了" + statisticSum + "条记录！");
+			System.out.println(DateUtils.dateTimeToString(new Date()) + "----->" + sDate + " 表(statistic_detail_stock_)共更新了" + statisticDetailSum + "条记录！");
+			log.loger.warn("----->" + sDate + " 表(statistic_detail_stock_)共更新了" + statisticDetailSum + "条记录！");
 		}
 	}
 
@@ -143,6 +170,55 @@ public class HandleOriginalAndDailyData extends OperationData {
 			statisticStock.setNote(DataUtils._BLANK);
 			statisticStock.setInputTime(new Date());
 			saveFlg = statisticStockDao.saveStatisticStock(statisticStock);
+		}
+		return saveFlg;
+	}
+	
+	private boolean saveStatisticDetailStock(DailyStock dailyStock) throws SQLException {
+		
+		String stockCode = dailyStock.getStockCode();
+		Date stockDate = dailyStock.getStockDate();
+		boolean saveFlg = false;
+		long maxNum = statisticDetailStockDao.getMaxNum(StatisticDetailStock.TABLE_NAME);
+		if (!statisticDetailStockDao.isExistInStatisticDetailStock(stockCode, stockDate)) {
+			StatisticDetailStock statisticDetailStock = new StatisticDetailStock(stockCode, stockDate);
+			statisticDetailStock.setStockCodeDES(DESUtils.encryptToHex(stockCode));
+			// 统计日期
+			statisticDetailStock.setStockDate(stockDate);
+			// 总涨跌次数
+			Map<String, Integer> upDownMap = getUpAndDownNumber(stockCode);
+			statisticDetailStock.setUpDownNumber(upDownMap.get(StatisticDetailStock.UP_DOWN_KEY));
+			statisticDetailStock.setUpNumber(upDownMap.get(StatisticDetailStock.UP_KEY));
+			statisticDetailStock.setDownNumber(upDownMap.get(StatisticDetailStock.DOWN_KEY));
+			// 前一周的涨跌次数
+			String preOneWeekUpAndDownJson = getPreOneWeekJson(stockCode, stockDate);
+			statisticDetailStock.setOneWeek(preOneWeekUpAndDownJson);
+			// 前半月的涨跌次数
+			String preHalfMonthUpAndDownJson = getPreHalfMonthJson(stockCode, stockDate);
+			statisticDetailStock.setHalfMonth(preHalfMonthUpAndDownJson);
+			// 前一月的涨跌次数
+			String preOneMonthUpAndDownJson = getPreOneMonthJson(stockCode, stockDate);
+			statisticDetailStock.setOneMonth(preOneMonthUpAndDownJson);
+			// 前二月的涨跌次数
+			String preTwoMonthUpAndDownJson = getPreTwoMonthJson(stockCode, stockDate);
+			statisticDetailStock.setTwoMonth(preTwoMonthUpAndDownJson);
+			// 前三月的涨跌次数
+			String preThreeMonthUpAndDownJson = getPreThreeMonthJson(stockCode, stockDate);
+			statisticDetailStock.setThreeMonth(preThreeMonthUpAndDownJson);
+			// 前半年的涨跌次数
+			String preHalfYearUpAndDownJson = getPreHalfYearJson(stockCode, stockDate);
+			statisticDetailStock.setHalfYear(preHalfYearUpAndDownJson);
+			// 前一年的涨跌次数
+			String preOneYearUpAndDownJson = getPreOneYearJson(stockCode, stockDate);
+			statisticDetailStock.setOneYear(preOneYearUpAndDownJson);
+			statisticDetailStock.setNote(DataUtils._BLANK);
+			statisticDetailStock.setInputTime(new Date());
+			boolean isExistFlg = statisticDetailStockDao.isExistInStatisticDetailStock(stockCode, stockDate);
+			if (!isExistFlg) {
+				statisticDetailStock.setNum(++maxNum);
+				//ObjectUtils.printProperties(statisticDetailStock);
+				saveFlg = statisticDetailStockDao.saveStatisticDetailStock(statisticDetailStock);
+			}
 		}
 		return saveFlg;
 	}

@@ -8,6 +8,7 @@ import java.util.List;
 import cn.com.CommonUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
+import cn.db.bean.DailyStock;
 import cn.db.bean.StatisticDetailStock;
 import com.mysql.jdbc.PreparedStatement;
 
@@ -341,7 +342,7 @@ public class StatisticDetailStockDao extends OperationDao {
 	}
 
 	/**
-	 * according to the key(stock_code_, stock_date_), get the record of the table statistic_detail_stock_
+	 * according to the key(stock_code_, stock_date_), get the records of the table statistic_detail_stock_
 	 *
 	 */
 	public StatisticDetailStock getStatisticDetailStockByKey(String stockCode, Date stockDate) throws SQLException {
@@ -359,5 +360,46 @@ public class StatisticDetailStockDao extends OperationDao {
 		}
 		close(rs, state);
 		return statisticDetailStock;
+	}
+	
+	/**
+	 * according to the time, get the records of the table statistic_detail_stock_
+	 *
+	 */
+	public List<StatisticDetailStock> listStatisticDetailStockByDate(Date[] dateArray) throws SQLException {
+		
+		List<StatisticDetailStock> statisticDetailStockList = new ArrayList<StatisticDetailStock>();
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ").append(StatisticDetailStock.ALL_FIELDS).append(" from ").append(StatisticDetailStock.TABLE_NAME).append(" where ")
+		   .append(StatisticDetailStock.STOCK_DATE).append(" between ? and ?");
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setDate(1, new java.sql.Date(dateArray[0].getTime()));
+		state.setDate(2, new java.sql.Date(dateArray[1].getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			StatisticDetailStock statisticDetailStock = getStatisticDetailStockFromResult(rs);
+			statisticDetailStockList.add(statisticDetailStock);
+		}
+		close(rs, state);
+		return statisticDetailStockList;
+	}
+	
+	/**
+	 * 查询最大最小日期
+	 * 
+	 */
+	public Date[] getMinMaxDate() throws SQLException {
+
+		Date[] dateArray = new Date[2];
+		String sql = "select min(" + StatisticDetailStock.STOCK_DATE + ") as min_date_, max(" + StatisticDetailStock.STOCK_DATE + ") as max_date_ from "
+				+ StatisticDetailStock.TABLE_NAME;
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			dateArray[0] = rs.getDate("min_date_");
+			dateArray[1] = rs.getDate("max_date_");
+		}
+		close(rs, state);
+		return dateArray;
 	}
 }

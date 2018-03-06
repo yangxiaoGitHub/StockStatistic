@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7"/>
 	<classpathentry kind="lib" path="libs/stock-commons-beanutils-1.8.3.jar"/>
 	<classpathentry kind="lib" path="libs/stock-commons-collections-3.2.1.jar"/>
 	<classpathentry kind="lib" path="libs/stock-commons-lang-2.6.jar"/>
@@ -13,5 +12,15 @@
 	<classpathentry kind="lib" path="libs/stock-json-lib-2.4-jdk15.jar"/>
 	<classpathentry kind="lib" path="libs/stock-log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="libs/stock-mysql-connector-java-5.1.44-bin.jar"/>
+	<classpathentry kind="lib" path="/stock/libs/poi-3.17.jar"/>
+	<classpathentry kind="lib" path="/stock/libs/poi-ooxml-3.17.jar"/>
+	<classpathentry kind="lib" path="/stock/libs/poi-ooxml-schemas-3.17.jar"/>
+	<classpathentry kind="lib" path="/stock/libs/poi-scratchpad-3.17.jar"/>
+	<classpathentry kind="lib" path="libs/stock-cglib-nodep-3.2.6.jar"/>
+	<classpathentry kind="lib" path="libs/stock-poi-3.17.jar"/>
+	<classpathentry kind="lib" path="libs/stock-poi-ooxml-3.17.jar"/>
+	<classpathentry kind="lib" path="libs/stock-poi-ooxml-schemas-3.17.jar"/>
+	<classpathentry kind="lib" path="libs/stock-poi-scratchpad-3.17.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.7"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

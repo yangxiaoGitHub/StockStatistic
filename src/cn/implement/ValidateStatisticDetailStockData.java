@@ -34,7 +34,9 @@ public class ValidateStatisticDetailStockData extends OperationData {
 		originalStockDao = new OriginalStockDao();
 		statisticDetailStockDao = new StatisticDetailStockDao();
 		try {
-			List<StatisticDetailStock> statisticDetailStockList = statisticDetailStockDao.listStatisticDetailStock();
+			Date[] minMaxDate = statisticDetailStockDao.getMinMaxDate();
+			Date[] preOneMonth = DateUtils.getPreOneMonth(minMaxDate[1]);
+			List<StatisticDetailStock> statisticDetailStockList = statisticDetailStockDao.listStatisticDetailStockByDate(preOneMonth);
 			if (statisticDetailStockList.size() > 0) {
 				// 验证stock_code_ DES加密
 				boolean stockCodeFLg = validateStockCodeDESInStatisticDetailStock(statisticDetailStockList);
@@ -73,9 +75,9 @@ public class ValidateStatisticDetailStockData extends OperationData {
 		boolean flg = true;
 		System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(statistic_detail_stock_)中股票总涨跌次数(与daily_stock_表比较)验证开始...");
 		Message.clear();
-		// 统计daily_stock_表中所有股票总涨跌次数
-		Map<String, StatisticDetailStock> upDownAndNumberMap = statisticUpAndDownInDailyStock();
-	    // 合并涨跌次数验证
+		// 根据statisticDetailStockList，统计daily_stock_表中股票总涨跌次数
+		Map<String, StatisticDetailStock> upDownAndNumberMap = statisticUpAndDownInDailyStock(statisticDetailStockList);
+	    // 验证统计涨跌次数和表(statistic_detail_stock_)中的涨跌次数
 		List<StatisticDetailStock> invalidUpAndDownList = listErrorUpAndDownNumber(statisticDetailStockList, upDownAndNumberMap, DailyStock.TABLE_NAME);
 		Message.printMethodExecuteMessage();
 		if (invalidUpAndDownList.size() > 0) {
@@ -186,6 +188,31 @@ public class ValidateStatisticDetailStockData extends OperationData {
 		return statisticDetailStockMap;
 	}
 	
+	/**
+	 * 根据statisticDetailStockList, 统计表(daily_stock_)中所有股票的总涨跌次数(不包括Json涨跌次数)
+	 *
+	 */
+	private Map<String, StatisticDetailStock> statisticUpAndDownInDailyStock(List<StatisticDetailStock> statisticDetailStockList) throws SQLException {
+		
+		Map<String, StatisticDetailStock> statisticDetailStockMap = new HashMap<String, StatisticDetailStock>();
+		Map<String, StatisticDetailStock> upDownNumberMap = new HashMap<String, StatisticDetailStock>();
+		Map<String, StatisticDetailStock> upNumberMap = new HashMap<String, StatisticDetailStock>();
+		Map<String, StatisticDetailStock> downNumberMap = new HashMap<String, StatisticDetailStock>();
+		Date[] startEndDate = dailyStockDao.getMinMaxDate();
+		for (StatisticDetailStock statisticDetailStock : statisticDetailStockList) {
+			String stockCode = statisticDetailStock.getStockCode();
+			startEndDate[1] = statisticDetailStock.getStockDate();
+			Map<String, StatisticDetailStock> upDownMap = dailyStockDao.statisticUpDownInDailyStock(stockCode, startEndDate);
+			Map<String, StatisticDetailStock> upMap = dailyStockDao.statisticUpInDailyStock(stockCode, startEndDate);
+			Map<String, StatisticDetailStock> downMap = dailyStockDao.statisticDownInDailyStock(stockCode, startEndDate);
+			upDownNumberMap.put(stockCode+DateUtils.dateToString(startEndDate[1]), upDownMap.get(stockCode));
+			upNumberMap.put(stockCode+DateUtils.dateToString(startEndDate[1]), upMap.get(stockCode));
+			downNumberMap.put(stockCode+DateUtils.dateToString(startEndDate[1]), downMap.get(stockCode));
+		}
+		statisticDetailStockMap = combineUpAndDownNumber(upDownNumberMap, upNumberMap, downNumberMap);
+		return statisticDetailStockMap;
+	}
+
 	private Map<String, StatisticDetailStock> combineUpAndDownNumber(Map<String, StatisticDetailStock> upDownNumberMap, 
 																	 Map<String, StatisticDetailStock> upNumberMap,
 																	 Map<String, StatisticDetailStock> downNumberMap) {
@@ -195,45 +222,50 @@ public class ValidateStatisticDetailStockData extends OperationData {
 		for (StatisticDetailStock statisticDetailStock : upDownNumberMap.values()) {
 			statisticDetailStock.setUpNumber(DataUtils._INT_ZERO);
 			statisticDetailStock.setDownNumber(DataUtils._INT_ZERO);
-			statisticDetailStockMap.put(statisticDetailStock.getStockCode(), statisticDetailStock);
+			//System.out.println("stockCode:" + statisticDetailStock.getStockCode() + "-----stockDate:" + statisticDetailStock.getStockDate());
+			String mapKey = statisticDetailStock.getStockCode() + DateUtils.dateToString(statisticDetailStock.getStockDate());
+			statisticDetailStockMap.put(mapKey, statisticDetailStock);
 		}
 		// 合并upNumberMap
 		for (StatisticDetailStock statisticDetailStock : upNumberMap.values()) {
 			String stockCode = statisticDetailStock.getStockCode();
 			Integer upNumber = statisticDetailStock.getUpNumber();
-			if (statisticDetailStockMap.containsKey(stockCode)) {
-				StatisticDetailStock stock = statisticDetailStockMap.get(stockCode);
+			String mapKey = stockCode + DateUtils.dateToString(statisticDetailStock.getStockDate());
+			if (statisticDetailStockMap.containsKey(mapKey)) {
+				StatisticDetailStock stock = statisticDetailStockMap.get(mapKey);
 				stock.setUpNumber(upNumber);
 			} else {
-				statisticDetailStockMap.put(stockCode, statisticDetailStock);
+				statisticDetailStockMap.put(mapKey, statisticDetailStock);
 			}
 		}
 		// 合并downNumberMap
 		for (StatisticDetailStock statisticDetailStock : downNumberMap.values()) {
 			String stockCode = statisticDetailStock.getStockCode();
 			Integer downNumber = statisticDetailStock.getDownNumber();
-			if (statisticDetailStockMap.containsKey(stockCode)) {
-				StatisticDetailStock stock = statisticDetailStockMap.get(stockCode);
+			String mapKey = stockCode + DateUtils.dateToString(statisticDetailStock.getStockDate());
+			if (statisticDetailStockMap.containsKey(mapKey)) {
+				StatisticDetailStock stock = statisticDetailStockMap.get(mapKey);
 				stock.setDownNumber(downNumber);
 			} else {
-				statisticDetailStockMap.put(stockCode, statisticDetailStock);
+				statisticDetailStockMap.put(mapKey, statisticDetailStock);
 			}
 		}
 		return statisticDetailStockMap;
 	}
 	
 	/**
-	 * 验证表statistic_detail_stock_总涨跌次数(与表original_stock_)，返回错误总涨跌次数List
+	 * 验证表statistic_detail_stock_总涨跌次数(与表original_stock_或daily_stock_)，返回错误总涨跌次数List
 	 *
 	 */
 	private List<StatisticDetailStock> listErrorUpAndDownNumber(List<StatisticDetailStock> statisticDetailStockList, 
 																Map<String, StatisticDetailStock> statisticUpAndDownMap,
 																String tableFlg) {
-
+		
 		List<StatisticDetailStock> errorUpAndDownNumberList = new ArrayList<StatisticDetailStock>();
 		for (StatisticDetailStock statisticDetailStock : statisticDetailStockList) {
 			String stockCode = statisticDetailStock.getStockCode();
-			StatisticDetailStock statisticUpAndDownStock = statisticUpAndDownMap.get(stockCode);
+			String mapKey = stockCode + DateUtils.dateToString(statisticDetailStock.getStockDate());
+			StatisticDetailStock statisticUpAndDownStock = statisticUpAndDownMap.get(mapKey);
 			if (statisticUpAndDownStock == null) {
 				System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(statistic_detail_stock_)中" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")不存在表(" + tableFlg + ")中！");
 				log.loger.warn("----->表(statistic_detail_stock_)中" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")不存在表(" + tableFlg + ")中！");
@@ -247,6 +279,20 @@ public class ValidateStatisticDetailStockData extends OperationData {
 		return errorUpAndDownNumberList;
 	}
 	
+	//test the loop
+	public void testLoop() {
+
+		for (int index=0; index<10; index++) {
+			testAop(String.valueOf(index));
+		}
+	}
+	
+	//test the function of AOP
+	public void testAop(String param) {
+
+		System.out.println("循环次数为：" + param);
+	}
+	
 	/**
 	 * 验证表(statistic_detail_stock_)中总涨跌次数
 	 *
@@ -258,15 +304,15 @@ public class ValidateStatisticDetailStockData extends OperationData {
 		StatisticDetailStock errorUpAndDownStock = new StatisticDetailStock(stockCode, stockDate);
 		try {
 			Message.addMethodExecuteNumber();
-			if (Message.methodExecuteMessageIsEmpty())
-				Message.inputMethodExecuteMessage(DateUtils.dateTimeToString(new Date()) + ">>>>>>验证statistic_detail_stock_表中总涨跌次数的方法(ValidateStatisticDetailStockData.validateUpAndDownNumber)被执行number次！");
+			Message.inputMethodExecuteMessage("验证表(statistic_detail_stock_)中总涨跌次数", "ValidateStatisticDetailStockData.validateUpAndDownNumber");
+			//Message.inputMethodExecuteMessage(DateUtils.dateTimeToString(new Date()) + ">>>>>>验证表(statistic_detail_stock_)中总涨跌次数的方法(ValidateStatisticDetailStockData.validateUpAndDownNumber)被执行number次！");
 			// 比较总涨跌次数
 			Integer upDownNumber = statisticDetailStock.getUpDownNumber();
 			Integer upNumber = statisticDetailStock.getUpNumber();
 			Integer downNumber = statisticDetailStock.getDownNumber();
-			Integer statisticUpDownNumber = statisticJsonUpAndDownStock.getUpDownNumber();
-			Integer statisticUpNumber = statisticJsonUpAndDownStock.getUpNumber();
-			Integer statisticDownNumber = statisticJsonUpAndDownStock.getDownNumber();
+			Integer statisticUpDownNumber = statisticJsonUpAndDownStock.getUpDownNumber()==null?0:statisticJsonUpAndDownStock.getUpDownNumber();
+			Integer statisticUpNumber = statisticJsonUpAndDownStock.getUpNumber()==null?0:statisticJsonUpAndDownStock.getUpNumber();
+			Integer statisticDownNumber = statisticJsonUpAndDownStock.getDownNumber()==null?0:statisticJsonUpAndDownStock.getDownNumber();
 			if (upDownNumber.compareTo(statisticUpDownNumber) != 0 
 					|| upNumber.compareTo(statisticUpNumber) != 0
 					|| downNumber.compareTo(statisticDownNumber) != 0) {
@@ -280,7 +326,7 @@ public class ValidateStatisticDetailStockData extends OperationData {
 			}
 		} catch (Exception ex) {
 			System.out.println("验证表(statistic_detail_stock_)中的股票" + statisticDetailStock.getStockCode() + "("
-					+ PropertiesUtils.getProperty(statisticDetailStock.getStockCode()) + ")涨跌次数异常！");
+							   + PropertiesUtils.getProperty(statisticDetailStock.getStockCode()) + ")涨跌次数异常！");
 			ex.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(ex));
 		}
@@ -292,18 +338,16 @@ public class ValidateStatisticDetailStockData extends OperationData {
 	 *
 	 */
 	private boolean validateUpAndDownInOriginalStock(List<StatisticDetailStock> statisticDetailStockList) throws SQLException, IOException {
-		
+
 		boolean flg = true;
 		System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(statistic_detail_stock_)中的总涨跌次数(与original_stock_表比较)验证开始...");
 		Message.clear();
 		List<OriginalStock> originalStockList = originalStockDao.listOriginalData();
-		Map<String, StatisticDetailStock> originalUpAndDownNumberMap = StockUtils.statisticUpAndDownNumber(originalStockList); //总涨跌次数
-//		//统计original_stock_表中所有股票总涨跌次数和Json涨跌次数
-//		Map<String, StatisticDetailStock> upAndDownNumberJsonMap = statisticUpDownNumberInOriginalStock();
+		Map<String, StatisticDetailStock> originalUpAndDownNumberMap = StockUtils.statisticUpAndDownNumber(statisticDetailStockList, originalStockList, DataUtils._INT_ZERO); //总涨跌次数
 	    // 验证合并涨跌次数
 		List<StatisticDetailStock> invalidUpAndDownList = listErrorUpAndDownNumber(statisticDetailStockList, originalUpAndDownNumberMap, OriginalStock.TABLE_NAME);
-		if (!Message.methodExecuteMessageIsEmpty())
-			Message.printMethodExecuteMessage();
+		//if (!Message.methodExecuteMessageIsEmpty())
+		Message.printMethodExecuteMessage();
 		if (invalidUpAndDownList.size() > 0) {
 			flg = false;
 			System.out.println("---------------验证表(statistic_detail_stock_)的涨跌次数无效----------------");
@@ -320,7 +364,7 @@ public class ValidateStatisticDetailStockData extends OperationData {
 		}
 		return flg;
 	}
-	
+
 	/**
 	 * 验证表(statistic_detail_stock_)中股票Json涨跌次数(与表original_stock_比较)
 	 *
@@ -331,7 +375,7 @@ public class ValidateStatisticDetailStockData extends OperationData {
 		System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(statistic_detail_stock_)中股票Json涨跌次数(与表original_stock_比较)验证开始...");
 		Message.clear();
 		// 统计表original_stock_中所有股票总涨跌次数和Json涨跌次数
-		Map<String, StatisticDetailStock> upAndDownNumberJsonMap = statisticUpDownNumberInOriginalStock();
+		Map<String, StatisticDetailStock> upAndDownNumberJsonMap = statisticUpDownNumberInOriginalStock(statisticDetailStockList);
 	    // 验证Json涨跌次数
 		List<StatisticDetailStock> invalidUpAndDownList = listErrorJsonUpAndDown(statisticDetailStockList, upAndDownNumberJsonMap, OriginalStock.TABLE_NAME);
 		Message.printMethodExecuteMessage();
@@ -361,9 +405,11 @@ public class ValidateStatisticDetailStockData extends OperationData {
 															  String tableFlg) {
 
 		List<StatisticDetailStock> errorJsonUpAndDownNumberList = new ArrayList<StatisticDetailStock>();
+
 		for (StatisticDetailStock statisticDetailStock : statisticDetailStockList) {
 			String stockCode = statisticDetailStock.getStockCode();
-			StatisticDetailStock statisticJsonUpAndDownStock = statisticJsonUpAndDownMap.get(stockCode);
+			String mapKey = stockCode + DateUtils.dateToString(statisticDetailStock.getStockDate());
+			StatisticDetailStock statisticJsonUpAndDownStock = statisticJsonUpAndDownMap.get(mapKey);
 			if (statisticJsonUpAndDownStock == null) {
 				System.out.println("表(statistic_detail_stock_)中" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")不存在表(" + tableFlg + ")中！");
 				log.loger.warn("表(statistic_detail_stock_)中" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")不存在表(" + tableFlg + ")中！");
@@ -387,12 +433,12 @@ public class ValidateStatisticDetailStockData extends OperationData {
 		boolean flg = true;
 		System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(statistic_detail_stock_)中股票的Json涨跌次数(与daily_stock_表比较)验证开始...");
 		Message.clear();
-		// 统计daily_stock_表中所有股票Json涨跌次数
-		Map<String, StatisticDetailStock> jsonUpAndDownMap = statisticJsonUpAndDownInDailyStock();
+		// 根据statisticDetailStockList，统计daily_stock_表中所有股票Json涨跌次数
+		Map<String, StatisticDetailStock> jsonUpAndDownMap = statisticJsonUpAndDownInDailyStock(statisticDetailStockList);
 	    // 验证Json涨跌次数(与daily_stock_表比较)
 		List<StatisticDetailStock> invalidUpAndDownList = listErrorJsonUpAndDown(statisticDetailStockList, jsonUpAndDownMap, DailyStock.TABLE_NAME);
-		if (!Message.methodExecuteMessageIsEmpty())
-			Message.printMethodExecuteMessage();
+		//if (!Message.methodExecuteMessageIsEmpty())
+		Message.printMethodExecuteMessage();
 		if (invalidUpAndDownList.size() > 0) {
 			flg = false;
 			System.out.println("---------------验证表(statistic_detail_stock_)的Json涨跌次数无效----------------");
@@ -410,6 +456,24 @@ public class ValidateStatisticDetailStockData extends OperationData {
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "----->表(statistic_detail_stock_)中股票的Json涨跌次数(与daily_stock_表比较)验证成功！");
 		}
 		return flg;
+	}
+	
+	/**
+	 * 根据statisticDetailStockList，统计daily_stock_表中所有股票Json涨跌次数
+	 *
+	 */
+	private Map<String, StatisticDetailStock> statisticJsonUpAndDownInDailyStock(List<StatisticDetailStock> statisticDetailStockList) throws SQLException {
+		
+		Map<String, StatisticDetailStock> jsonUpAndDownStatisticMap = new HashMap<String, StatisticDetailStock>();
+		for (StatisticDetailStock statisticDetailStock : statisticDetailStockList) {
+			String stockCode = statisticDetailStock.getStockCode();
+			Date stockDate = statisticDetailStock.getStockDate();
+			String mapKey = stockCode + DateUtils.dateToString(stockDate);
+			StatisticDetailStock newStatisticDetailStock = new StatisticDetailStock(stockCode, stockDate);
+			statisticUpAndDownJsonInDailyStock(newStatisticDetailStock); // 根据统计日期，统计表(statistic_detail_stock_)中Json涨跌次数
+			jsonUpAndDownStatisticMap.put(mapKey, newStatisticDetailStock);
+		}
+		return jsonUpAndDownStatisticMap;
 	}
 	
 	/**
@@ -559,8 +623,8 @@ public class ValidateStatisticDetailStockData extends OperationData {
 			}*/
 
 			Message.addMethodExecuteNumber();
-			if (Message.methodExecuteMessageIsEmpty())
-				Message.inputMethodExecuteMessage(DateUtils.dateTimeToString(new Date()) + ">>>>>>验证statistic_stock_表中Json涨跌次数的方法(validateJsonUpAndDownNumber)被执行number次！");
+			Message.inputMethodExecuteMessage("验证表(statistic_stock_)中Json涨跌次数", "ValidateStatisticDetailStockData.validateJsonUpAndDownNumber");
+			//Message.inputMethodExecuteMessage(DateUtils.dateTimeToString(new Date()) + ">>>>>>验证statistic_stock_表中Json涨跌次数的方法(validateJsonUpAndDownNumber)被执行number次！");
 			// 比较一年涨跌次数
 			String oneYearJson = statisticDetailStock.getOneYear();
 			String oneYearStatisticJson = statisticJsonUpAndDownStock.getOneYear();

@@ -15,7 +15,6 @@ public class DetailStock extends BaseStock {
 	private Float tradedAmount;
 	private Double changeRate;
 	private String changeRateDES;
-	private Double turnoverRate;
 	private String turnoverRateDES;
 	private Date tradedTime;
 	
@@ -98,12 +97,6 @@ public class DetailStock extends BaseStock {
 	public void setChangeRateDES(String changeRateDES) {
 		this.changeRateDES = changeRateDES;
 	}
-	public Double getTurnoverRate() {
-		return turnoverRate;
-	}
-	public void setTurnoverRate(Double turnoverRate) {
-		this.turnoverRate = turnoverRate;
-	}
 	public String getTurnoverRateDES() {
 		return turnoverRateDES;
 	}
@@ -137,5 +130,13 @@ public class DetailStock extends BaseStock {
 	@Override
 	public void setStockDate(Date stockDate) {
 		super.stockDate = stockDate;
+	}
+	@Override
+	public Double getTurnoverRate() {
+		return super.turnoverRate;
+	}
+	@Override
+	public void setTurnoverRate(Double turnoverRate) {
+		super.turnoverRate = turnoverRate;
 	}
 }

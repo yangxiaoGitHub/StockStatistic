@@ -104,12 +104,21 @@ public class AllStock extends BaseStock {
 
 	@Override
 	public String getStockCodeDES() {
-
 		return null;
 	}
 
 	@Override
 	public void setStockCodeDES(String stockCodeDES) {
 
+	}
+
+	@Override
+	public Double getTurnoverRate() {
+		return null;
+	}
+
+	@Override
+	public void setTurnoverRate(Double turnoverRate) {
+		
 	}
 }

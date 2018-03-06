@@ -8,20 +8,21 @@ import java.util.List;
 import java.util.Map;
 
 import cn.com.CommonUtils;
+import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.JsonUtils;
 import cn.com.StockUtils;
 import cn.db.AllDetailStockDao;
-import cn.db.AllDetailStockTestDao;
 import cn.db.AllImportStockDao;
-import cn.db.AllInformationStockTestDao;
 import cn.db.AllStockDao;
 import cn.db.DailyStockDao;
 import cn.db.HistoryStockDao;
 import cn.db.OperationDao;
 import cn.db.OriginalStockDao;
 import cn.db.StatisticDetailStockDao;
+import cn.db.bean.BaseStock;
 import cn.db.bean.DailyStock;
+import cn.db.bean.HistoryStock;
 import cn.db.bean.OriginalStock;
 import cn.db.bean.StatisticDetailStock;
 import cn.log.Log;
@@ -68,16 +69,6 @@ public class OperationData extends BaseData {
 					if (historyStockDao != null) {
 						historyStockDao.close();
 						historyStockDao = null;
-					}
-				} else if (className.equals(AllInformationStockTestDao.class.getSimpleName())) {
-					if (allInformationStockTestDao != null) {
-						allInformationStockTestDao.close();
-						allInformationStockTestDao = null;
-					}
-				} else if (className.equals(AllDetailStockTestDao.class.getSimpleName())) {
-					if (allDetailStockTestDao != null) {
-						allDetailStockTestDao.close();
-						allDetailStockTestDao = null;
 					}
 				} else if (className.equals(AllImportStockDao.class.getSimpleName())) {
 					if (allImportStockDao != null) {
@@ -300,97 +291,6 @@ public class OperationData extends BaseData {
 	}
 	
 	/**
-	 * 获取original_stock_表中前一周的涨跌次数Json
-	 * 
-	 */
-	protected Map<String, StatisticDetailStock> getPreOneWeekJsonInOriginalStock(Date recentDate) throws SQLException, IOException {
-		
-		Date[] preOneWeekStartEndDate = DateUtils.getPreOneWeek(recentDate);
-		List<OriginalStock> originalStockList = originalStockDao.getOriginalStockByDateInterval(preOneWeekStartEndDate[0], preOneWeekStartEndDate[1]);
-		Map<String, StatisticDetailStock> preOneWeekUpAndDownNumberMap = StockUtils.statisticUpAndDownNumber(originalStockList);
-		StockUtils.setUpAndDownNumberJson(preOneWeekUpAndDownNumberMap, StatisticDetailStock.PRE_ONE_WEEK_UP_DOWN_NUM);
-		return preOneWeekUpAndDownNumberMap;
-	}
-	
-	/**
-	 * 获取original_stock_表中前半月的涨跌次数Json
-	 *
-	 */
-	protected Map<String, StatisticDetailStock> getPreHalfMonthJsonInOriginalStock(Date recentDate) throws SQLException, IOException {
-		
-		Date[] preHalfMonthStartEndDate = DateUtils.getPreHalfMonth(recentDate);
-		List<OriginalStock> originalStockList = originalStockDao.getOriginalStockByDateInterval(preHalfMonthStartEndDate[0], preHalfMonthStartEndDate[1]);
-		Map<String, StatisticDetailStock> preHalfMonthUpAndDownNumberMap = StockUtils.statisticUpAndDownNumber(originalStockList);
-		StockUtils.setUpAndDownNumberJson(preHalfMonthUpAndDownNumberMap, StatisticDetailStock.PRE_HALF_MONTH_UP_DOWN_NUM);
-		return preHalfMonthUpAndDownNumberMap;
-	}
-	
-	/**
-	 * 获取original_stock_表中前一月的涨跌次数Json
-	 * 
-	 */
-	protected Map<String, StatisticDetailStock> getPreOneMonthJsonInOriginalStock(Date recentDate) throws SQLException, IOException {
-		
-		Date[] preOneMonthStartEndDate = DateUtils.getPreOneMonth(recentDate);
-		List<OriginalStock> originalStockList = originalStockDao.getOriginalStockByDateInterval(preOneMonthStartEndDate[0], preOneMonthStartEndDate[1]);
-		Map<String, StatisticDetailStock> preOneMonthUpAndDownNumberMap = StockUtils.statisticUpAndDownNumber(originalStockList);
-		StockUtils.setUpAndDownNumberJson(preOneMonthUpAndDownNumberMap, StatisticDetailStock.PRE_ONE_MONTH_UP_DOWN_NUM);
-		return preOneMonthUpAndDownNumberMap;
-	}
-	
-	/**
-	 * 获取original_stock_表中前二月的涨跌次数Json
-	 * 
-	 */
-	protected Map<String, StatisticDetailStock> getPreTwoMonthJsonInOriginalStock(Date recentDate) throws SQLException, IOException {
-		
-		Date[] preTwoMonthStartEndDate = DateUtils.getPreTwoMonth(recentDate);
-		List<OriginalStock> originalStockList = originalStockDao.getOriginalStockByDateInterval(preTwoMonthStartEndDate[0], preTwoMonthStartEndDate[1]);
-		Map<String, StatisticDetailStock> preTwoMonthUpAndDownNumberMap = StockUtils.statisticUpAndDownNumber(originalStockList);
-		StockUtils.setUpAndDownNumberJson(preTwoMonthUpAndDownNumberMap, StatisticDetailStock.PRE_TWO_MONTH_UP_DOWN_NUM);
-		return preTwoMonthUpAndDownNumberMap;
-	}
-	
-	/**
-	 * 获取original_stock_表中前三月的涨跌次数Json
-	 * 
-	 */
-	protected Map<String, StatisticDetailStock> getPreThreeMonthJsonInOriginalStock(Date recentDate) throws SQLException, IOException {
-		
-		Date[] preThreeMonthStartEndDate = DateUtils.getPreThreeMonth(recentDate);
-		List<OriginalStock> originalStockList = originalStockDao.getOriginalStockByDateInterval(preThreeMonthStartEndDate[0], preThreeMonthStartEndDate[1]);
-		Map<String, StatisticDetailStock> preThreeMonthUpAndDownNumberMap = StockUtils.statisticUpAndDownNumber(originalStockList);
-		StockUtils.setUpAndDownNumberJson(preThreeMonthUpAndDownNumberMap, StatisticDetailStock.PRE_THREE_MONTH_UP_DOWN_NUM);
-		return preThreeMonthUpAndDownNumberMap;
-	}
-	
-	/**
-	 * 获取original_stock_表中前半年的涨跌次数Json
-	 *
-	 */
-	protected Map<String, StatisticDetailStock> getPreHalfYearJsonInOriginalStock(Date recentDate) throws SQLException, IOException {
-		
-		Date[] preHalfYearStartEndDate = DateUtils.getPreHalfYear(recentDate);
-		List<OriginalStock> originalStockList = originalStockDao.getOriginalStockByDateInterval(preHalfYearStartEndDate[0], preHalfYearStartEndDate[1]);
-		Map<String, StatisticDetailStock> preHalfYearUpAndDownNumberMap = StockUtils.statisticUpAndDownNumber(originalStockList);
-		StockUtils.setUpAndDownNumberJson(preHalfYearUpAndDownNumberMap, StatisticDetailStock.PRE_HALF_YEAR_UP_DOWN_NUM);
-		return preHalfYearUpAndDownNumberMap;
-	}
-	
-	/**
-	 * 获取original_stock_表中前一年的涨跌次数Json
-	 *
-	 */
-	protected Map<String, StatisticDetailStock> getPreOneYearJsonInOriginalStock(Date recentDate) throws SQLException, IOException {
-		
-		Date[] preOneYearStartEndDate = DateUtils.getPreOneYear(recentDate);
-		List<OriginalStock> originalStockList = originalStockDao.getOriginalStockByDateInterval(preOneYearStartEndDate[0], preOneYearStartEndDate[1]);
-		Map<String, StatisticDetailStock> preOneYearUpAndDownNumberMap = StockUtils.statisticUpAndDownNumber(originalStockList);
-		StockUtils.setUpAndDownNumberJson(preOneYearUpAndDownNumberMap, StatisticDetailStock.PRE_ONE_YEAR_UP_DOWN_NUM);
-		return preOneYearUpAndDownNumberMap;
-	}
-	
-	/**
 	 * 计算股票的总涨跌次数和统计股票Json涨跌次数
 	 *
 	 */
@@ -416,15 +316,16 @@ public class OperationData extends BaseData {
 	protected void statisticUpAndDownJsonInDailyStock(StatisticDetailStock statistic) throws SQLException {
 
 		String stockCode = statistic.getStockCode();
-		Date[] minMaxDate = dailyStockDao.getMinMaxDate();
-		String preOneWeekJson = this.getPreOneWeekJson(stockCode, minMaxDate[1]);
-		String preHalfMonthJson = this.getPreHalfMonthJson(stockCode, minMaxDate[1]);
-		String preOneMonthJson = this.getPreOneMonthJson(stockCode, minMaxDate[1]);
-		String preTwoMonthJson = this.getPreTwoMonthJson(stockCode, minMaxDate[1]);
-		String preThreeMonthJson = this.getPreThreeMonthJson(stockCode, minMaxDate[1]);
-		String preHalfYearJson = this.getPreHalfYearJson(stockCode, minMaxDate[1]);
-		String preOneYearJson = this.getPreOneYearJson(stockCode, minMaxDate[1]);
-		statistic.setStockDate(minMaxDate[1]);
+		//Date[] minMaxDate = dailyStockDao.getMinMaxDate();
+		Date recentDate = statistic.getStockDate();
+		String preOneWeekJson = this.getPreOneWeekJson(stockCode, recentDate);
+		String preHalfMonthJson = this.getPreHalfMonthJson(stockCode, recentDate);
+		String preOneMonthJson = this.getPreOneMonthJson(stockCode, recentDate);
+		String preTwoMonthJson = this.getPreTwoMonthJson(stockCode, recentDate);
+		String preThreeMonthJson = this.getPreThreeMonthJson(stockCode, recentDate);
+		String preHalfYearJson = this.getPreHalfYearJson(stockCode, recentDate);
+		String preOneYearJson = this.getPreOneYearJson(stockCode, recentDate);
+		statistic.setStockDate(recentDate);
 		statistic.setOneWeek(preOneWeekJson);
 		statistic.setHalfMonth(preHalfMonthJson);
 		statistic.setOneMonth(preOneMonthJson);
@@ -438,20 +339,52 @@ public class OperationData extends BaseData {
 	 * 统计original_stock_表中所有股票总涨跌次数和Json涨跌次数
 	 *
 	 */
-	protected Map<String, StatisticDetailStock> statisticUpDownNumberInOriginalStock() throws SQLException, IOException {
+	protected Map<String, StatisticDetailStock> statisticUpDownNumberInOriginalStock(List<StatisticDetailStock> statisticDetailStockList) throws SQLException, IOException {
 
-		Date recentDate = originalStockDao.getRecentStockDate();
 		List<OriginalStock> originalStockList = originalStockDao.listOriginalData();
-		Map<String, StatisticDetailStock> upAndDownNumberMap = StockUtils.statisticUpAndDownNumber(originalStockList); //总涨跌次数
-		Map<String, StatisticDetailStock> preOneWeekJsonMap = getPreOneWeekJsonInOriginalStock(recentDate); //前一周涨跌次数
-		Map<String, StatisticDetailStock> preHalfMonthJsonMap = getPreHalfMonthJsonInOriginalStock(recentDate); //前半月涨跌次数
-		Map<String, StatisticDetailStock> PreOneMonthJsonMap = getPreOneMonthJsonInOriginalStock(recentDate); //前一月涨跌次数
-		Map<String, StatisticDetailStock> preTwoMonthJsonMap = getPreTwoMonthJsonInOriginalStock(recentDate); //前二月涨跌次数
-		Map<String, StatisticDetailStock> preThreeMonthJsonMap = getPreThreeMonthJsonInOriginalStock(recentDate); //前三月涨跌次数
-		Map<String, StatisticDetailStock> preHalfYearJsonMap = getPreHalfYearJsonInOriginalStock(recentDate); //前半年涨跌次数
-		Map<String, StatisticDetailStock> preOneYearJsonMap = getPreOneYearJsonInOriginalStock(recentDate); //前一年涨跌次数
-		Map<String, StatisticDetailStock> combineUpAndDownJsonMap = StockUtils.combineUpAndDownNumberJsonMap(upAndDownNumberMap, preOneYearJsonMap,
-				preHalfYearJsonMap, preThreeMonthJsonMap, preTwoMonthJsonMap, PreOneMonthJsonMap, preHalfMonthJsonMap, preOneWeekJsonMap);
+		// 根据statisticDetailStockList，获得总涨跌次数
+		Map<String, StatisticDetailStock> upAndDownNumberMap = StockUtils.statisticUpAndDownNumber(statisticDetailStockList, originalStockList, DataUtils._INT_ZERO);
+		// 根据statisticDetailStockList，获得前一周涨跌次数
+		Map<String, StatisticDetailStock> preOneWeekJsonMap = StockUtils.statisticUpAndDownNumber(statisticDetailStockList, originalStockList, DataUtils._INT_ONE);
+		StockUtils.setUpAndDownNumberJson(preOneWeekJsonMap, StatisticDetailStock.PRE_ONE_WEEK_UP_DOWN_NUM);
+		// 获得前半月涨跌次数
+		Map<String, StatisticDetailStock> preHalfMonthJsonMap = StockUtils.statisticUpAndDownNumber(statisticDetailStockList, originalStockList, DataUtils._INT_TWO);
+		StockUtils.setUpAndDownNumberJson(preHalfMonthJsonMap, StatisticDetailStock.PRE_HALF_MONTH_UP_DOWN_NUM);
+		// 获得前一月涨跌次数
+		Map<String, StatisticDetailStock> preOneMonthJsonMap = StockUtils.statisticUpAndDownNumber(statisticDetailStockList, originalStockList, DataUtils._INT_THREE);
+		StockUtils.setUpAndDownNumberJson(preOneMonthJsonMap, StatisticDetailStock.PRE_ONE_MONTH_UP_DOWN_NUM);
+		// 获得前二月涨跌次数
+		Map<String, StatisticDetailStock> preTwoMonthJsonMap = StockUtils.statisticUpAndDownNumber(statisticDetailStockList, originalStockList, DataUtils._INT_FOUR);
+		StockUtils.setUpAndDownNumberJson(preTwoMonthJsonMap, StatisticDetailStock.PRE_TWO_MONTH_UP_DOWN_NUM);
+		// 获得前三月涨跌次数
+		Map<String, StatisticDetailStock> preThreeMonthJsonMap = StockUtils.statisticUpAndDownNumber(statisticDetailStockList, originalStockList, DataUtils._INT_FIVE);
+		StockUtils.setUpAndDownNumberJson(preThreeMonthJsonMap, StatisticDetailStock.PRE_THREE_MONTH_UP_DOWN_NUM);
+		// 获得前半年涨跌次数
+		Map<String, StatisticDetailStock> preHalfYearJsonMap = StockUtils.statisticUpAndDownNumber(statisticDetailStockList, originalStockList, DataUtils._INT_SIX);
+		StockUtils.setUpAndDownNumberJson(preHalfYearJsonMap, StatisticDetailStock.PRE_HALF_YEAR_UP_DOWN_NUM);
+		// 获得前一年涨跌次数 
+		Map<String, StatisticDetailStock> preOneYearJsonMap = StockUtils.statisticUpAndDownNumber(statisticDetailStockList, originalStockList, DataUtils._INT_SEVEN);
+		StockUtils.setUpAndDownNumberJson(preOneYearJsonMap, StatisticDetailStock.PRE_ONE_YEAR_UP_DOWN_NUM);
+		
+		Map<String, StatisticDetailStock> combineUpAndDownJsonMap = StockUtils.combineUpAndDownNumberJsonMap(upAndDownNumberMap, preOneYearJsonMap, preHalfYearJsonMap, 
+																	preThreeMonthJsonMap, preTwoMonthJsonMap, preOneMonthJsonMap, preHalfMonthJsonMap, preOneWeekJsonMap);
 		return combineUpAndDownJsonMap;
+	}
+	
+	/**
+	 * according to the key(stockCode, stockDate), select the stock of the previous stock opening day
+	 * 
+	 */
+	protected HistoryStock getHistoryStockByKey(String stockCode, Date stockDate) throws SQLException {
+
+		Date preDate = stockDate;
+		HistoryStock historyStock = null;
+		for (int index = 0; index < DataUtils._LONG_DAY; index++) {
+			preDate = DateUtils.minusOneDay(preDate);
+			historyStock = historyStockDao.getHistoryStockByKey(stockCode, preDate);
+			if (historyStock != null)
+				break;
+		}
+		return historyStock;
 	}
 }

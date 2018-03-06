@@ -58,4 +58,12 @@ public class InformationStock extends BaseStock {
 	public void setStockCodeDES(String stockCodeDES) {
 		
 	}
+	@Override
+	public Double getTurnoverRate() {
+		return null;
+	}
+	@Override
+	public void setTurnoverRate(Double turnoverRate) {
+		
+	}
 }

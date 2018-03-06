@@ -15,9 +15,9 @@ import cn.com.DESUtils;
 import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
+import cn.com.StockUtils;
 import cn.db.bean.DailyStock;
 import cn.db.bean.StatisticDetailStock;
-import cn.db.bean.StatisticStock;
 
 public class DailyStockDao extends OperationDao {
 
@@ -78,6 +78,28 @@ public class DailyStockDao extends OperationDao {
 		return dataList;
 	}
 
+	/**
+	 * 根据时间段查询每日股票数据
+	 * 
+	 */
+	public List<DailyStock> queryStockByTime(Date startDate, Date endDate) throws SQLException {
+
+		List<DailyStock> dataList = new ArrayList<DailyStock>();
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ").append(DailyStock.ALL_FIELDS).append(" from ").append(DailyStock.TABLE_NAME).append(" where ")
+		   .append(DailyStock.STOCK_DATE).append(" between ? and ?").append(" order by ").append(DailyStock.NUM).append(" asc");
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setDate(1, new java.sql.Date(startDate.getTime()));
+		state.setDate(2, new java.sql.Date(endDate.getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			DailyStock data = getDailyStockFromResult(rs);
+			dataList.add(data);
+		}
+		close(rs, state);
+		return dataList;
+	}
+	
 	/**
 	 * 统计每日股票数据的总涨跌次数
 	 * 
@@ -150,12 +172,14 @@ public class DailyStockDao extends OperationDao {
 	}
 
 	/**
-	 * 统计每日股票数据的涨跌次数
+	 * 根据股票代码和时间段，统计每日股票数据的涨跌次数
 	 * 
 	 */
-	public Map<String, StatisticDetailStock> statisticUpDownInDailyStock(String stockCode, Date[] startEndDate) throws SQLException {
+	public Map<String, StatisticDetailStock> statisticUpDownInDailyStock(final String stockCode, final Date[] startEndDate) throws SQLException {
 
-		Map<String, StatisticDetailStock> dataMap = new HashMap<String, StatisticDetailStock>();
+		final StatisticDetailStock staDetailStock = new StatisticDetailStock(stockCode, startEndDate[1]);
+		StockUtils.initializeStatisticDetailStock(staDetailStock);
+		Map<String, StatisticDetailStock> dataMap = new HashMap<String, StatisticDetailStock>(){{put(staDetailStock.getStockCode(), staDetailStock);}};
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ").append(DailyStock.STOCK_CODE).append(", count(").append(DailyStock.STOCK_CODE).append(") as up_down_number_ from ")
 				.append(DailyStock.TABLE_NAME).append(" where ").append(DailyStock.STOCK_CODE).append("=? and ").append(DailyStock.STOCK_DATE)
@@ -169,6 +193,7 @@ public class DailyStockDao extends OperationDao {
 			StatisticDetailStock statisticDetailStock = new StatisticDetailStock();
 			statisticDetailStock.setStockCode(stockCode);
 			statisticDetailStock.setUpDownNumber(rs.getInt("up_down_number_"));
+			statisticDetailStock.setStockDate(startEndDate[1]);
 			dataMap.put(stockCode, statisticDetailStock);
 		}
 		close(rs, state);
@@ -176,12 +201,14 @@ public class DailyStockDao extends OperationDao {
 	}
 
 	/**
-	 * 统计每日股票数据的涨次数
+	 * 根据股票代码和时间段，统计每日股票数据的涨次数
 	 * 
 	 */
-	public Map<String, StatisticDetailStock> statisticUpInDailyStock(String stockCode, Date[] startEndDate) throws SQLException {
+	public Map<String, StatisticDetailStock> statisticUpInDailyStock(final String stockCode, final Date[] startEndDate) throws SQLException {
 
-		Map<String, StatisticDetailStock> dataMap = new HashMap<String, StatisticDetailStock>();
+		final StatisticDetailStock staDetailStock = new StatisticDetailStock(stockCode, startEndDate[1]);
+		StockUtils.initializeStatisticDetailStock(staDetailStock);
+		Map<String, StatisticDetailStock> dataMap = new HashMap<String, StatisticDetailStock>(){{put(staDetailStock.getStockCode(), staDetailStock);}};
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ").append(DailyStock.STOCK_CODE).append(", count(").append(DailyStock.STOCK_CODE).append(") as up_number_ from ")
 				.append(DailyStock.TABLE_NAME).append(" where ").append(DailyStock.STOCK_CODE).append("=? and ").append(DailyStock.CHANGE_FLG)
@@ -196,6 +223,7 @@ public class DailyStockDao extends OperationDao {
 			StatisticDetailStock statisticDetailStock = new StatisticDetailStock();
 			statisticDetailStock.setStockCode(stockCode);
 			statisticDetailStock.setUpNumber(rs.getInt("up_number_"));
+			statisticDetailStock.setStockDate(startEndDate[1]);
 			dataMap.put(stockCode, statisticDetailStock);
 		}
 		close(rs, state);
@@ -203,12 +231,14 @@ public class DailyStockDao extends OperationDao {
 	}
 
 	/**
-	 * 统计每日股票数据的跌次数
+	 * 根据股票代码和时间段，统计每日股票数据的跌次数
 	 * 
 	 */
 	public Map<String, StatisticDetailStock> statisticDownInDailyStock(String stockCode, Date[] startEndDate) throws SQLException {
 
-		Map<String, StatisticDetailStock> dataMap = new HashMap<String, StatisticDetailStock>();
+		final StatisticDetailStock staDetailStock = new StatisticDetailStock(stockCode, startEndDate[1]);
+		StockUtils.initializeStatisticDetailStock(staDetailStock);
+		Map<String, StatisticDetailStock> dataMap = new HashMap<String, StatisticDetailStock>(){{put(staDetailStock.getStockCode(), staDetailStock);}};
 		StringBuffer sql = new StringBuffer();
 		sql.append("select ").append(DailyStock.STOCK_CODE).append(", count(").append(DailyStock.STOCK_CODE).append(") as down_number_ from ")
 				.append(DailyStock.TABLE_NAME).append(" where ").append(DailyStock.STOCK_CODE).append("=? and ").append(DailyStock.CHANGE_FLG)
@@ -223,6 +253,7 @@ public class DailyStockDao extends OperationDao {
 			StatisticDetailStock statisticDetailStock = new StatisticDetailStock();
 			statisticDetailStock.setStockCode(stockCode);
 			statisticDetailStock.setDownNumber(rs.getInt("down_number_"));
+			statisticDetailStock.setStockDate(startEndDate[1]);
 			dataMap.put(stockCode, statisticDetailStock);
 		}
 		close(rs, state);
@@ -556,7 +587,7 @@ public class DailyStockDao extends OperationDao {
 				state.setDouble(1, dailyStock.getChangeRate());
 				state.setString(2, dailyStock.getEncryptChangeRate());
 				state.setDouble(3, dailyStock.getTurnoverRate());
-				state.setString(4, dailyStock.getEncryptTurnoverRate());
+				state.setString(4, dailyStock.getTurnoverRateEncrypt());
 				state.setString(5, dailyStock.getStockCode());
 				state.setDate(6, new java.sql.Date(dailyStock.getStockDate().getTime()));
 				break;
@@ -568,7 +599,7 @@ public class DailyStockDao extends OperationDao {
 				break;
 			case 2:
 				state.setDouble(1, dailyStock.getTurnoverRate());
-				state.setString(2, dailyStock.getEncryptTurnoverRate());
+				state.setString(2, dailyStock.getTurnoverRateEncrypt());
 				state.setString(3, dailyStock.getStockCode());
 				state.setDate(4, new java.sql.Date(dailyStock.getStockDate().getTime()));
 				break;
@@ -576,7 +607,7 @@ public class DailyStockDao extends OperationDao {
 				state.setDouble(1, dailyStock.getChangeRate());
 				state.setString(2, dailyStock.getEncryptChangeRate());
 				state.setDouble(3, dailyStock.getTurnoverRate());
-				state.setString(4, dailyStock.getEncryptTurnoverRate());
+				state.setString(4, dailyStock.getTurnoverRateEncrypt());
 				state.setString(5, dailyStock.getStockCode());
 				state.setDate(6, new java.sql.Date(dailyStock.getStockDate().getTime()));
 				break;
@@ -600,4 +631,21 @@ public class DailyStockDao extends OperationDao {
 		}
 		return flg;
 	}
+	
+	private DailyStock getDailyStockFromResult(ResultSet rs) throws SQLException {
+		DailyStock data = new DailyStock();
+		data.setNum(rs.getLong(DailyStock.NUM));
+		data.setStockDate(rs.getDate(DailyStock.STOCK_DATE));
+		data.setStockCode(rs.getString(DailyStock.STOCK_CODE));
+		data.setStockCodeDES(rs.getString(DailyStock.STOCK_CODE_DES));
+		data.setChangeRate(rs.getDouble(DailyStock.CHANGE_RATE));
+		data.setEncryptChangeRate(rs.getString(DailyStock.CHANGE_RATE_ENCRYPT));
+		data.setTurnoverRate(rs.getDouble(DailyStock.TURNOVER_RATE));
+		data.setTurnoverRateEncrypt(rs.getString(DailyStock.TURNOVER_RATE_ENCRYPT));
+		data.setChangeFlg(rs.getString(DailyStock.CHANGE_FLG));
+		data.setNote(rs.getString(DailyStock.NOTE));
+		data.setInputTime(rs.getDate(DailyStock.INPUT_TIME));
+		return data;
+	}
+
 }

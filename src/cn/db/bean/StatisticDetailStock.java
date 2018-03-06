@@ -394,4 +394,14 @@ public class StatisticDetailStock extends BaseStock implements Cloneable {
 	public void setErrorUpDownFlg(Integer errorUpDownFlg) {
 		this.errorUpDownFlg = errorUpDownFlg;
 	}
+
+	@Override
+	public Double getTurnoverRate() {
+		return null;
+	}
+
+	@Override
+	public void setTurnoverRate(Double turnoverRate) {
+		
+	}
 }

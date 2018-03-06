@@ -62,4 +62,12 @@ public class StatisticStock extends BaseStock {
 	public void setStockDate(Date stockDate) {
 		
 	}
+	@Override
+	public Double getTurnoverRate() {
+		return null;
+	}
+	@Override
+	public void setTurnoverRate(Double turnoverRate) {
+
+	}
 }

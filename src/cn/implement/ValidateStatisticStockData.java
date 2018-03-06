@@ -78,8 +78,8 @@ public class ValidateStatisticStockData extends OperationData{
 		Collection<DailyStock> dailyStockCollection = dailyStockMap.values();
 		List<DailyStock> dailyStockList = new ArrayList<DailyStock>(dailyStockCollection);
 		List<String[]> invalidList = listErrorStockCodeAndFirstDate(statisticStockList, dailyStockList, OriginalStock.TABLE_NAME);
-		if (!Message.methodExecuteMessageIsEmpty())
-			Message.printMethodExecuteMessage();
+		//if (!Message.methodExecuteMessageIsEmpty())
+		Message.printMethodExecuteMessage();
 		if (invalidList.size() > 0) {
 			flg = false;
 			System.out.println("---------------验证表(statistic_stock_)的字段(stock_code_和first_date_)无效(与original_stock_表比较)----------------");

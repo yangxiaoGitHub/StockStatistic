@@ -19,9 +19,9 @@ public class OtherMain {
 			//对原始股票数据进行MD5加密
 			//other.handleOriginalMD5();
 			//解析原始股票数据到表(daily_stock_)和表(statistic_stock_)中
-			//handleOriginalData.analysisOriginalData();
-			//统计每日股票数据到statistic_stock_表中
-			//other.statisticDailyStock();
+		//	handleOriginalData.analysisOriginalData();
+			//统计每日股票数据(daily_stock_)到表(statistic_stock_)和表(statistic_detail_stock_)中(此功能已经添加到StockMain中，一般不用)
+		//	other.statisticDailyStock();
 			//增加或更新所有股票数据到all_stock_表中
 		//	other.handleAllStock();
 			//解析所有股票信息表(all_information_stock_)中的股票信息到所有股票详细信息表(all_detail_stock_)中(一般不用)
@@ -37,7 +37,7 @@ public class OtherMain {
 			//计算每日选择股票(detail_stock_)的换手率
 			//handleDetailStockData.handDetailStockTurnoverRate();
 			//导入下载的股票数据到股票历史数据表(history_stock_)中
-			//other.handleDownloadDailyData();
+		//	other.handleDownloadDailyData();
 			//填补每日股票信息表(daily_stock_)中的涨跌幅(change_rate_)和换手率(turnover_rate_)
 			//other.handleChangeRateAndTurnoverRateInDailyStock();
 			//填补股票详细信息表(detail_stock_)中的换手率(turnover_rate_)

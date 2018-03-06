@@ -96,13 +96,13 @@ public class HistoryStockDao extends OperationDao {
 		return dateArray;
 	}
 
-	public List<HistoryStock> getHistoryStockByStockDate(Date date) throws SQLException {
+	public List<HistoryStock> getHistoryStockByStockDate(Date stockDate) throws SQLException {
 
 		List<HistoryStock> historyStockList = new ArrayList<HistoryStock>();
 		String sql = "select " + HistoryStock.ALL_FIELDS + " from " + HistoryStock.TABLE_NAME + " where " + HistoryStock.STOCK_DATE
 				+ "=? order by " + HistoryStock.INPUT_TIME;
 		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
-		state.setDate(1, new java.sql.Date(date.getTime()));
+		state.setDate(1, new java.sql.Date(stockDate.getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			HistoryStock historyStock = getHistoryStockFromResult(rs);
@@ -110,5 +110,56 @@ public class HistoryStockDao extends OperationDao {
 		}
 		close(rs, state);
 		return historyStockList;
+	}
+	
+	public HistoryStock getHistoryStockByKey(String stockCode, Date stockDate) throws SQLException {
+
+		HistoryStock historyStock = null;
+		String sql = "select " + HistoryStock.ALL_FIELDS + " from " + HistoryStock.TABLE_NAME + " where " 
+					+ HistoryStock.STOCK_CODE + "=? and " + HistoryStock.STOCK_DATE + "=?";
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
+		state.setString(1, stockCode);
+		state.setDate(2, new java.sql.Date(stockDate.getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			historyStock = getHistoryStockFromResult(rs);
+		}
+		close(rs, state);
+		return historyStock;
+	}
+
+	public List<HistoryStock> getHistoryStockByCodesAndTime(String stockCodes, Date[] startEndDate) throws SQLException {
+
+		List<HistoryStock> historyStockList = new ArrayList<HistoryStock>();
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ").append(HistoryStock.ALL_FIELDS).append(" from ").append(HistoryStock.TABLE_NAME).append(" where ")
+		   .append(HistoryStock.STOCK_CODE).append(" in (").append(stockCodes).append(") and ").append(HistoryStock.STOCK_DATE)
+		   .append(" between ? and ?");
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setDate(1, new java.sql.Date(startEndDate[0].getTime()));
+		state.setDate(2, new java.sql.Date(startEndDate[1].getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			HistoryStock historyStock = getHistoryStockFromResult(rs);
+			historyStockList.add(historyStock);
+		}
+		close(rs, state);
+		return historyStockList;
+	}
+	
+	private HistoryStock getHistoryStockFromResult(ResultSet rs) throws SQLException {
+
+		HistoryStock historyStock = new HistoryStock();
+		historyStock.setNum(rs.getLong(HistoryStock.NUM));
+		historyStock.setStockDate(rs.getDate(HistoryStock.STOCK_DATE));
+		historyStock.setStockCode(rs.getString(HistoryStock.STOCK_CODE));
+		historyStock.setOpenPrice(rs.getDouble(HistoryStock.OPEN_PRICE));
+		historyStock.setHighPrice(rs.getDouble(HistoryStock.HIGH_PRICE));
+		historyStock.setLowPrice(rs.getDouble(HistoryStock.LOW_PRICE));
+		historyStock.setClosePrice(rs.getDouble(HistoryStock.CLOSE_PRICE));
+		historyStock.setTradedStockNumber(rs.getLong(HistoryStock.TRADED_STOCK_NUMBER));
+		historyStock.setTradedAmount(rs.getFloat(HistoryStock.TRADED_AMOUNT));
+		historyStock.setInputTime(rs.getDate(HistoryStock.INPUT_TIME));
+		return historyStock;
 	}
 }

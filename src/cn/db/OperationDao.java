@@ -8,15 +8,12 @@ import com.mysql.jdbc.PreparedStatement;
 
 import cn.com.CommonUtils;
 import cn.db.bean.AllDetailStock;
-import cn.db.bean.AllDetailStockTest;
-import cn.db.bean.AllInformationStock;
 import cn.db.bean.DailyStock;
 import cn.db.bean.DetailStock;
 import cn.db.bean.HistoryStock;
 import cn.db.bean.InformationStock;
 import cn.db.bean.OriginalStock;
 import cn.db.bean.StatisticDetailStock;
-import cn.db.bean.StatisticStock;
 
 public class OperationDao extends BaseDao {
 	protected Connection connection = null;
@@ -54,36 +51,6 @@ public class OperationDao extends BaseDao {
 		}
 		close(rs, state);
 		return maxNum;
-	}
-
-	protected HistoryStock getHistoryStockFromResult(ResultSet rs) throws SQLException {
-
-		HistoryStock historyStock = new HistoryStock();
-		historyStock.setNum(rs.getLong(HistoryStock.NUM));
-		historyStock.setStockDate(rs.getDate(HistoryStock.STOCK_DATE));
-		historyStock.setStockCode(rs.getString(HistoryStock.STOCK_CODE));
-		historyStock.setOpenPrice(rs.getDouble(HistoryStock.OPEN_PRICE));
-		historyStock.setHighPrice(rs.getDouble(HistoryStock.HIGH_PRICE));
-		historyStock.setLowPrice(rs.getDouble(HistoryStock.LOW_PRICE));
-		historyStock.setClosePrice(rs.getDouble(HistoryStock.CLOSE_PRICE));
-		historyStock.setTradedStockNumber(rs.getLong(HistoryStock.TRADED_STOCK_NUMBER));
-		historyStock.setTradedAmount(rs.getFloat(HistoryStock.TRADED_AMOUNT));
-		historyStock.setInputTime(rs.getDate(HistoryStock.INPUT_TIME));
-		return historyStock;
-	}
-
-	protected DailyStock getDailyStockFromResult(ResultSet rs) throws SQLException {
-		DailyStock data = new DailyStock();
-		data.setNum(rs.getLong(DailyStock.NUM));
-		data.setStockDate(rs.getDate(DailyStock.STOCK_DATE));
-		data.setStockCode(rs.getString(DailyStock.STOCK_CODE));
-		data.setStockCodeDES(rs.getString(DailyStock.STOCK_CODE_DES));
-		data.setChangeRate(rs.getDouble(DailyStock.CHANGE_RATE));
-		data.setEncryptChangeRate(rs.getString(DailyStock.CHANGE_RATE_ENCRYPT));
-		data.setChangeFlg(rs.getString(DailyStock.CHANGE_FLG));
-		data.setNote(rs.getString(DailyStock.NOTE));
-		data.setInputTime(rs.getDate(DailyStock.INPUT_TIME));
-		return data;
 	}
 
 	protected OriginalStock getOriginalStockFromResult(ResultSet rs) throws SQLException {
@@ -163,54 +130,6 @@ public class OperationDao extends BaseDao {
 		return data;
 	}
 
-	protected AllDetailStock getAllDetailStockFromResult(ResultSet rs) throws SQLException {
-
-		AllDetailStock data = new AllDetailStock();
-		data.setNum(rs.getLong(DetailStock.NUM));
-		data.setStockDate(rs.getDate(DetailStock.STOCK_DATE));
-		data.setStockCode(rs.getString(DetailStock.STOCK_CODE));
-		data.setStockCodeDES(rs.getString(DetailStock.STOCK_CODE_DES));
-		data.setStockName(rs.getString(DetailStock.STOCK_NAME));
-		data.setTodayOpen(rs.getDouble(DetailStock.TODAY_OPEN));
-		data.setYesterdayClose(rs.getDouble(DetailStock.YESTERDAY_CLOSE));
-		data.setCurrent(rs.getDouble(DetailStock.CHANGE_RATE));
-		data.setTodayHigh(rs.getDouble(DetailStock.TODAY_HIGH));
-		data.setTodayLow(rs.getDouble(DetailStock.TODAY_LOW));
-		data.setTradedStockNumber(rs.getLong(DetailStock.TRADED_STOCK_NUMBER));
-		data.setTradedAmount(rs.getFloat(DetailStock.TRADED_AMOUNT));
-		data.setChangeRate(rs.getDouble(DetailStock.CHANGE_RATE));
-		data.setChangeRateDES(rs.getString(DetailStock.CHANGE_RATE_DES));
-		data.setTurnoverRate(rs.getDouble(DetailStock.TURNOVER_RATE));
-		data.setTurnoverRateDES(rs.getString(DetailStock.TURNOVER_RATE_DES));
-		data.setTradedTime(rs.getTimestamp(DetailStock.TRADED_TIME));
-		data.setInputTime(rs.getTimestamp(DetailStock.INPUT_TIME));
-		return data;
-	}
-
-	protected AllDetailStockTest getAllDetailStockTestFromResult(ResultSet rs) throws SQLException {
-
-		AllDetailStockTest data = new AllDetailStockTest();
-		data.setNum(rs.getLong(DetailStock.NUM));
-		data.setStockDate(rs.getDate(DetailStock.STOCK_DATE));
-		data.setStockCode(rs.getString(DetailStock.STOCK_CODE));
-		data.setStockCodeDES(rs.getString(DetailStock.STOCK_CODE_DES));
-		data.setStockName(rs.getString(DetailStock.STOCK_NAME));
-		data.setTodayOpen(rs.getDouble(DetailStock.TODAY_OPEN));
-		data.setYesterdayClose(rs.getDouble(DetailStock.YESTERDAY_CLOSE));
-		data.setCurrent(rs.getDouble(DetailStock.CHANGE_RATE));
-		data.setTodayHigh(rs.getDouble(DetailStock.TODAY_HIGH));
-		data.setTodayLow(rs.getDouble(DetailStock.TODAY_LOW));
-		data.setTradedStockNumber(rs.getLong(DetailStock.TRADED_STOCK_NUMBER));
-		data.setTradedAmount(rs.getFloat(DetailStock.TRADED_AMOUNT));
-		data.setChangeRate(rs.getDouble(DetailStock.CHANGE_RATE));
-		data.setChangeRateDES(rs.getString(DetailStock.CHANGE_RATE_DES));
-		data.setTurnoverRate(rs.getDouble(DetailStock.TURNOVER_RATE));
-		data.setTurnoverRateDES(rs.getString(DetailStock.TURNOVER_RATE_DES));
-		data.setTradedTime(rs.getTimestamp(DetailStock.TRADED_TIME));
-		data.setInputTime(rs.getTimestamp(DetailStock.INPUT_TIME));
-		return data;
-	}
-	
 	/**
 	 * 开始事务
 	 *

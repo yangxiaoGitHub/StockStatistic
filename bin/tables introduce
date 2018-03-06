@@ -14,6 +14,7 @@ original_stock_£º±£´æÊäÈëµÄÔ­Ê¼¹ÉÆ±Êı¾İ(ÒÔ¶ººÅ·Ö¸îµÄ¹ÉÆ±´úÂë¡¢ÕÇµø·ù¡¢»»ÊÖÂÊµÈ)£
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 daily_stock_£º±£´æÃ¿ÈÕÑ¡Ôñ¹ÉÆ±µÄĞÅÏ¢(¹ÉÆ±´úÂë¡¢ÕÇµø·ù¡¢»»ÊÖÂÊµÈ)£¬Êı¾İÀ´Ô´ÓÚÔ­Ê¼¹ÉÆ±ĞÅÏ¢±í(original_stock_)ÖĞ
+Íâ¼ü£ºdaily_stock_(stock_code_)-all_stock_(stock_code_)
 --num_<bigint(5)>£º¼ÇÂ¼ÊıÁ¿
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
@@ -26,25 +27,33 @@ daily_stock_£º±£´æÃ¿ÈÕÑ¡Ôñ¹ÉÆ±µÄĞÅÏ¢(¹ÉÆ±´úÂë¡¢ÕÇµø·ù¡¢»»ÊÖÂÊµÈ)£¬Êı¾İÀ´Ô´ÓÚÔ­Ê¼
 --note_<varchar(500)>£º×¢ÊÍ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
-statistic_stock_£º±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢(°´¹ÉÆ±Í³¼Æ)
-Íâ¼ü£ºstatistic_stock_(stock_code_)-daily_stock_(stock_code_)--¼Ó
+statistic_stock_£º±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢
+Íâ¼ü£ºstatistic_stock_(stock_code_)-daily_stock_(stock_code_)
 --num_<bigint(5)>£º¼ÇÂ¼ÊıÁ¿
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
---stock_code_DES_<varchar(30)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
+--stock_code_DES_<varchar(20)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
 --first_date_<date>£ºµÚÒ»´ÎÔö¼Óµ½Ã¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞµÄÈÕÆÚ
---statistic_date_<date>: ×î½üÍ³¼ÆÈÕÆÚ
---up_down_number_<int(5)>: ×ÜÕÇµø´ÎÊı
---up_number_<int(5)>: ×ÜÕÇ´ÎÊı
---down_number_<int(5)>: ×Üµø´ÎÊı
---one_week_<varchar(100)>: Ò»ÖÜÕÇµø´ÎÊıJson´®
---half_month_<varchar(100)>: °ëÔÂÕÇµø´ÎÊıJson´®
---one_month_<varchar(100)>: Ò»ÔÂÕÇµø´ÎÊıJson´®
---two_month_<varchar(100)>: ¶şÔÂÕÇµø´ÎÊıJson´®
---three_month_<varchar(100)>: ÈıÔÂÕÇµø´ÎÊıJson´®
---half_year_<varchar(100)>: °ëÄêÕÇµø´ÎÊıJson´®
---one_year_<varchar(100)>: Ò»ÄêÕÇµø´ÎÊıJson´®
 --note_<varchar(500)>£º×¢ÊÍ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
+
+statistic_detail_stock_: ±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄÄ³Ò»Ê±¼ä¶ÎÄÚ¹ÉÆ±µÄÕÇµø´ÎÊı
+Íâ¼ü£ºstatistic_detail_stock_(stock_code_)-statistic_stock_(stock_code_)
+--num_<bigint(10)>£º¼ÇÂ¼ÊıÁ¿
+--stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
+--stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
+--stock_code_DES_<varchar(20)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
+--up_down_number_<int(5)>£º×ÜÕÇµø´ÎÊı
+--up_number_<int(5)>£º×ÜÕÇ´ÎÊı
+--down_number_<int(5)>£º×Üµø´ÎÊı
+--one_week_<varchar(100)>£ºÇ°Ò»ÖÜÕÇµø´ÎÊı
+--half_month_<varchar(100)>£ºÇ°°ëÔÂÕÇµø´ÎÊı
+--one_month_<varchar(100)>£ºÇ°Ò»ÔÂÕÇµø´ÎÊı
+--two_month_<varchar(100)>£ºÇ°¶şÔÂÕÇµø´ÎÊı
+--three_month_<varchar(100)>£ºÇ°ÈıÔÂÕÇµø´ÎÊı
+--half_year_<varchar(100)>£ºÇ°°ëÄêÕÇµø´ÎÊı
+--one_year_<varchar(100)>£ºÇ°Ò»ÄêÕÇµø´ÎÊı
+--input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
+--note_<varchar(300)>£º±¸×¢
 
 information_stock_£º±£´æÍ³¼Æ¹ÉÆ±Êı¾İ±í(statistic_stock_)ÖĞµÄ¹ÉÆ±´ÓÍøÉÏ»ñÈ¡µÄÏêÏ¸ĞÅÏ¢´®£¬
 					¹ÉÆ±À´Ô´ÓÚÍ³¼Æ¹ÉÆ±Êı¾İ±í(statistic_stock_)ÖĞ£¬²¢½âÎöµ½¹ÉÆ±ÏêÏ¸ĞÅÏ¢±í(detail_stock_)ÖĞ
@@ -58,6 +67,7 @@ information_stock_£º±£´æÍ³¼Æ¹ÉÆ±Êı¾İ±í(statistic_stock_)ÖĞµÄ¹ÉÆ±´ÓÍøÉÏ»ñÈ¡µÄÏêÏ¸
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 detail_stock_£º±£´æ´Ó¹ÉÆ±ĞÅÏ¢±í(information_stock_)ÖĞ½âÎö³öµÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢£¬Êı¾İÀ´Ô´ÓÚ¹ÉÆ±ĞÅÏ¢±í(information_stock_)ÖĞ
+Íâ¼ü£ºdetail_stock_(stock_code_)-statistic_stock_(stock_code_)
 --num_<bigint(10)>£º¼ÇÂ¼ÊıÁ¿
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
@@ -98,6 +108,7 @@ all_information_stock_£º±£´æËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_stock_)ÖĞµÄ¹ÉÆ±´ÓÍøÉÏ»ñÈ¡µÄÏêÏ¸ĞÅ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 all_detail_stock_£º±£´æ´ÓËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_information_stock_)ÖĞ½âÎö³öµÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢£¬Êı¾İÀ´Ô´ÓÚËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_information_stock_)ÖĞ
+Íâ¼ü£ºdetail_stock_(stock_code_)-statistic_stock_(stock_code_)
 --num_<bigint(10)>£º¼ÇÂ¼ÊıÁ¿
 --stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
 --stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
@@ -118,26 +129,55 @@ all_detail_stock_£º±£´æ´ÓËùÓĞ¹ÉÆ±ĞÅÏ¢±í(all_information_stock_)ÖĞ½âÎö³öµÄ¹ÉÆ±ÏêÏ
 --input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 history_stock_: ±£´æ¹ÉÆ±µÄÀúÊ·ĞÅÏ¢£¬Êı¾İÀ´Ô´ÓÚÎÄ¼ş»òÍâ²¿Êı¾İ¿â
---num_<bigint(15)>
---stock_date_<date>
---stock_code_<varchar(6)>
---open_price_<double(6.2)>
---high_price_<double(6.2)>
---low_price_<double(6.2)>
---close_price_<double(6.2)>
---traded_stock_number_<bigint(15)>
---traded_amount_<float(20.2)>
---input_time_<datetime>
+--num_<bigint(15)>£º¼ÇÂ¼ÊıÁ¿
+--stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
+--stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
+--open_price_<double(6.2)>£º½ñÈÕ¿ªÅÌ¼Û
+--high_price_<double(6.2)>£º½ñÈÕ×î¸ß¼Û
+--low_price_<double(6.2)>£º½ñÈÕ×îµÍ¼Û
+--close_price_<double(6.2)>£º½ñÈÕÊÕÅÌ¼Û
+--traded_stock_number_<bigint(15)>£º³É½»µÄ¹ÉÆ±Êı
+--traded_amount_<float(20.2)>£º³É½»½ğ¶î
+--input_time_<datetime>£ºÔö¼Ó¼ÇÂ¼µÄÊ±¼ä
 
 statistic_date_: ±£´æ´ÓÃ¿ÈÕ¹ÉÆ±Êı¾İ±í(daily_stock_)ÖĞÍ³¼Æ³öµÄ¹ÉÆ±ĞÅÏ¢(°´ÈÕÆÚÍ³¼Æ)
---num_<bigint(5)>
---stock_date_<date>
---daily_up_down_<varchar(100)>
---main_up_down_<varchar(100)>
---sme_up_down_<varchar(100)>
---gem_up_down_<varchar(100)>
---shh_up_down_<varchar(100)>
---shz_up_down_<varchar(100)>
---large_up_down_<varchar(100)>
---small_up_down_<varchar(100)>
---input_time_<datetime>
+--num_<bigint(5)>£º¼ÇÂ¼ÊıÁ¿
+--stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
+--daily_up_down_<varchar(100)>£ºÃ¿ÈÕÕÇµø´ÎÊı
+--main_up_down_<varchar(100)>£ºÖ÷°åÕÇµø´ÎÊı
+--sme_up_down_<varchar(100)>£ºÖĞĞ¡°åÕÇµø´ÎÊı
+--gem_up_down_<varchar(100)>£º´´Òµ°åÕÇµø´ÎÊı
+--shh_up_down_<varchar(100)>£ºÉÏº£ÕÇµø´ÎÊı
+--shz_up_down_<varchar(100)>£ºÉîÛÚÕÇµø´ÎÊı
+--large_up_down_<varchar(100)>£º´óÅÌ¹ÉÕÇµø´ÎÊı
+--small_up_down_<varchar(100)>£ºĞ¡ÅÌ¹ÉÕÇµø´ÎÊı
+--input_time_<datetime>£ºÊäÈë¹ÉÆ±Ê±¼ä
+
+all_import_stock_£º±£´æ´ÓExcelÎÄ¼şÖĞµ¼ÈëµÄ¹ÉÆ±ÏêÏ¸ĞÅÏ¢
+Íâ¼ü£ºall_import_stock_(stock_code_)-all_stock_(stock_code_)
+--num_<bigint(10)>£º¼ÇÂ¼ÊıÁ¿
+--stock_date_<date>£º¹ÉÆ±ÈÕÆÚ
+--stock_code_<varchar(6)>£º¹ÉÆ±´úÂë
+--stock_code_DES_<varchar(20)>£º¹ÉÆ±´úÂëDES¼ÓÃÜ
+--change_rate_<double(4.2)>£ºÕÇµø·ù
+--change_rate_DES_<varchar(20)>£ºÕÇµø·ùDES¼ÓÃÜ
+--current_<double(6.2)>£º½ñÈÕÊÕÅÌ¼Û
+--total_hands_<bigint(15)>£º×ÜÊÖ
+--yesterday_close_<double(6.2)>£º×òÈÕÊÕÅÌ¼Û
+--today_open_<double(6.2)>£º½ñÈÕ¿ªÅÌ¼Û
+--today_high_<double(6.2)>£º½ñÈÕ×î¸ß¼Û
+--today_low_<double(6.2)>£º½ñÈÕ×îµÍ¼Û
+--quantity_ratio_<double(6.2)>£ºÁ¿±È
+--industry_<varchar(20)>£ºËùÊôĞĞÒµ
+--PE_ratio_<double(8.2)>£ºÊĞÓ¯(¶¯)
+--PB_ratio_<double(6.2)>£ºÊĞ¾»ÂÊ
+--amplitude_<double(4.2)>£ºÕñ·ù
+--turnover_rate_<double(4.2)>£º»»ÊÖÂÊ
+--turnover_rate_DES_<varchar(20)>£º»»ÊÖÂÊDES
+--up_down_<double(4.2)>£ºÕÇµø
+--amount_<bigint(20)>£º½ğ¶î
+--outside_<bigint(20)>£ºÍâÅÌ
+--inside_<bigint(20)>£ºÄÚÅÌ
+--market_cap_<bigint(20)>£º×ÜÊĞÖµ
+--circulate_value_<bigint(20)>£ºÁ÷Í¨Öµ
+--input_time_<datetime>£ºÊäÈë¼ÇÂ¼Ê±¼ä

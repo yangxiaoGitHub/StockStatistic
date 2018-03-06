@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.db.OriginalStockDao;
 import cn.db.bean.AllDetailStock;
 import cn.db.bean.AllStock;
 import cn.db.bean.DailyStock;
@@ -17,21 +18,21 @@ import cn.db.bean.StatisticDetailStock;
 import cn.db.bean.StatisticStock;
 
 public class StockUtils {
-	
+
 	/**
 	 * 计算股票的涨跌幅
 	 *
 	 */
-	public static double getChangeRate(double firstPrice, double lastPrice) {
+	public static double getChangeRate(double yesterdayClose, double current) {
 		
-		if (DataUtils.isZeroOrNull(firstPrice) || DataUtils.isZeroOrNull(lastPrice)) 
+		if (DataUtils.isZeroOrNull(current) || DataUtils.isZeroOrNull(yesterdayClose)) 
 			return DataUtils._DOUBLE_ZERO;
-		double rate = ((lastPrice - firstPrice) * 100) / firstPrice;
+		double rate = ((current - yesterdayClose) * 100) / yesterdayClose;
 		BigDecimal bigValue = new BigDecimal(rate);
 		double changeRate = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
 		return changeRate;
 	}
-	
+
 	/**
 	 * 计算股票的流通股
 	 * 
@@ -134,12 +135,12 @@ public class StockUtils {
 	 * 计算股票的涨跌幅
 	 * 
 	 */
-	public static <T extends DetailStock> void calculateStockChangeRate(T stock) {
+	public static <T extends DetailStock> void calculateChangeRate(T stock) {
 
 		Double yesterdayClose = stock.getYesterdayClose();
 		if (!DataUtils.isZeroOrNull(yesterdayClose)) {
 			double current = stock.getCurrent().doubleValue();
-			double changeRate = getChangeRate(current, yesterdayClose);
+			double changeRate = getChangeRate(yesterdayClose, current);
 //			double changeRate = ((current - yesterdayClose) * 100) / yesterdayClose;
 //			BigDecimal bigValue = new BigDecimal(changeRate);
 //			double dValue = bigValue.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue();
@@ -173,7 +174,7 @@ public class StockUtils {
 		String stockCodeDES = DESUtils.encryptToHex(stockInfoArray[33]);
 		detailStock.setStockCodeDES(stockCodeDES);
 		// 计算涨跌幅
-		calculateStockChangeRate(detailStock);
+		calculateChangeRate(detailStock);
 		return detailStock;
 	}
 	
@@ -205,6 +206,109 @@ public class StockUtils {
 		return dailyStockMap;
 	}
 	
+	/**
+	 * 根据statisticDetailStockList，统计OriginalStock列表中股票的涨跌次数
+	 * periodFlg: 0-全部涨跌次数，1-前一周的涨跌次数，2-前半月的涨跌次数，3-前一月的涨跌次数，4-前二月的涨跌次数，5-前三月的涨跌次数，6-前半年的涨跌次数，7-前一年的涨跌次数
+	 */
+	public static Map<String, StatisticDetailStock> statisticUpAndDownNumber(List<StatisticDetailStock> statisticDetailStockList, 
+																			 List<OriginalStock> originalStockList,
+																			 int periodFlg) {
+		
+		Map<String, StatisticDetailStock> statisticUpAndDownMap = new HashMap<String, StatisticDetailStock>();
+		for (StatisticDetailStock statisticDetailStock : statisticDetailStockList) {
+			String detailStockCode = statisticDetailStock.getStockCode();
+			Date detailStockDate = statisticDetailStock.getStockDate();
+			Date[] startEndDate = getStartEndDate(periodFlg, detailStockDate);
+			String mapKey = detailStockCode + DateUtils.dateToString(detailStockDate);
+			for (OriginalStock originalStock : originalStockList) {
+				Date stockDate = originalStock.getStockDate();
+				if (stockDate.compareTo(startEndDate[0])<0 || stockDate.compareTo(startEndDate[1])>0) continue;
+				String stockCodes = originalStock.getStockCodes();
+				String changeRates = originalStock.getChangeRates();
+				String turnoverRates = originalStock.getTurnoverRates();
+				String[] codeArray = stockCodes.split(",");
+				String[] changeRateArray = changeRates.split(",");
+				String[] turnoverRateArray = turnoverRates.split(",");
+				for (int index = 0; index < codeArray.length; index++) {
+					// 对数据进行转换
+					DailyStock dailyStock = CommonUtils.getDailyStockFromArray(index, codeArray, changeRateArray, turnoverRateArray, DateUtils.dateToString(stockDate));
+					String stockCode = dailyStock.getStockCode();
+					if (!stockCode.equals(detailStockCode)) continue;
+					String changeFlg = dailyStock.getChangeFlg();
+					boolean existFlg = statisticUpAndDownMap.containsKey(mapKey);
+					if (existFlg) {
+						StatisticDetailStock staDetailStock = statisticUpAndDownMap.get(mapKey);
+						Integer upDownNumber = staDetailStock.getUpDownNumber();
+						++upDownNumber;
+						staDetailStock.setUpDownNumber(upDownNumber);
+						if (changeFlg.equals(DailyStock.CHANGE_FLG_ONE)) {
+							Integer upNumber = staDetailStock.getUpNumber();
+							++upNumber;
+							staDetailStock.setUpNumber(upNumber);
+						} else {
+							Integer downNumber = staDetailStock.getDownNumber();
+							++downNumber;
+							staDetailStock.setDownNumber(downNumber);
+						}
+						statisticUpAndDownMap.put(mapKey, staDetailStock);
+					} else {
+						StatisticDetailStock staDetailStock = new StatisticDetailStock(stockCode, stockDate);
+						staDetailStock.setUpDownNumber(DataUtils._INT_ONE);
+						if (changeFlg.equals(DailyStock.CHANGE_FLG_ONE)) {
+							staDetailStock.setUpNumber(DataUtils._INT_ONE);
+							staDetailStock.setDownNumber(DataUtils._INT_ZERO);
+						} else {
+							staDetailStock.setUpNumber(DataUtils._INT_ZERO);
+							staDetailStock.setDownNumber(DataUtils._INT_ONE);
+						}
+						statisticUpAndDownMap.put(mapKey, staDetailStock);
+					}
+				}
+			}
+		}
+		return statisticUpAndDownMap;
+	}
+
+	/**
+	 * 0-全部涨跌次数，1-前一周的涨跌次数，2-前半月的涨跌次数，3-前一月的涨跌次数，4-前二月的涨跌次数，5-前三月的涨跌次数，6-前半年的涨跌次数，7-前一年的涨跌次数
+	 *
+	 */
+	private static Date[] getStartEndDate(int periodFlg, Date stockDate) {
+
+		Date[] startEndDate = new Date[2];
+		switch(periodFlg) {
+		case 0:
+			startEndDate[0] = DateUtils.stringToDate(DateUtils.MIN_DATE_ORIGINAL_STOCK);
+			startEndDate[1] = stockDate;
+			break;
+		case 1:
+			startEndDate = DateUtils.getPreOneWeek(stockDate);
+			break;
+		case 2:
+			startEndDate = DateUtils.getPreHalfMonth(stockDate);
+			break;
+		case 3:
+			startEndDate = DateUtils.getPreOneMonth(stockDate);
+			break;
+		case 4:
+			startEndDate = DateUtils.getPreTwoMonth(stockDate);
+			break;
+		case 5:
+			startEndDate = DateUtils.getPreThreeMonth(stockDate);
+			break;
+		case 6:
+			startEndDate = DateUtils.getPreHalfYear(stockDate);
+			break;
+		case 7:
+			startEndDate = DateUtils.getPreOneYear(stockDate);
+			break;
+		default:
+			startEndDate = DateUtils.getPreOneYear(stockDate);
+			break;
+		}
+		return startEndDate;
+	}
+
 	/**
 	 * 统计OriginalStock列表中股票的涨跌次数
 	 *
@@ -257,7 +361,7 @@ public class StockUtils {
 		}
 		return statisticUpAndDownMap;
 	}
-
+	
 	/**
 	 * 初始化StatisticStock的涨跌次数(包括Json字段)
 	 *
@@ -322,7 +426,9 @@ public class StockUtils {
 			Map<String, StatisticDetailStock> preOneWeekJsonMap) {
 
 		Map<String, StatisticDetailStock> upAndDownJsonMap = new HashMap<String, StatisticDetailStock>();
-		for (StatisticDetailStock upAndDownStatisticStock : upAndDownNumberMap.values()) {
+		//for (StatisticDetailStock upAndDownStatisticStock : upAndDownNumberMap.values()) {
+		for (String mapKey : upAndDownNumberMap.keySet()) {
+			StatisticDetailStock upAndDownStatisticStock = upAndDownNumberMap.get(mapKey);
 			String stockCode = upAndDownStatisticStock.getStockCode();
 			Date stockDate = upAndDownStatisticStock.getStockDate();
 			StatisticDetailStock statisticDetailStock = new StatisticDetailStock(stockCode, stockDate);
@@ -332,35 +438,35 @@ public class StockUtils {
 			statisticDetailStock.setUpNumber(upAndDownStatisticStock.getUpNumber());
 			statisticDetailStock.setDownNumber(upAndDownStatisticStock.getDownNumber());
 			//设置一周涨跌次数Json
-			StatisticDetailStock preOneWeekStatisticDetailStock = preOneWeekJsonMap.get(stockCode);
+			StatisticDetailStock preOneWeekStatisticDetailStock = preOneWeekJsonMap.get(mapKey);
 			if (preOneWeekStatisticDetailStock != null)
 				statisticDetailStock.setOneWeek(preOneWeekStatisticDetailStock.getOneWeek());
 			//设置半月涨跌次数Json
-			StatisticDetailStock preHalfMonthStatisticStock = preHalfMonthJsonMap.get(stockCode);
+			StatisticDetailStock preHalfMonthStatisticStock = preHalfMonthJsonMap.get(mapKey);
 			if (preHalfMonthStatisticStock != null)
 				statisticDetailStock.setHalfMonth(preHalfMonthStatisticStock.getHalfMonth());
 			//设置一月涨跌次数Json
-			StatisticDetailStock preOneMonthStatisticStock = preOneMonthJsonMap.get(stockCode);
+			StatisticDetailStock preOneMonthStatisticStock = preOneMonthJsonMap.get(mapKey);
 			if (preOneMonthStatisticStock != null)
 				statisticDetailStock.setOneMonth(preOneMonthStatisticStock.getOneMonth());
 			//设置二月涨跌次数Json
-			StatisticDetailStock preTwoMonthStatisticStock = preTwoMonthJsonMap.get(stockCode);
+			StatisticDetailStock preTwoMonthStatisticStock = preTwoMonthJsonMap.get(mapKey);
 			if (preTwoMonthStatisticStock != null)
 				statisticDetailStock.setTwoMonth(preTwoMonthStatisticStock.getTwoMonth());
 			//设置三月涨跌次数Json
-			StatisticDetailStock preThreeMonthStatisticStock = preThreeMonthJsonMap.get(stockCode);
+			StatisticDetailStock preThreeMonthStatisticStock = preThreeMonthJsonMap.get(mapKey);
 			if (preThreeMonthStatisticStock != null)
 				statisticDetailStock.setThreeMonth(preThreeMonthStatisticStock.getThreeMonth());
 			//设置半年涨跌次数Json
-			StatisticDetailStock preHalfYearStatisticStock = preHalfYearJsonMap.get(stockCode);
+			StatisticDetailStock preHalfYearStatisticStock = preHalfYearJsonMap.get(mapKey);
 			if (preHalfYearStatisticStock != null)
 				statisticDetailStock.setHalfYear(preHalfYearStatisticStock.getHalfYear());
 			//设置一年涨跌次数Json
-			StatisticDetailStock preOneYearStatisticStock = preOneYearJsonMap.get(stockCode);
+			StatisticDetailStock preOneYearStatisticStock = preOneYearJsonMap.get(mapKey);
 			if (preOneYearStatisticStock != null)
 				statisticDetailStock.setOneYear(preOneYearStatisticStock.getOneYear());
 			//增加到Map中
-			upAndDownJsonMap.put(stockCode, statisticDetailStock);
+			upAndDownJsonMap.put(mapKey, statisticDetailStock);
 		}
 		return upAndDownJsonMap;
 	}

@@ -18,7 +18,6 @@ public class AllImportStock extends BaseStock {
 	Double peRatio; //市盈(动)
 	Double pbRatio; //市净率
 	Double amplitude; //振幅
-	Double turnoverRate; //换手
 	String turnoverRateDes;
 	Double upDown; //涨跌
 	Long amount; //金额(成交量-元)
@@ -167,12 +166,6 @@ public class AllImportStock extends BaseStock {
 	public void setAmplitude(Double amplitude) {
 		this.amplitude = amplitude;
 	}
-	public Double getTurnoverRate() {
-		return turnoverRate;
-	}
-	public void setTurnoverRate(Double turnoverRate) {
-		this.turnoverRate = turnoverRate;
-	}
 	public Double getUpDown() {
 		return upDown;
 	}
@@ -222,5 +215,15 @@ public class AllImportStock extends BaseStock {
 
 	public void setTurnoverRateDes(String turnoverRateDes) {
 		this.turnoverRateDes = turnoverRateDes;
+	}
+
+	@Override
+	public Double getTurnoverRate() {
+		return super.turnoverRate;
+	}
+
+	@Override
+	public void setTurnoverRate(Double turnoverRate) {
+		super.turnoverRate = turnoverRate;
 	}
 }

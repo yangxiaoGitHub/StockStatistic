@@ -13,7 +13,7 @@ class ButtonFrame extends JFrame {
 	      setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 	      panel = new JPanel();
 	      add(panel);
-	      
+
 	      // create buttons
 	      yellowButton = new JButton("Yellow");
 	      blueButton = new JButton("Blue");

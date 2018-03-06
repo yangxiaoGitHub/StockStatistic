@@ -15,6 +15,8 @@ public class DateUtils {
 	public final static String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	public final static String DATE_TIME_MSEC_FORMAT = "yyyy-MM-dd HH:mm:ss.fff";
 
+	public final static String MIN_DATE_ORIGINAL_STOCK = "2017-09-11";
+
 	public static Date stringToDateTime(String sDate) {
 		Date date = null;
 		try {

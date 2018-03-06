@@ -82,7 +82,7 @@ public class OtherData extends OperationData {
 	}
 	
 	/**
-	 * 统计每日股票数据到statistic_stock_表中
+	 * 统计每日股票数据(daily_stock_)到表(statistic_stock_)和表(statistic_detail_stock_)中
 	 * 
 	 */
 	public void statisticDailyStock() {
@@ -425,7 +425,6 @@ public class OtherData extends OperationData {
 						log.loger.warn("----->" + updateNum + ": 表(statistic_detail_stock_)新增了股票" + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")的json字段！");
 					}*/
 				}
-
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -621,7 +620,7 @@ public class OtherData extends OperationData {
 					Double turnoverRateInAllDetailStock = allDetailStock.getTurnoverRate();
 					dailyStock.setTurnoverRate(turnoverRateInAllDetailStock);
 					String turnoverRateDES = DESUtils.encryptToHex(turnoverRateInAllDetailStock.toString());
-					dailyStock.setEncryptTurnoverRate(turnoverRateDES);
+					dailyStock.setTurnoverRateEncrypt(turnoverRateDES);
 					fieldFlg = 2;
 				}
 				boolean updateFlg = dailyStockDao.updateChangeRateAndTurnoverRate(dailyStock, fieldFlg);

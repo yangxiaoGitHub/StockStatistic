@@ -12,6 +12,7 @@ import cn.com.CommonUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
 import cn.db.bean.AllDetailStock;
+import cn.db.bean.DetailStock;
 
 public class AllDetailStockDao extends OperationDao {
 
@@ -108,6 +109,25 @@ public class AllDetailStockDao extends OperationDao {
 		}
 		return saveFlg;
 	}
+	
+	public List<AllDetailStock> getAllDetailStockByCodesAndTime(String stockCodes, Date[] startEndDate) throws SQLException {
+
+		List<AllDetailStock> allDetailStockList = new ArrayList<AllDetailStock>();
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ").append(AllDetailStock.ALL_FIELDS).append(" from ").append(AllDetailStock.TABLE_NAME).append(" where ")
+		   .append(AllDetailStock.STOCK_CODE).append(" in (").append(stockCodes).append(") and ").append(AllDetailStock.STOCK_DATE)
+		   .append(" between ? and ?");
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setDate(1, new java.sql.Date(startEndDate[0].getTime()));
+		state.setDate(2, new java.sql.Date(startEndDate[1].getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			AllDetailStock data = getAllDetailStockFromResult(rs);
+			allDetailStockList.add(data);
+		}
+		super.close(rs, state);
+		return allDetailStockList;
+	}
 
 	public Long getMaxNumFromAllDetailStock() throws SQLException {
 
@@ -189,5 +209,29 @@ public class AllDetailStockDao extends OperationDao {
 			close(state);
 		}
 		return updateFlg;
+	}
+	
+	protected AllDetailStock getAllDetailStockFromResult(ResultSet rs) throws SQLException {
+
+		AllDetailStock data = new AllDetailStock();
+		data.setNum(rs.getLong(DetailStock.NUM));
+		data.setStockDate(rs.getDate(DetailStock.STOCK_DATE));
+		data.setStockCode(rs.getString(DetailStock.STOCK_CODE));
+		data.setStockCodeDES(rs.getString(DetailStock.STOCK_CODE_DES));
+		data.setStockName(rs.getString(DetailStock.STOCK_NAME));
+		data.setTodayOpen(rs.getDouble(DetailStock.TODAY_OPEN));
+		data.setYesterdayClose(rs.getDouble(DetailStock.YESTERDAY_CLOSE));
+		data.setCurrent(rs.getDouble(DetailStock.CHANGE_RATE));
+		data.setTodayHigh(rs.getDouble(DetailStock.TODAY_HIGH));
+		data.setTodayLow(rs.getDouble(DetailStock.TODAY_LOW));
+		data.setTradedStockNumber(rs.getLong(DetailStock.TRADED_STOCK_NUMBER));
+		data.setTradedAmount(rs.getFloat(DetailStock.TRADED_AMOUNT));
+		data.setChangeRate(rs.getDouble(DetailStock.CHANGE_RATE));
+		data.setChangeRateDES(rs.getString(DetailStock.CHANGE_RATE_DES));
+		data.setTurnoverRate(rs.getDouble(DetailStock.TURNOVER_RATE));
+		data.setTurnoverRateDES(rs.getString(DetailStock.TURNOVER_RATE_DES));
+		data.setTradedTime(rs.getTimestamp(DetailStock.TRADED_TIME));
+		data.setInputTime(rs.getTimestamp(DetailStock.INPUT_TIME));
+		return data;
 	}
 }

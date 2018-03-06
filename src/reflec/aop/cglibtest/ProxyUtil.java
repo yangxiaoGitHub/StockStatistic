@@ -27,7 +27,6 @@ public class ProxyUtil {
 
     public void getMethod(String name) {
         Map<String, String> map = new HashMap<>();
-
     }
 
     //该方法负责代理
@@ -103,7 +102,6 @@ public class ProxyUtil {
     }
     
 	public static void main(String[] args) {
-
 		try {
 			ProxyUtil proxy = new ProxyUtil();
 			proxy.mapTest();

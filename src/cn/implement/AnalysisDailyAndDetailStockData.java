@@ -203,8 +203,8 @@ public class AnalysisDailyAndDetailStockData extends OperationData {
 		double firstPrice = firstDetailStock.getCurrent().doubleValue();
 		double minPrice = minMaxPrices[0].doubleValue(); 
 		double maxPrice = minMaxPrices[1].doubleValue();
-		double maxDeclineRate = StockUtils.getChangeRate(firstPrice, minPrice);
-		double maxRiseRate = StockUtils.getChangeRate(firstPrice, maxPrice);
+		double maxDeclineRate = StockUtils.getChangeRate(minPrice, firstPrice);
+		double maxRiseRate = StockUtils.getChangeRate(maxPrice, firstPrice);
 		statisticStock.setMaxDeclineRate(maxDeclineRate);
 		statisticStock.setMaxRiseRate(maxRiseRate);
 	}

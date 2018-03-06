@@ -88,12 +88,6 @@ public class OriginalStock extends BaseStock{
 	public void setChangeRatesMD5(String changeRatesMD5) {
 		this.changeRatesMD5 = changeRatesMD5;
 	}
-	public String getTurnoverRates() {
-		return turnoverRates;
-	}
-	public void setTurnoverRates(String turnoverRates) {
-		this.turnoverRates = turnoverRates;
-	}
 	public String getTurnoverRatesEncrypt() {
 		return turnoverRatesEncrypt;
 	}
@@ -105,6 +99,12 @@ public class OriginalStock extends BaseStock{
 	}
 	public void setTurnoverRatesMD5(String turnoverRatesMD5) {
 		this.turnoverRatesMD5 = turnoverRatesMD5;
+	}
+	public String getTurnoverRates() {
+		return turnoverRates;
+	}
+	public void setTurnoverRates(String turnoverRates) {
+		this.turnoverRates = turnoverRates;
 	}
 	@Override
 	public String getStockCode() {
@@ -124,11 +124,18 @@ public class OriginalStock extends BaseStock{
 	}
 	@Override
 	public String getStockCodeDES() {
-
 		return null;
 	}
 	@Override
 	public void setStockCodeDES(String stockCodeDES) {
 
+	}
+	@Override
+	public Double getTurnoverRate() {
+		return null;
+	}
+	@Override
+	public void setTurnoverRate(Double turnoverRate) {
+		
 	}
 }

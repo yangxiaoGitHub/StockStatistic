@@ -9,12 +9,14 @@ public abstract class BaseStock implements Serializable {
 	private Long num;
 	protected String stockCode;
 	protected String stockCodeDES;
+	protected Double turnoverRate;
 	protected Date stockDate;
-	private Date inputTime;
+	protected Date inputTime;
 
 	public final static String NUM = "NUM_";
 	public final static String STOCK_CODE = "STOCK_CODE_";
 	public final static String STOCK_CODE_DES = "STOCK_CODE_DES_";
+	public final static String TURNOVER_RATE = "TURNOVER_RATE_";
 	public final static String STOCK_DATE = "STOCK_DATE_";
 	public final static String INPUT_TIME = "INPUT_TIME_";
 	
@@ -31,6 +33,8 @@ public abstract class BaseStock implements Serializable {
 	public abstract void setStockDate(Date stockDate);
 	public abstract String getStockCodeDES();
 	public abstract void setStockCodeDES(String stockCodeDES);
+	public abstract Double getTurnoverRate();
+	public abstract void setTurnoverRate(Double turnoverRate);
 
 	public Date getInputTime() {
 		return inputTime;

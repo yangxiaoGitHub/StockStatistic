@@ -44,29 +44,27 @@ public class HandleDetailStockData extends OperationData {
 			Date endDate = DateUtils.stringToDate("2017-11-06");
 			while (startDate.compareTo(endDate) < 0) {
 				List<HistoryStock> historyStockList = historyStockDao.getHistoryStockByStockDate(startDate);
-				Map<String, ? extends BaseStock> historyStockMap = getHistoryStockMapByPreStockDate(startDate);
 				for (HistoryStock historyStock : historyStockList) {
 					String stockCode = historyStock.getStockCode();
+					Date stockDate = historyStock.getStockDate();
 					String stockName = PropertiesUtils.getProperty(stockCode);
 					if (CommonUtils.isBlank(stockName))
 						continue;
-					Date stockDate = historyStock.getStockDate();
 					boolean existFlg = allDetailStockDao.isExistInAllDetailStock(stockCode, stockDate);
 					if (existFlg)
 						continue;
-					// if (existFlg && CommonUtils.isBlank(stockName))
-					// System.out.println(lineNum + "---stock_code_：" +
-					// stockCode + " stock_date_：" + stockDate);
+
 					AllDetailStock allDetailStock = new AllDetailStock(stockCode, stockDate);
 					allDetailStock.setNum(++lineNum);
 					String stockCodeDES = DESUtils.encryptToHex(stockCode);
 					allDetailStock.setStockCodeDES(stockCodeDES);
 					allDetailStock.setStockName(stockName);
 					allDetailStock.setTodayOpen(historyStock.getOpenPrice());
-					if (historyStockMap != null && historyStockMap.get(stockCode) != null) {
-						HistoryStock preStock = (HistoryStock) historyStockMap.get(historyStock.getStockCode());
-						allDetailStock.setYesterdayClose(preStock.getClosePrice());
-					}
+					// 获得前一日开盘的股票信息
+					HistoryStock preHistoryStock = getHistoryStockByKey(stockCode, stockDate);
+					if (preHistoryStock != null)
+						allDetailStock.setYesterdayClose(preHistoryStock.getClosePrice());
+
 					allDetailStock.setCurrent(historyStock.getClosePrice());
 					allDetailStock.setTodayHigh(historyStock.getHighPrice());
 					allDetailStock.setTodayLow(historyStock.getLowPrice());
@@ -74,15 +72,10 @@ public class HandleDetailStockData extends OperationData {
 					allDetailStock.setTradedAmount(historyStock.getTradedAmount());
 					allDetailStock.setInputTime(new Date());
 					// 计算涨跌幅
-					StockUtils.calculateStockChangeRate(allDetailStock);
+					StockUtils.calculateChangeRate(allDetailStock);
 					AllStock allStock = allStockDao.getAllStockByStockCode(allDetailStock.getStockCode());
 					// 计算换手率
 					StockUtils.calculateTurnoverRate(allDetailStock, allStock);
-					// System.out.println("---stock_code_:" + stockCode + "(" +
-					// PropertiesUtils.getProperty(stockCode) + ") stock_date_:"
-					// + DateUtils.Date2String(allDetailStock.getStockDate()) +
-					// " 涨跌幅:" + allDetailStock.getChangeRate() + "% 换手率:" +
-					// allDetailStock.getTurnoverRate() + "%");
 					boolean saveFlg = allDetailStockDao.saveAllDetailStock(allDetailStock);
 					if (saveFlg) {
 						++detailSaveNum;
@@ -294,21 +287,5 @@ public class HandleDetailStockData extends OperationData {
 			System.out.println(DateUtils.dateTimeToString(new Date()) + " 股票详细信息表(detail_stock_)更新了" + updateNum + "条记录的换手率(turnover_rate_)字段！");
 			log.loger.warn(" 股票详细信息表(detail_stock_)更新了" + updateNum + "条记录的换手率(turnover_rate_)字段！");
 		}
-	}
-
-	private Map<String, ? extends BaseStock> getHistoryStockMapByPreStockDate(Date stockDate) throws SQLException {
-
-		Date preDate = stockDate;
-		List<HistoryStock> historyStockList = null;
-		for (int index = 0; index < DataUtils._LONG_DAY; index++) {
-			preDate = DateUtils.minusOneDay(preDate);
-			historyStockList = historyStockDao.getHistoryStockByStockDate(preDate);
-			if (historyStockList.size() > 0)
-				break;
-		}
-		if (historyStockList.size() > 0)
-			return CommonUtils.convertListToMap(historyStockList);
-		else
-			return null;
 	}
 }

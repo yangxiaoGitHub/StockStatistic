@@ -28,6 +28,7 @@ import cn.db.bean.AllStock;
 import cn.db.bean.BaseStock;
 import cn.db.bean.DailyStock;
 import cn.db.bean.DetailStock;
+import cn.db.bean.ext.ExtDailyStock;
 import cn.log.Log;
 
 public class CommonUtils {
@@ -382,11 +383,15 @@ public class CommonUtils {
 	 * List转换成Map
 	 *
 	 */
-	public static Map<String, BaseStock> convertListToMap(List<? extends BaseStock> list) {
+	public static Map<String, ? extends BaseStock> convertListToMap(List<? extends BaseStock> list, boolean keyFlg) {
 
 		Map<String, BaseStock> map = new HashMap<String, BaseStock>();
 		for (BaseStock stock : list) {
-			map.put(stock.getStockCode(), stock);
+			String stockCode = stock.getStockCode();
+			Date stockDate = stock.getStockDate();
+			String mapKey = stockCode + DateUtils.dateToString(stockDate);
+			if (keyFlg) mapKey = stockCode;
+			map.put(mapKey, stock);
 		}
 		return map;
 	}
@@ -536,5 +541,26 @@ public class CommonUtils {
 			}
 		}
 		return invalidList;
+	}
+	
+	public static String getTurnoverFlg(Double turnoverRate) {
+
+		if (turnoverRate <= DataUtils._INT_ONE) { // 小于1%
+			return ExtDailyStock.LESS_ONE;
+		} else if (turnoverRate>DataUtils._INT_ONE && turnoverRate<=DataUtils._INT_TWO) { // 1%-2%
+			return ExtDailyStock.ONE_TO_TWO;
+		} else if (turnoverRate>DataUtils._INT_TWO && turnoverRate<=DataUtils._INT_THREE) { // 2%-3%
+			return ExtDailyStock.TWO_TO_THREE;
+		} else if (turnoverRate>DataUtils._INT_THREE && turnoverRate<=DataUtils._INT_FIVE) { // 3%-5%
+			return ExtDailyStock.THREE_TO_FIVE;
+		} else if (turnoverRate>DataUtils._INT_FIVE && turnoverRate<=DataUtils._INT_EIGHT) { // 5%-8%
+			return ExtDailyStock.FIVE_TO_EIGHT;
+		} else if (turnoverRate>DataUtils._INT_EIGHT && turnoverRate<=DataUtils._INT_FIFTEEN) { // 8%-15%
+			return ExtDailyStock.EIGHT_TO_FIFTEEN;
+		} else if (turnoverRate>DataUtils._INT_FIFTEEN && turnoverRate<=DataUtils._INT_TWENTY_FIVE) { // 15%-25%
+			return ExtDailyStock.FIFTY_TO_TWENTY_FIVE;
+		} else { // 大于25%
+			return ExtDailyStock.LARGER_TWENTY_FIVE;
+		}
 	}
 }

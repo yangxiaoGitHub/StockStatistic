@@ -21,6 +21,8 @@ public class DataUtils {
 	public final static int _INT_SIX = 6;
 	public final static int _INT_SEVEN = 7;
 	public final static int _INT_EIGHT = 8;
+	public final static int _INT_FIFTEEN = 15;
+	public final static int _INT_TWENTY_FIVE = 25;
 	public final static Integer _LONG_DAY = 12; //A股休市时间最高限制
 	public final static Double _MAX_CHANGE_RATE = 11.0;
 	public final static Double _MIN_CHANGE_RATE = -11.0;
@@ -233,7 +235,42 @@ public class DataUtils {
 		return result + num;
 	}
 	
-	public static boolean isZeroOrNull(Double value) {
+	// 两数相加
+	public static <T extends Number> BigDecimal add(T firstValue, T secondValue) {
+		BigDecimal firstDecimal = new BigDecimal(firstValue.toString());
+		BigDecimal secondDecimal = new BigDecimal(secondValue.toString());
+		return firstDecimal.add(secondDecimal);
+	}
+
+	// 两数相减
+	public static <T extends Number> T sub(T firstValue, T secondValue) {
+		   BigDecimal firstDecimal = new BigDecimal(firstValue.toString());
+		   BigDecimal secondDecimal = new BigDecimal(secondValue.toString());
+		   return (T)firstDecimal.subtract(secondDecimal);
+	}
+
+	// 两数相乘
+	public static <T extends Number> T mul(T firstValue, T secondValue) {  
+		   BigDecimal firstDecimal = new BigDecimal(firstValue.toString());  
+		   BigDecimal secondDecimal = new BigDecimal(secondValue.toString());   
+		   return (T)firstDecimal.multiply(secondDecimal); 
+	}
+
+	// 两数相除
+	public static <T extends Number> T div(T firstValue, T secondValue) {  
+		   BigDecimal firstDecimal = new BigDecimal(firstValue.toString());  
+		   BigDecimal secondDecimal = new BigDecimal(secondValue.toString()); 
+		   return (T)firstDecimal.divide(secondDecimal);  
+	}
+
+	// 两数相除并保留n小数
+	public static <T extends Number> BigDecimal div(T firstValue, T secondValue, int scale) {
+		BigDecimal firstDecimal = new BigDecimal(firstValue.toString());
+		BigDecimal secondDecimal = new BigDecimal(secondValue.toString());
+		return firstDecimal.divide(secondDecimal, scale, BigDecimal.ROUND_HALF_UP);
+	}
+	
+	public static <T extends Number> boolean isZeroOrNull(T value) {
 		if (value == null || value.floatValue() == 0)
 			return true;
 		else

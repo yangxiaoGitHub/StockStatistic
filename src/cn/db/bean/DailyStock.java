@@ -10,8 +10,7 @@ public class DailyStock  extends BaseStock {
 	
 	private Double changeRate;
 	private String encryptChangeRate;
-	private Double turnoverRate;
-	private String encryptTurnoverRate;
+	private String turnoverRateEncrypt;
 	private String changeFlg;
 	private String note;
 
@@ -37,6 +36,15 @@ public class DailyStock  extends BaseStock {
 	public static final String ALL_FIELDS = NUM + "," + STOCK_DATE + "," + STOCK_CODE + "," + STOCK_CODE_DES + "," + CHANGE_RATE + "," + CHANGE_RATE_ENCRYPT + "," 
 											+ TURNOVER_RATE + "," + TURNOVER_RATE_ENCRYPT + "," + CHANGE_FLG + "," + NOTE + "," + INPUT_TIME;
 
+	public DailyStock() {
+
+	}
+	
+	public DailyStock(String stockCode, Date stockDate) {
+		this.stockCode = stockCode;
+		this.stockDate = stockDate;
+	}
+	
 	public Double getChangeRate() {
 		return changeRate;
 	}
@@ -80,8 +88,8 @@ public class DailyStock  extends BaseStock {
 	public String getStockDates() {
 		return stockDates;
 	}
-	public String getEncryptTurnoverRate() {
-		return encryptTurnoverRate;
+	public String getTurnoverRateEncrypt() {
+		return turnoverRateEncrypt;
 	}
 	public Date getRecentStockDate() {
 		return recentStockDate;
@@ -89,14 +97,8 @@ public class DailyStock  extends BaseStock {
 	public void setRecentStockDate(Date recentStockDate) {
 		this.recentStockDate = recentStockDate;
 	}
-	public void setEncryptTurnoverRate(String encryptTurnoverRate) {
-		this.encryptTurnoverRate = encryptTurnoverRate;
-	}
-	public Double getTurnoverRate() {
-		return turnoverRate;
-	}
-	public void setTurnoverRate(Double turnoverRate) {
-		this.turnoverRate = turnoverRate;
+	public void setTurnoverRateEncrypt(String turnoverRateEncrypt) {
+		this.turnoverRateEncrypt = turnoverRateEncrypt;
 	}
 	public int getDailyCount() {
 		return dailyCount;
@@ -133,5 +135,13 @@ public class DailyStock  extends BaseStock {
 	@Override
 	public void setStockCodeDES(String stockCodeDES) {
 		this.stockCodeDES = stockCodeDES;
+	}
+	@Override
+	public Double getTurnoverRate() {
+		return super.turnoverRate;
+	}
+	@Override
+	public void setTurnoverRate(Double turnoverRate) {
+		super.turnoverRate = turnoverRate;
 	}
 }
