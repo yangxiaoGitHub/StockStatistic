@@ -13,7 +13,7 @@ public class DateUtils {
 	public final static String TIME_FORMAT = "HH:mm:ss";
 	public final static String DATE_FORMAT = "yyyy-MM-dd";
 	public final static String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
-	public final static String DATE_TIME_MSEC_FORMAT = "yyyy-MM-dd HH:mm:ss.fff";
+	public final static String DATE_TIME_MSEC_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
 	public final static String MIN_DATE_ORIGINAL_STOCK = "2017-09-11";
 

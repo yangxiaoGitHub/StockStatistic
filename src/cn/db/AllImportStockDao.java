@@ -55,9 +55,10 @@ public class AllImportStockDao extends OperationDao {
 			saveFlg = true;
 		} catch (Exception ex) {
 			rollBackTransaction();
-			System.out.println(
-					DateUtils.dateTimeToString(new Date()) + "  " + DateUtils.dateTimeToString(allImportStock.getStockDate()) + " 所有股票详细信息导入表(all_import_stock_)增加股票信息(" + allImportStock.getStockCode() + ")失败！");
-			log.loger.error(DateUtils.dateTimeToString(allImportStock.getStockDate()) + " 所有股票详细信息导入表(all_import_stock_)增加股票信息(" + allImportStock.getStockCode() + ")失败！");
+			System.out.println(DateUtils.dateTimeToString(new Date()) + "  " + "所有股票详细信息导入表(all_import_stock_)增加"
+					+ DateUtils.dateToString(allImportStock.getStockDate()) + "的股票信息(" + allImportStock.getStockCode() + ")失败！");
+			log.loger.error("所有股票详细信息导入表(all_import_stock_)增加" + DateUtils.dateToString(allImportStock.getStockDate()) + "的股票信息("
+					+ allImportStock.getStockCode() + ")失败！");
 			ex.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(ex));
 		} finally {
@@ -109,6 +110,25 @@ public class AllImportStockDao extends OperationDao {
 		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
 		state.setDate(1, new java.sql.Date(startEndDate[0].getTime()));
 		state.setDate(2, new java.sql.Date(startEndDate[1].getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			AllImportStock allImportStock = getAllImportStockFromResult(rs);
+			allImportStockList.add(allImportStock);
+		}
+		super.close(rs, state);
+		return allImportStockList;
+	}
+	
+	public List<AllImportStock> getAllImportStockByCodeAndDate(String stockCode, Date startDate, Date endDate) throws SQLException {
+		
+		List<AllImportStock> allImportStockList = new ArrayList<AllImportStock>();
+		StringBuffer sql = new StringBuffer();
+		sql.append("select ").append(AllImportStock.ALL_FIELDS).append(" from ").append(AllImportStock.TABLE_NAME)
+		   .append(" where ").append(AllImportStock.STOCK_CODE).append("=? and ").append(AllImportStock.STOCK_DATE).append(" between ? and ?");
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		state.setString(1, stockCode);
+		state.setDate(2, new java.sql.Date(startDate.getTime()));
+		state.setDate(3, new java.sql.Date(endDate.getTime()));
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			AllImportStock allImportStock = getAllImportStockFromResult(rs);

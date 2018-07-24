@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import cn.db.bean.AllImportStock;
 import cn.db.bean.DetailStock;
 
 public class DataUtils {
@@ -21,8 +22,12 @@ public class DataUtils {
 	public final static int _INT_SIX = 6;
 	public final static int _INT_SEVEN = 7;
 	public final static int _INT_EIGHT = 8;
+	public final static int _INT_TEN = 10;
 	public final static int _INT_FIFTEEN = 15;
 	public final static int _INT_TWENTY_FIVE = 25;
+	public final static int _INT_FORTY = 40;
+	public final static int _INT_FIFTY = 50;
+	public final static int _INT_ONE_KB = 1024;
 	public final static Integer _LONG_DAY = 12; //A股休市时间最高限制
 	public final static Double _MAX_CHANGE_RATE = 11.0;
 	public final static Double _MIN_CHANGE_RATE = -11.0;
@@ -80,30 +85,30 @@ public class DataUtils {
 	 * 获得最晚(最小)日期的股票详细信息
 	 *
 	 */
-	public static DetailStock getLastDetailStock(List<DetailStock> detailStockList) {
+	public static AllImportStock getLastAllImportStock(List<AllImportStock> allImportStockList) {
 		
-		DetailStock lastDetailStock = detailStockList.get(0);
-		for (DetailStock detailStock : detailStockList) {
-			Date stockDate = detailStock.getStockDate();
-			Date lastStockDate = lastDetailStock.getStockDate();
-			if (stockDate.compareTo(lastStockDate) > 0) lastDetailStock = detailStock;
+		AllImportStock lastImportStock = allImportStockList.get(0);
+		for (AllImportStock allImportStock : allImportStockList) {
+			Date stockDate = allImportStock.getStockDate();
+			Date lastStockDate = lastImportStock.getStockDate();
+			if (stockDate.compareTo(lastStockDate) > 0) lastImportStock = allImportStock;
 		}
-		return lastDetailStock;
+		return lastImportStock;
 	}
     
 	/**
 	 * 获得最早(最大)日期的股票详细信息
 	 *
 	 */
-	public static DetailStock getFirstDetailStock(List<DetailStock> detailStockList) {
+	public static AllImportStock getFirstAllImportStock(List<AllImportStock> allImportStockList) {
 		
-		DetailStock firstDetailStock = detailStockList.get(0);
-		for (DetailStock detailStock : detailStockList) {
-			Date stockDate = detailStock.getStockDate();
-			Date firstStockDate = firstDetailStock.getStockDate();
-			if (stockDate.compareTo(firstStockDate) < 0) firstDetailStock = detailStock;
+		AllImportStock firstImportStock = allImportStockList.get(0);
+		for (AllImportStock importStock : allImportStockList) {
+			Date stockDate = importStock.getStockDate();
+			Date firstStockDate = firstImportStock.getStockDate();
+			if (stockDate.compareTo(firstStockDate) < 0) firstImportStock = importStock;
 		}
-		return firstDetailStock;
+		return firstImportStock;
 	}
 	
 	/**

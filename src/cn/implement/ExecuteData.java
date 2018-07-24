@@ -1,5 +1,6 @@
 package cn.implement;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
 import cn.db.DailyStockDao;
 import cn.db.StatisticDetailStockDao;
+import cn.db.StatisticStockDao;
 import cn.db.bean.DailyStock;
 import cn.db.bean.StatisticDetailStock;
 import cn.db.bean.StatisticStock;
@@ -58,15 +60,24 @@ public class ExecuteData extends OperationData {
 	public void statisticDetailStock() {
 		
 		dailyStockDao = new DailyStockDao();
+		statisticStockDao = new StatisticStockDao();
 		statisticDetailStockDao = new StatisticDetailStockDao();
 		try {
+			Date nowDate = new Date();
 			Date[] minMaxDate = dailyStockDao.getMinMaxDate();
-			String sDate = DateUtils.dateToString(minMaxDate[0]) + "至" + DateUtils.dateToString(minMaxDate[1]);
-			List<StatisticDetailStock> statisticDetailStockList = statisticDetailStockDao.listRecentStatisticDetailStock();
+			String sDate = DateUtils.dateToString(nowDate) + "至" + DateUtils.dateToString(minMaxDate[1]);
+			List<StatisticDetailStock> statisticDetailStockList = new ArrayList<StatisticDetailStock>();
+			List<StatisticStock> statisticStockList = statisticStockDao.listStatisticStock();
+			for (StatisticStock statisticStock : statisticStockList) {
+				StatisticDetailStock statisticDetailStock = new StatisticDetailStock(statisticStock.getStockCode(), nowDate);
+				super.setUpAndDownNumberJson(statisticDetailStock);
+				statisticDetailStockList.add(statisticDetailStock);
+			}
 			System.out.println("-------------------------------" + sDate + " 每日选择的股票出现的次数统计--------------------------------");
 			log.loger.warn("-------------------------------" + sDate + " 每日选择的股票出现的次数统计--------------------------------");
-			System.out.println("股票               总涨跌次数            前一周涨跌次数     前半月涨跌次数     前一月涨跌次数       前二月涨跌次数        前三月涨跌次数        前半年涨跌次数        前一年涨跌次数");
-			log.loger.warn("股票               总涨跌次数            前一周涨跌次数     前半月涨跌次数     前一月涨跌次数       前二月涨跌次数        前三月涨跌次数        前半年涨跌次数        前一年涨跌次数");
+			String lineTitle = "股票               总涨跌次数            前一周涨跌次数     前半月涨跌次数     前一月涨跌次数       前二月涨跌次数        前三月涨跌次数        前半年涨跌次数        前一年涨跌次数";
+			System.out.println(lineTitle);
+			log.loger.warn(lineTitle);
 			for (StatisticDetailStock statisticDetailStock : statisticDetailStockList) {
 				String stockCode = statisticDetailStock.getStockCode();
 				String stockName = PropertiesUtils.getProperty(stockCode);
@@ -81,14 +92,13 @@ public class ExecuteData extends OperationData {
 				String preOneYearNum = statisticDetailStock.getOneYear_NoJson();
 				String lineContent = stockCodeName + DataUtils._SPACES + allUpDownNum + DataUtils._SPACES + preOneWeekNum + DataUtils._SPACES + preHalfMonthNum + DataUtils._SPACES + preOneMonthNum + DataUtils._SPACES + preTwoMonthNum + DataUtils._SPACES + preThreeMonthNum + DataUtils._SPACES + preHalfYearNum + DataUtils._SPACES + preOneYearNum;
 				System.out.println(lineContent);
-				// change the content of .log file to hex
-				log.loger.warn(DataUtils.stringToHex(lineContent));
+				log.loger.warn(lineContent);
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(ex));
 		} finally {
-			closeDao(dailyStockDao, statisticStockDao);
+			closeDao(dailyStockDao, statisticDetailStockDao);
 		}
 	}
 }

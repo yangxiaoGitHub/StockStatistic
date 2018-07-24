@@ -1,16 +1,22 @@
 package cn.com;
 
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import cn.db.bean.AllImportStock;
 import cn.log.Log;
@@ -18,39 +24,35 @@ import cn.log.Log;
 public class POIUtils {
 	static Log log = Log.getLoger();
     public final static String XLS = ".xls";
+    public final static String XLSX = ".xlsx";
 
-    public static List<AllImportStock> readExcel(String filePath) {
+	public static List<AllImportStock> readExcel(String filePath) {
 
-    	List<AllImportStock> allImportStockList = new ArrayList<AllImportStock>();
+		List<AllImportStock> allImportStockList = new ArrayList<AllImportStock>();
 		try {
-			boolean isExcel = filePath.toLowerCase().endsWith(XLS);
-			if (isExcel) {
-				POIFSFileSystem poiFile = new POIFSFileSystem(new FileInputStream(filePath));
-				HSSFWorkbook workBook = new HSSFWorkbook(poiFile);
-				HSSFSheet sheet = workBook.getSheetAt(0);
-				int firstRowNum = sheet.getFirstRowNum();
-				int lastRowNum = sheet.getLastRowNum();
-				for (int rowNum=(firstRowNum + 1); rowNum<=lastRowNum; rowNum++) {
-					HSSFRow row = sheet.getRow(rowNum);
-					int firstCellNum = row.getFirstCellNum();
-					int lastCellNum = row.getLastCellNum();
-					AllImportStock allImportStock = new AllImportStock();
-					for (int cellNum=firstCellNum; cellNum<lastCellNum; cellNum++) {
-						HSSFCell cell = row.getCell(cellNum);
-						setCellValue(allImportStock, cell, cellNum);
-					}
-					allImportStockList.add(allImportStock);
-					ObjectUtils.printProperties(allImportStock);
-					System.out.println("------------------------------------");
+			Workbook workBook = getWorkBook(filePath);
+			Sheet sheet = workBook.getSheetAt(0);
+			int firstRowNum = sheet.getFirstRowNum();
+			int lastRowNum = sheet.getLastRowNum();
+			for (int rowNum = (firstRowNum + 1); rowNum <= lastRowNum; rowNum++) {
+				Row row = sheet.getRow(rowNum);
+				int firstCellNum = row.getFirstCellNum();
+				int lastCellNum = row.getLastCellNum();
+				AllImportStock allImportStock = new AllImportStock();
+				for (int cellNum = firstCellNum; cellNum < lastCellNum; cellNum++) {
+					Cell cell = row.getCell(cellNum);
+					setCellValue(allImportStock, cell, cellNum);
 				}
-				workBook.close();
+				allImportStockList.add(allImportStock);
+				ObjectUtils.printProperties(allImportStock);
 			}
+			workBook.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(ex));
 		}
 		return allImportStockList;
-    }
+	}
     
     private static void setCellValue(AllImportStock allImportStock, Cell cell, int cellNum) {
     	
@@ -177,26 +179,20 @@ public class POIUtils {
     	   return cellValue.contains(DataUtils._DASH)?DataUtils._BLANK:cellValue;
     	}
 
-/*	private static Object getCellValue(Cell cell) {
+	private static Workbook getWorkBook(String filePath) throws EncryptedDocumentException, InvalidFormatException {
 
-		if (cell == null)
-			return null;
-
-		switch (cell.getCellType()) {
-			case Cell.CELL_TYPE_STRING:
-				return cell.getRichStringCellValue().getString();
-			case Cell.CELL_TYPE_NUMERIC:
-				if (DateUtil.isCellDateFormatted(cell))
-					return cell.getDateCellValue();
-				else
-					return cell.getNumericCellValue();
-			case Cell.CELL_TYPE_BOOLEAN:
-				return cell.getBooleanCellValue();
-			case Cell.CELL_TYPE_FORMULA:
-				return cell.getCellFormula();
-			default:
-				return "";
+		Workbook workBook = null;
+		try {
+			InputStream is = new FileInputStream(filePath);
+			if (filePath.endsWith(XLSX)) {
+				workBook = (XSSFWorkbook) WorkbookFactory.create(is);
+			} else if (filePath.endsWith(XLS)) {
+				POIFSFileSystem poiFile = new POIFSFileSystem(is);
+				workBook = new HSSFWorkbook(poiFile);
+			}
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
-	}*/
-
+		return workBook;
+	}
 }

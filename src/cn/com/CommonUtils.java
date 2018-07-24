@@ -16,18 +16,20 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EntityUtils;
+import org.apache.hc.client5.http.impl.sync.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.sync.HttpClients;
+import org.apache.hc.client5.http.methods.HttpGet;
+import org.apache.hc.client5.http.protocol.ClientProtocolException;
+import org.apache.hc.client5.http.sync.ResponseHandler;
+import org.apache.hc.core5.http.HttpEntity;
+import org.apache.hc.core5.http.HttpResponse;
+import org.apache.hc.core5.http.ParseException;
+import org.apache.hc.core5.http.entity.EntityUtils;
 
+import cn.db.bean.AllImportStock;
 import cn.db.bean.AllStock;
 import cn.db.bean.BaseStock;
 import cn.db.bean.DailyStock;
-import cn.db.bean.DetailStock;
 import cn.db.bean.ext.ExtDailyStock;
 import cn.log.Log;
 
@@ -101,10 +103,14 @@ public class CommonUtils {
 	
 	public static String addSpaceInMiddle(String para) {
 		int length = para.length();
-		char[] value = new char[length << 1];
-		for (int i = 0, j = 0; i < length; ++i, j = i << 1) {
-			value[j] = para.charAt(i);
-			value[1 + j] = ' ';
+		char[] value = {' ',' ',' ',' ',' ',' ',' ',' '};
+		if (length == DataUtils._INT_THREE) {
+			value[0] = para.charAt(0);
+			value[3] = para.charAt(1);
+			value[6] = para.charAt(2);
+		} else if (length == DataUtils._INT_TWO) {
+			value[0] = para.charAt(0);
+			value[7] = para.charAt(1);
 		}
 		return new String(value);
 	}
@@ -326,25 +332,37 @@ public class CommonUtils {
 	public static String getURLRequestInfo(String stockCode) {
 
 		HttpGet request = null;
-		HttpClient client = null;
-		HttpResponse response = null;
+		CloseableHttpClient client = null;
 		String stockInfo = null;
 		try {
 			String searchStockCode = getSearchStockCode(stockCode);
 			String url = PropertiesUtils.getProperty("stockURL") + searchStockCode;
 			request = new HttpGet(url);
-			client = new DefaultHttpClient();
-			response = client.execute(request);
-			// 得到结果,进行解释
-			int statusCode = response.getStatusLine().getStatusCode();
-			if (statusCode == 200) {
-				// 连接成功
-				String strResponse = EntityUtils.toString(response.getEntity(), HTTP.UTF_8);
-				stockInfo = strResponse.substring(strResponse.indexOf('"') + 1, strResponse.lastIndexOf('"')); // + "," + stockCode;
-			} else {
-				System.out.println("股票(" + stockCode + ")获取状态码为:" + statusCode + ", URL连接失败！");
-				log.loger.warn("股票(" + stockCode + ")获取状态码为:" + statusCode + ", URL连接失败！");
-			}
+			client = HttpClients.createDefault();
+			
+			//create a custom response handler
+			ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
+				@Override
+				public String handleResponse(final HttpResponse response) throws IOException {
+					String result = null;
+					int statusCode = response.getStatusLine().getStatusCode();
+					if (statusCode >= 200 && statusCode < 300) {
+						HttpEntity entity = response.getEntity();
+						try {
+							result = (entity != null ? EntityUtils.toString(entity) : null);
+						} catch (ParseException ex) {
+							new ClientProtocolException(ex).printStackTrace();
+						}
+					} else {
+						System.out.println("股票(" + stockCode + ")获取状态码为:" + statusCode + ", URL连接失败！");
+						log.loger.warn("股票(" + stockCode + ")获取状态码为:" + statusCode + ", URL连接失败！");
+					}
+					return result;
+				}
+			};
+			String strResponse = client.execute(request, responseHandler);
+			stockInfo = strResponse.substring(strResponse.indexOf('"') + 1, strResponse.lastIndexOf('"'));
+
 		} catch (ClientProtocolException ex) {
 			System.out.println("股票(" + stockCode + ")数据URL请求出现异常！");
 			log.loger.error("股票(" + stockCode + ")数据URL请求出现异常！");
@@ -362,8 +380,6 @@ public class CommonUtils {
 			}
 			if (client != null)
 				client = null;
-			if (response != null)
-				response = null;
 		}
 		return stockInfo;
 	}
@@ -482,13 +498,13 @@ public class CommonUtils {
 	 * 获得最大值和最小值
 	 *
 	 */
-	public static Double[] getMinMaxPrices(List<DetailStock> detailStockList) {
+	public static Double[] getMinMaxPrices(List<AllImportStock> allImportStockList) {
 		
-		DetailStock detailStock = detailStockList.get(0);
-		Double minValue = detailStock.getCurrent();
-		Double maxValue = detailStock.getCurrent();
-		for (DetailStock detaiStock : detailStockList) {
-			Double stockPrice = detaiStock.getCurrent();
+		AllImportStock allImportStock = allImportStockList.get(0);
+		Double minValue = allImportStock.getCurrent();
+		Double maxValue = allImportStock.getCurrent();
+		for (AllImportStock importStock : allImportStockList) {
+			Double stockPrice = importStock.getCurrent();
 			if (stockPrice < minValue) minValue = stockPrice;
 			if (stockPrice > maxValue) maxValue = stockPrice;
 		}

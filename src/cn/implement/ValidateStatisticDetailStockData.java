@@ -35,8 +35,8 @@ public class ValidateStatisticDetailStockData extends OperationData {
 		statisticDetailStockDao = new StatisticDetailStockDao();
 		try {
 			Date[] minMaxDate = statisticDetailStockDao.getMinMaxDate();
-			Date[] preOneMonth = DateUtils.getPreOneMonth(minMaxDate[1]);
-			List<StatisticDetailStock> statisticDetailStockList = statisticDetailStockDao.listStatisticDetailStockByDate(preOneMonth);
+			Date[] preTwoMonth = DateUtils.getPreTwoMonth(minMaxDate[1]);
+			List<StatisticDetailStock> statisticDetailStockList = statisticDetailStockDao.listStatisticDetailStockByDate(preTwoMonth);
 			if (statisticDetailStockList.size() > 0) {
 				// —È÷§stock_code_ DESº”√‹
 				boolean stockCodeFLg = validateStockCodeDESInStatisticDetailStock(statisticDetailStockList);

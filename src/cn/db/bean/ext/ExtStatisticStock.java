@@ -1,5 +1,6 @@
 package cn.db.bean.ext;
 
+import cn.com.ObjectUtils;
 import cn.db.bean.StatisticStock;
 
 public class ExtStatisticStock extends StatisticStock {
@@ -14,6 +15,12 @@ public class ExtStatisticStock extends StatisticStock {
 	private Double nowChangeRate;
 	private Double recentMaxDeclineRate;
 	private Double recentMaxRiseRate;
+	
+	public ExtStatisticStock(StatisticStock statisticStock) {
+
+		//ObjectUtils.copyProperties(this, statisticStock);
+		ObjectUtils.copy_Properties(statisticStock, this);
+	}
 	
 	public Double getMaxDeclineRate() {
 		return maxDeclineRate;

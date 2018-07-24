@@ -371,6 +371,38 @@ public class OperationData extends BaseData {
 		return combineUpAndDownJsonMap;
 	}
 	
+	protected void setUpAndDownNumberJson(StatisticDetailStock statisticDetailStock) throws SQLException {
+		
+		String stockCode = statisticDetailStock.getStockCode();
+		Date stockDate = statisticDetailStock.getStockDate();
+		// 总涨跌次数
+		Map<String, Integer> upDownMap = getUpAndDownNumber(stockCode);
+		statisticDetailStock.setUpDownNumber(upDownMap.get(StatisticDetailStock.UP_DOWN_KEY));
+		statisticDetailStock.setUpNumber(upDownMap.get(StatisticDetailStock.UP_KEY));
+		statisticDetailStock.setDownNumber(upDownMap.get(StatisticDetailStock.DOWN_KEY));
+		// 前一周的涨跌次数
+		String preOneWeekUpAndDownJson = getPreOneWeekJson(stockCode, stockDate);
+		statisticDetailStock.setOneWeek(preOneWeekUpAndDownJson);
+		// 前半月的涨跌次数
+		String preHalfMonthUpAndDownJson = getPreHalfMonthJson(stockCode, stockDate);
+		statisticDetailStock.setHalfMonth(preHalfMonthUpAndDownJson);
+		// 前一月的涨跌次数
+		String preOneMonthUpAndDownJson = getPreOneMonthJson(stockCode, stockDate);
+		statisticDetailStock.setOneMonth(preOneMonthUpAndDownJson);
+		// 前二月的涨跌次数
+		String preTwoMonthUpAndDownJson = getPreTwoMonthJson(stockCode, stockDate);
+		statisticDetailStock.setTwoMonth(preTwoMonthUpAndDownJson);
+		// 前三月的涨跌次数
+		String preThreeMonthUpAndDownJson = getPreThreeMonthJson(stockCode, stockDate);
+		statisticDetailStock.setThreeMonth(preThreeMonthUpAndDownJson);
+		// 前半年的涨跌次数
+		String preHalfYearUpAndDownJson = getPreHalfYearJson(stockCode, stockDate);
+		statisticDetailStock.setHalfYear(preHalfYearUpAndDownJson);
+		// 前一年的涨跌次数
+		String preOneYearUpAndDownJson = getPreOneYearJson(stockCode, stockDate);
+		statisticDetailStock.setOneYear(preOneYearUpAndDownJson);
+	}
+	
 	/**
 	 * according to the key(stockCode, stockDate), select the stock of the previous stock opening day
 	 * 

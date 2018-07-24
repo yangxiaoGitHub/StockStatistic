@@ -11,7 +11,6 @@ import com.mysql.jdbc.PreparedStatement;
 import cn.com.CommonUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
-import cn.db.bean.AllDetailStock;
 import cn.db.bean.StatisticStock;
 
 public class StatisticStockDao extends OperationDao {

@@ -6,7 +6,7 @@ import cn.com.CommonUtils;
 import cn.implement.ImportAllDetailStockData;
 
 public class ImportDetailMain {
-	
+
 	public static void main(String[] args) {
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));

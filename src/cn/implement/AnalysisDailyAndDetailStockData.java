@@ -12,12 +12,11 @@ import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
 import cn.com.StockUtils;
+import cn.db.AllImportStockDao;
 import cn.db.DailyStockDao;
-import cn.db.DetailStockDao;
-import cn.db.StatisticDetailStockDao;
 import cn.db.StatisticStockDao;
+import cn.db.bean.AllImportStock;
 import cn.db.bean.DailyStock;
-import cn.db.bean.DetailStock;
 import cn.db.bean.StatisticDetailStock;
 import cn.db.bean.StatisticStock;
 import cn.db.bean.ext.ExtStatisticStock;
@@ -30,9 +29,10 @@ public class AnalysisDailyAndDetailStockData extends OperationData {
 	 */
 	public void analysisStock(String startDate, String sortFlg) {
 		dailyStockDao = new DailyStockDao();
-		detailStockDao = new DetailStockDao();
+		//detailStockDao = new DetailStockDao();
 		statisticStockDao = new StatisticStockDao();
-		statisticDetailStockDao = new StatisticDetailStockDao();
+		allImportStockDao = new AllImportStockDao();
+		//statisticDetailStockDao = new StatisticDetailStockDao();
 		try {
 			Date beginDate = DateUtils.stringToDate(startDate);
 			List<ExtStatisticStock> statisticStockList = new ArrayList<ExtStatisticStock>();
@@ -44,15 +44,17 @@ public class AnalysisDailyAndDetailStockData extends OperationData {
 				for (int index=0; index<dailyList.size(); index++) {
 					DailyStock dailyStock = dailyList.get(index);
 					String stockCode = dailyStock.getStockCode();
-					List<DetailStock> detailStockList = detailStockDao.getDetailStockByTime(stockCode, beginDate, endDate);
-					if (CommonUtils.isBlank(detailStockList)) continue;
-					Double[] minMaxPrices = CommonUtils.getMinMaxPrices(detailStockList);
-					DetailStock firstDetailStock = DataUtils.getFirstDetailStock(detailStockList);
-					DetailStock lastDetailStock = DataUtils.getLastDetailStock(detailStockList);
-					ExtStatisticStock extStatisticStock = (ExtStatisticStock) statisticStockDao.getStatisticStockByStockCode(stockCode);
-					calculateMinMaxChangeRate(extStatisticStock, firstDetailStock, minMaxPrices);
-					calculateLastDateChangeRate(extStatisticStock, firstDetailStock, lastDetailStock);
-					calculateRecentMinMaxChangeRate(extStatisticStock, minMaxPrices, lastDetailStock);
+					//List<DetailStock> detailStockList = detailStockDao.getDetailStockByTime(stockCode, beginDate, endDate);
+					List<AllImportStock> allImportStockList = allImportStockDao.getAllImportStockByCodeAndDate(stockCode, beginDate, endDate);
+					if (CommonUtils.isBlank(allImportStockList)) continue;
+					Double[] minMaxPrices = CommonUtils.getMinMaxPrices(allImportStockList);
+					AllImportStock firstImportStock = DataUtils.getFirstAllImportStock(allImportStockList);
+					AllImportStock lastImportStock = DataUtils.getLastAllImportStock(allImportStockList);
+					StatisticStock statisticStock = statisticStockDao.getStatisticStockByStockCode(stockCode);
+					ExtStatisticStock extStatisticStock = new ExtStatisticStock(statisticStock);
+					calculateMinMaxChangeRate(extStatisticStock, firstImportStock, minMaxPrices);
+					calculateLastDateChangeRate(extStatisticStock, firstImportStock, lastImportStock);
+					calculateRecentMinMaxChangeRate(extStatisticStock, minMaxPrices, lastImportStock);
 					Date[] startEndDate = {beginDate, endDate};
 					Integer upDownNumber = dailyStock.getCount();
 					Integer upNumber = dailyStockDao.getUpNumberByStockCode(stockCode, startEndDate);
@@ -71,7 +73,7 @@ public class AnalysisDailyAndDetailStockData extends OperationData {
 			e.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(e));
 		} finally {
-			closeDao(dailyStockDao, detailStockDao, statisticStockDao);
+			closeDao(dailyStockDao, statisticStockDao, allImportStockDao);
 		}
 	}
 
@@ -198,13 +200,13 @@ public class AnalysisDailyAndDetailStockData extends OperationData {
 	 * 计算股票最大涨跌幅和涨跌幅
 	 *
 	 */
-	private void calculateMinMaxChangeRate(ExtStatisticStock statisticStock, DetailStock firstDetailStock, Double[] minMaxPrices) {
+	private void calculateMinMaxChangeRate(ExtStatisticStock statisticStock, AllImportStock firstImportStock, Double[] minMaxPrices) {
 		//最大涨跌幅
-		double firstPrice = firstDetailStock.getCurrent().doubleValue();
+		double firstPrice = firstImportStock.getCurrent().doubleValue();
 		double minPrice = minMaxPrices[0].doubleValue(); 
 		double maxPrice = minMaxPrices[1].doubleValue();
-		double maxDeclineRate = StockUtils.getChangeRate(minPrice, firstPrice);
-		double maxRiseRate = StockUtils.getChangeRate(maxPrice, firstPrice);
+		double maxDeclineRate = StockUtils.getChangeRate(firstPrice, minPrice);
+		double maxRiseRate = StockUtils.getChangeRate(firstPrice, maxPrice);
 		statisticStock.setMaxDeclineRate(maxDeclineRate);
 		statisticStock.setMaxRiseRate(maxRiseRate);
 	}
@@ -213,10 +215,10 @@ public class AnalysisDailyAndDetailStockData extends OperationData {
 	 * 计算股票到最近日期的涨跌幅
 	 *
 	 */
-	private void calculateLastDateChangeRate(ExtStatisticStock statisticStock, DetailStock firstDetailStock, DetailStock lastDetailStock) {
+	private void calculateLastDateChangeRate(ExtStatisticStock statisticStock, AllImportStock firstImportStock, AllImportStock lastImportStock) {
 		//涨跌幅
-		double firstPrice = firstDetailStock.getCurrent().doubleValue();
-		double nowPrice = lastDetailStock.getCurrent();
+		double firstPrice = firstImportStock.getCurrent().doubleValue();
+		double nowPrice = lastImportStock.getCurrent();
 		double nowChangeRate = StockUtils.getChangeRate(firstPrice, nowPrice);
 		statisticStock.setNowChangeRate(nowChangeRate);
 	}
@@ -225,11 +227,11 @@ public class AnalysisDailyAndDetailStockData extends OperationData {
 	 * 计算股票最近日期的最大涨跌幅
 	 * 
 	 */
-	private void calculateRecentMinMaxChangeRate(ExtStatisticStock statisticStock, Double[] minMaxPrices, DetailStock lastDetailStock) {
+	private void calculateRecentMinMaxChangeRate(ExtStatisticStock statisticStock, Double[] minMaxPrices, AllImportStock lastImportStock) {
 		//最近日期的最大涨跌幅
 		double minPrice = minMaxPrices[0].doubleValue();
 		double maxPrice = minMaxPrices[1].doubleValue();
-		double nowPrice = lastDetailStock.getCurrent();
+		double nowPrice = lastImportStock.getCurrent();
 		double recentMaxDeclineRate = StockUtils.getChangeRate(maxPrice, nowPrice);
 		double recentMaxRiseRate = StockUtils.getChangeRate(minPrice, nowPrice);
 		statisticStock.setRecentMaxDeclineRate(recentMaxDeclineRate);

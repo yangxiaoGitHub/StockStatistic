@@ -1,10 +1,13 @@
 package cn.implement;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+
 import cn.com.CommonUtils;
 import cn.com.DESUtils;
 import cn.com.DateUtils;
+import cn.com.ObjectUtils;
 import cn.com.POIUtils;
 import cn.com.PropertiesUtils;
 import cn.db.AllImportStockDao;
@@ -17,7 +20,16 @@ public class ImportAllDetailStockData extends OperationData {
 		int saveNum = 0;
 		allImportStockDao = new AllImportStockDao();
 		try {
-			String filePath = PropertiesUtils.getProperty("excelPath") + sDate + POIUtils.XLS;
+			String path = PropertiesUtils.getProperty("excelPath") + sDate;
+			String xlsFilePath = path + POIUtils.XLS;
+			String xlsxFilePath = path + POIUtils.XLSX;
+			String xlsPath = ObjectUtils.checkFile(xlsFilePath);
+			String xlsxPath = ObjectUtils.checkFile(xlsxFilePath);
+			String filePath = (xlsPath==null?xlsxPath:xlsPath);
+			if (filePath == null) {
+				Exception exception = new IOException("Excel文件(" + (sDate + POIUtils.XLS) + "和" + (sDate + POIUtils.XLSX) + ")不存在！");
+				throw exception;
+			}
 			long maxNum = allImportStockDao.getMaxNum(AllImportStock.TABLE_NAME);
 			List<AllImportStock> allImportStockList = POIUtils.readExcel(filePath);
 			// 导入所有股票每日详细信息(all_import_stock_)

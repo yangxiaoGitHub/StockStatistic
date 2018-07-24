@@ -11,6 +11,7 @@ import cn.com.DESUtils;
 import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.ObjectUtils;
+import cn.com.PictureUtils;
 import cn.com.PropertiesUtils;
 import cn.db.DailyStockDao;
 import cn.db.OriginalStockDao;
@@ -83,7 +84,7 @@ public class HandleOriginalAndDailyData extends OperationData {
 	 * 解析原始股票数据到每日股票数据表(daily_stock_)、表(statistic_stock_)和表(statistic_detail_stock_)中
 	 *
 	 */
-	public void handleDailyStockData(String sDate, String stockCodes, String changeRates, String turnoverRates) {
+	public void handleDailyStockData(final String sDate, String stockCodes, String changeRates, String turnoverRates) {
 
 		int dailySum = 0;
 		int statisticSum = 0;
@@ -118,6 +119,15 @@ public class HandleOriginalAndDailyData extends OperationData {
 					}
 				}
 			}
+			//create the .jpg picture of daily stock's data
+			/*final List<DailyStock> dailyStockImageList = dailyStockList;
+			new Thread(new Runnable(){
+				@Override
+				public void run() {
+					PictureUtils.generateDailyStockPic(sDate, dailyStockImageList);
+				}
+			}).start();*/
+			new Thread(()->PictureUtils.generateDailyStockPic(sDate, dailyStockList)).start();
 			System.out.println("-----------------------增加统计股票数据(statistic_stock_)---------------------------");
 			// 增加统计股票数据(statistic_stock_)
 			for (DailyStock dailyStock : dailyStockList) {
@@ -185,32 +195,7 @@ public class HandleOriginalAndDailyData extends OperationData {
 			statisticDetailStock.setStockCodeDES(DESUtils.encryptToHex(stockCode));
 			// 统计日期
 			statisticDetailStock.setStockDate(stockDate);
-			// 总涨跌次数
-			Map<String, Integer> upDownMap = getUpAndDownNumber(stockCode);
-			statisticDetailStock.setUpDownNumber(upDownMap.get(StatisticDetailStock.UP_DOWN_KEY));
-			statisticDetailStock.setUpNumber(upDownMap.get(StatisticDetailStock.UP_KEY));
-			statisticDetailStock.setDownNumber(upDownMap.get(StatisticDetailStock.DOWN_KEY));
-			// 前一周的涨跌次数
-			String preOneWeekUpAndDownJson = getPreOneWeekJson(stockCode, stockDate);
-			statisticDetailStock.setOneWeek(preOneWeekUpAndDownJson);
-			// 前半月的涨跌次数
-			String preHalfMonthUpAndDownJson = getPreHalfMonthJson(stockCode, stockDate);
-			statisticDetailStock.setHalfMonth(preHalfMonthUpAndDownJson);
-			// 前一月的涨跌次数
-			String preOneMonthUpAndDownJson = getPreOneMonthJson(stockCode, stockDate);
-			statisticDetailStock.setOneMonth(preOneMonthUpAndDownJson);
-			// 前二月的涨跌次数
-			String preTwoMonthUpAndDownJson = getPreTwoMonthJson(stockCode, stockDate);
-			statisticDetailStock.setTwoMonth(preTwoMonthUpAndDownJson);
-			// 前三月的涨跌次数
-			String preThreeMonthUpAndDownJson = getPreThreeMonthJson(stockCode, stockDate);
-			statisticDetailStock.setThreeMonth(preThreeMonthUpAndDownJson);
-			// 前半年的涨跌次数
-			String preHalfYearUpAndDownJson = getPreHalfYearJson(stockCode, stockDate);
-			statisticDetailStock.setHalfYear(preHalfYearUpAndDownJson);
-			// 前一年的涨跌次数
-			String preOneYearUpAndDownJson = getPreOneYearJson(stockCode, stockDate);
-			statisticDetailStock.setOneYear(preOneYearUpAndDownJson);
+			setUpAndDownNumberJson(statisticDetailStock);
 			statisticDetailStock.setNote(DataUtils._BLANK);
 			statisticDetailStock.setInputTime(new Date());
 			boolean isExistFlg = statisticDetailStockDao.isExistInStatisticDetailStock(stockCode, stockDate);
