@@ -191,8 +191,7 @@ public class AnalysisDailyAndDetailStockData extends OperationData {
 			// µø´ÎÊý
 			lineContent = lineContent.replace("DO", extStatisticStock.getDownNumber().toString());
 			System.out.println(lineContent);
-			// change the content of .log file to hex
-			log.loger.warn(DataUtils.stringToHex(lineContent));
+			log.loger.warn(lineContent);
 		}
 	}
 	

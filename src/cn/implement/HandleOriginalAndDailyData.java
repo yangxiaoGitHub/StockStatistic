@@ -2,21 +2,24 @@ package cn.implement;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import cn.com.CommonUtils;
 import cn.com.DESUtils;
 import cn.com.DataUtils;
 import cn.com.DateUtils;
-import cn.com.ObjectUtils;
 import cn.com.PictureUtils;
 import cn.com.PropertiesUtils;
+import cn.db.AllImportStockDao;
 import cn.db.DailyStockDao;
 import cn.db.OriginalStockDao;
 import cn.db.StatisticDetailStockDao;
 import cn.db.StatisticStockDao;
+import cn.db.bean.AllImportStock;
 import cn.db.bean.DailyStock;
 import cn.db.bean.OriginalStock;
 import cn.db.bean.StatisticDetailStock;
@@ -48,6 +51,59 @@ public class HandleOriginalAndDailyData extends OperationData {
 		}
 	}
 	
+	/**
+	 * 统计从输入日期 (startDate)到最近日期漏选的股票
+	 *
+	 */
+	public void analysisLoseStock(String startDate) {
+		originalStockDao = new OriginalStockDao();
+		allImportStockDao = new AllImportStockDao();
+		try {
+			Date recentDate = originalStockDao.getRecentStockDate();
+			Date preRecentDate = DateUtils.minusOneDay(recentDate);
+			List<OriginalStock> originalStockList = originalStockDao.getOriginalStockByDateInterval(DateUtils.stringToDate(startDate), preRecentDate);
+			OriginalStock recentOriginalStock = originalStockDao.getOriginalStockByKey(recentDate);
+			//保存前一时间段内的stockCode
+			List<String> stockCodeList = new ArrayList<String>();
+			for (OriginalStock stock:originalStockList) {
+				String[] stockCodeArray = stock.getStockCodes().split(",");
+				for (String stockCode:stockCodeArray) {
+					if (!stockCodeList.contains(stockCode)) stockCodeList.add(stockCode);
+				}
+			}
+			String[] recentStockCodes = recentOriginalStock.getStockCodes().split(",");
+			//保存最近一日的stockCode
+			List<String> recentStockCodeList = Arrays.asList(recentStockCodes);
+			//保存漏选的StockCode
+			List<DailyStock> loseStockCodeList = new ArrayList<DailyStock>();
+			for (String stockCode:stockCodeList) {
+				if (!recentStockCodeList.contains(stockCode)){
+					DailyStock dailyStock = new DailyStock(stockCode, recentDate);
+					AllImportStock importStock = allImportStockDao.getAllImportStockByKey(recentDate, stockCode);
+					dailyStock.setChangeRate(importStock.getChangeRate());
+					loseStockCodeList.add(dailyStock); 
+				}
+			}
+			//漏选股票按涨跌幅排序
+			Collections.sort(loseStockCodeList, new Comparator<DailyStock>(){
+				@Override
+				public int compare(DailyStock firstStock, DailyStock secondStock) {
+					double value = secondStock.getChangeRate()-firstStock.getChangeRate();
+					if (value > 0) return 1;
+					else if (value < 0) return -1;
+					else return 0;
+				}
+				
+			});
+			printLoseStockCodes(recentDate, loseStockCodeList);
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.loger.error(CommonUtils.errorInfo(e));
+		} finally {
+			closeDao(originalStockDao, allImportStockDao);
+		}
+	}
+
 	/**
 	 * 解析原始股票数据到每日股票数据表(daily_stock_)和表(statistic_stock_)中
 	 * 
@@ -164,6 +220,25 @@ public class HandleOriginalAndDailyData extends OperationData {
 			log.loger.warn("----->" + sDate + " 表(statistic_stock_)共增加了" + statisticSum + "条记录！");
 			System.out.println(DateUtils.dateTimeToString(new Date()) + "----->" + sDate + " 表(statistic_detail_stock_)共更新了" + statisticDetailSum + "条记录！");
 			log.loger.warn("----->" + sDate + " 表(statistic_detail_stock_)共更新了" + statisticDetailSum + "条记录！");
+		}
+	}
+	
+	private void printLoseStockCodes(Date recentDate, List<DailyStock> loseStockCodeList) {
+		
+		System.out.println("-----------------------" + DateUtils.dateToString(recentDate) + "漏选的股票及涨跌幅---------------------------");
+		log.loger.warn("-----------------------" + DateUtils.dateToString(recentDate) + "漏选的股票及涨跌幅---------------------------");
+		String title = "序号   代码        名称          涨跌幅";
+		System.out.println(title);
+		log.loger.warn(title);
+		for (int i=0; i<loseStockCodeList.size(); i++) {
+			DailyStock stock = loseStockCodeList.get(i);
+			String line = "order    stockCode  stockName   changeRate";
+			line = line.replace("order", String.valueOf(i+1));
+			line = line.replace("stockCode", stock.getStockCode());
+			line = line.replace("stockName", PropertiesUtils.getProperty(stock.getStockCode()));
+			line = line.replace("changeRate", String.valueOf(stock.getChangeRate()));
+			System.out.println(line);
+			log.loger.warn(line);
 		}
 	}
 

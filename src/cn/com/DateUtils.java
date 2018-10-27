@@ -3,19 +3,24 @@ package cn.com;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
-
-import cn.implement.ComData;
 
 public class DateUtils {
 
 	public final static String TIME_FORMAT = "HH:mm:ss";
 	public final static String DATE_FORMAT = "yyyy-MM-dd";
+	public final static String YEAR_MONTH_FORMAT = "yyyy年MM月";
+	public final static String MONTH_FORMAT = "yyyy-MM";
 	public final static String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 	public final static String DATE_TIME_MSEC_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
 	public final static String MIN_DATE_ORIGINAL_STOCK = "2017-09-11";
+	public final static String _YEAR = "年";
+	public final static String _MONTH = "月";
 
 	public static Date stringToDateTime(String sDate) {
 		Date date = null;
@@ -187,6 +192,78 @@ public class DateUtils {
 		}
 		return sDate;
 	}
+	
+	public static String dateToMonth(Date date) {
+		String sDate = null;
+		try {
+			SimpleDateFormat sdf = new SimpleDateFormat(MONTH_FORMAT);
+			sDate = sdf.format(date);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return sDate;
+	}
+	
+	public static Date monthToDate(String sDate) {
+		Date date = null;
+		try {
+			SimpleDateFormat formatter = new SimpleDateFormat(MONTH_FORMAT);
+			date = formatter.parse(sDate);
+		} catch (ParseException ex) {
+			ex.printStackTrace();
+		}
+		return date;
+	}
+	
+	//获得某月的第一天
+	public static Date getFirstDayOfMonth(int year, int month) {
+		
+		try {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, month - 1);
+			int firstDay = cal.getActualMinimum(Calendar.DAY_OF_MONTH);
+			cal.set(Calendar.DAY_OF_MONTH, firstDay);
+			return cal.getTime();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+	
+	//获得某月的最后一天
+	public static Date getLastDayOfMonth(int year, int month) {
+
+		try {
+			Calendar cal = Calendar.getInstance();
+			cal.set(Calendar.YEAR, year);
+			cal.set(Calendar.MONTH, month - 1);
+			int lastDay = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+			cal.set(Calendar.DAY_OF_MONTH, lastDay);
+			return cal.getTime();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+	
+	//获得给定日期的年
+	public static int getYearFromDate(Date date) {
+		
+		Instant instant = date.toInstant();
+		ZoneId zoneId = ZoneId.systemDefault();
+		LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
+		return localDateTime.getYear();
+	}
+
+	//获得给定日期的月
+	public static int getMonthFromDate(Date date) {
+		
+		Instant instant = date.toInstant();
+		ZoneId zoneId = ZoneId.systemDefault();
+		LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
+		return localDateTime.getMonth().getValue();
+	}
 
 	/**
 	 * 增加一天
@@ -201,6 +278,18 @@ public class DateUtils {
 	}
 
 	/**
+	 * 增加一个月
+	 * 
+	 */
+	public static Date addOneMonth(Date date) {
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime(date);
+		c.add(Calendar.MONTH, 1);
+		return c.getTime();
+	}
+	
+	/**
 	 * 减少一天
 	 * 
 	 */
@@ -213,14 +302,21 @@ public class DateUtils {
 	}
 	
 	/** 
-	 * 判断时间格式必须为"YYYY-MM-dd"
+	 * 判断时间格式必须为"YYYY-MM-dd"或"YYYY-MM"
 	 * 
 	 */
 	public static boolean isValidDate(String sDate) {
-		DateFormat formatter = new SimpleDateFormat(DATE_FORMAT);
+
 		try {
-			Date date = formatter.parse(sDate);
-			return sDate.equals(formatter.format(date));
+			if (sDate.length() <= DataUtils._INT_SEVEN) {
+				DateFormat monthFormatter = new SimpleDateFormat(MONTH_FORMAT);
+				Date month = monthFormatter.parse(sDate);
+				return sDate.equals(monthFormatter.format(month));
+			} else {
+				DateFormat dateFormatter = new SimpleDateFormat(DATE_FORMAT);
+				Date date = dateFormatter.parse(sDate);
+				return sDate.equals(dateFormatter.format(date));
+			}
 		} catch (Exception e) {
 			return false;
 		}

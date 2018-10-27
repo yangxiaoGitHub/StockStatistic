@@ -2,13 +2,18 @@ package cn.implement;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import cn.com.CommonUtils;
 import cn.com.DataUtils;
 import cn.com.DateUtils;
 import cn.com.PropertiesUtils;
 import cn.db.DailyStockDao;
+import cn.db.OriginalStockDao;
 import cn.db.StatisticDetailStockDao;
 import cn.db.StatisticStockDao;
 import cn.db.bean.DailyStock;
@@ -98,7 +103,51 @@ public class ExecuteData extends OperationData {
 			ex.printStackTrace();
 			log.loger.error(CommonUtils.errorInfo(ex));
 		} finally {
-			closeDao(dailyStockDao, statisticDetailStockDao);
+			closeDao(dailyStockDao, statisticStockDao, statisticDetailStockDao);
+		}
+	}
+	
+	public void statisticStockAvgNum(String startDate) {
+
+		originalStockDao = new OriginalStockDao();
+		try {
+			Date nowDate = new Date();
+			Date beginDate = DateUtils.monthToDate(startDate);
+			Map<String, Integer> avgNumberMap = new TreeMap<String, Integer>();
+			while (beginDate.compareTo(nowDate) <= 0) {
+				int year = DateUtils.getYearFromDate(beginDate);
+				int month = DateUtils.getMonthFromDate(beginDate);
+				Date firstDateOfMonth = DateUtils.getFirstDayOfMonth(year, month);
+				Date lastDateOfMonth = DateUtils.getLastDayOfMonth(year, month);
+				double avgNum = originalStockDao.getAvgNumberBySockDate(firstDateOfMonth, lastDateOfMonth);
+				avgNumberMap.put(DateUtils.dateTimeToString(beginDate, DateUtils.YEAR_MONTH_FORMAT), DataUtils.getRoundInt(avgNum));
+				beginDate = DateUtils.addOneMonth(beginDate);
+			}
+			
+			String endDate = DateUtils.dateToMonth(nowDate);
+			String sDate = startDate + "至" + endDate;
+			System.out.println("-------------------------------" + sDate + " 每月选择股票的平均数量--------------------------------");
+			log.loger.warn("-------------------------------" + sDate + " 每月选择股票的平均数量--------------------------------");
+			String lineTitle = "时间                 平均选股数量";
+			System.out.println(lineTitle);
+			log.loger.warn(lineTitle);
+			String lineText = "TIME             AVG_NUM";
+
+			Iterator<Entry<String, Integer>> it = avgNumberMap.entrySet().iterator();
+			while (it.hasNext()) {
+			   Entry<String, Integer> entry = it.next();
+			   String lineContent = lineText;
+			   lineContent = lineContent.replace("TIME", entry.getKey());
+			   lineContent = lineContent.replace("AVG_NUM", entry.getValue().toString());
+			   System.out.println(lineContent);
+			   log.loger.warn(lineContent);
+			}
+			
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			log.loger.error(CommonUtils.errorInfo(ex));
+		} finally {
+			closeDao(originalStockDao);
 		}
 	}
 }

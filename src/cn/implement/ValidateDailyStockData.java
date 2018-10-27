@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,18 +79,20 @@ public class ValidateDailyStockData extends OperationData {
 		String stockCodes = getStockCodesFromList(dailyList);
 		Date[] minMaxDate = getMinMaxDateFromList(dailyList);
 		// 与表(all_detail_stock_)比较
-		List<AllDetailStock> detailStockList = allDetailStockDao.getAllDetailStockByCodesAndTime(stockCodes, minMaxDate);
-		Map<String, AllDetailStock> allDetailStockMap = (Map<String, AllDetailStock>) CommonUtils.convertListToMap(detailStockList, false);
-		List<String[]> allDetailSotckInvalidList = getErrorListFromAllDetailStock(dailyList, allDetailStockMap);
+//		List<AllDetailStock> detailStockList = allDetailStockDao.getAllDetailStockByCodesAndTime(stockCodes, minMaxDate);
+//		Map<String, AllDetailStock> allDetailStockMap = (Map<String, AllDetailStock>) CommonUtils.convertListToMap(detailStockList, false);
+//		List<String[]> allDetailStockInvalidList = getErrorListFromAllDetailStock(dailyList, allDetailStockMap);
+		List<String[]> allDetailStockInvalidList = new ArrayList<String[]>();
 		// 与表(all_import_stock_)比较
 		List<AllImportStock> allImportStockList = allImportStockDao.getAllImportStockByCodesAndDate(stockCodes, minMaxDate);
 		Map<String, AllImportStock> allImportStockMap = (Map<String, AllImportStock>) CommonUtils.convertListToMap(allImportStockList, false);
 		List<String[]> allImportStockInvalidList = getErrorListFromAllImportStock(dailyList, allImportStockMap);
 		// 与表(history_stock_)比较
-		List<HistoryStock> historyStockList = historyStockDao.getHistoryStockByCodesAndTime(stockCodes, minMaxDate);
-		Map<String, HistoryStock> historyStockMap = (Map<String, HistoryStock>) CommonUtils.convertListToMap(historyStockList, false);
-		List<String[]> historyStockInvalidList = getErrorListFromHistoryStock(dailyList, historyStockMap);
-		boolean printFLg = printInvalidList(allDetailSotckInvalidList, allImportStockInvalidList, historyStockInvalidList);
+//		List<HistoryStock> historyStockList = historyStockDao.getHistoryStockByCodesAndTime(stockCodes, minMaxDate);
+//		Map<String, HistoryStock> historyStockMap = (Map<String, HistoryStock>) CommonUtils.convertListToMap(historyStockList, false);
+//		List<String[]> historyStockInvalidList = getErrorListFromHistoryStock(dailyList, historyStockMap);
+		List<String[]> historyStockInvalidList = new ArrayList<String[]>();
+		boolean printFLg = printInvalidList(allDetailStockInvalidList, allImportStockInvalidList, historyStockInvalidList);
 		if (!printFLg)
 			System.out.println(DateUtils.dateTimeToString(new Date()) + ">>>>>>>表(daily_stock_)中每日股票的涨跌幅、换手率验证成功！");
 		System.out.println(DateUtils.dateTimeToString(new Date()) + "=====>表(daily_stock_)中每日股票的涨跌幅、换手率验证结束...");
@@ -443,7 +447,7 @@ public class ValidateDailyStockData extends OperationData {
 
 		long count = 0;
 		List<String[]> invalidList = new ArrayList<String[]>();
-		List<String> notExistList = new ArrayList<String>();
+		List<String[]> notExistArrayList = new ArrayList<String[]>();
 		System.out.println("++++++++>表(daily_stock_)涨跌幅和换手率(与表(all_import_stock_)比较)验证开始...");
 		log.loger.warn("++++++++>表(daily_stock_)涨跌幅和换手率(与表(all_import_stock_)比较)验证开始...");
 		for (DailyStock dailyStock : dailyList) {
@@ -456,11 +460,8 @@ public class ValidateDailyStockData extends OperationData {
 			String mapKey = stockCode + DateUtils.dateToString(stockDate);
 			AllImportStock allImportStock = allImportStockMap.get(mapKey);
 			if (allImportStock == null) {
-				notExistList.add(stockCode);
-//				System.out.println("-------->表(daily_stock_)中的日期：" + DateUtils.dateToString(stockDate) + "的股票" 
-//								 + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")在表(all_import_stock_)中不存在！");
-//				log.loger.warn("-------->表(daily_stock_)中的日期：" + DateUtils.dateToString(stockDate) + "的股票" 
-//								 + stockCode + "(" + PropertiesUtils.getProperty(stockCode) + ")在表(all_import_stock_)中不存在！");
+				String[] noExistArray = new String[]{stockCode, DateUtils.dateToString(stockDate)};
+				notExistArrayList.add(noExistArray);
 				continue;
 			}
 			Double _changeRate = allImportStock.getChangeRate();
@@ -482,9 +483,22 @@ public class ValidateDailyStockData extends OperationData {
 			}
 			invalidList.add(errors);
 		}
-
-		System.out.println(" @@@@@@@@@@@@>以下股票不存在表(all_import_stock_)中：" + StringUtils.join(notExistList.toArray(), ","));
-		log.loger.warn(" @@@@@@@@@@@@>以下股票不存在表(all_import_stock_)中：" + StringUtils.join(notExistList.toArray(), ","));
+		if (notExistArrayList.size() > 0) {
+			Collections.sort(notExistArrayList, new Comparator<String[]>() {
+				@Override
+				public int compare(String[] first, String[] second) {
+					Date firstDate = DateUtils.stringToDate(first[1]);
+					Date secondDate = DateUtils.stringToDate(second[1]);
+					return secondDate.compareTo(firstDate);
+				}
+			});
+			String notExistStr = "";
+			for (String[] notExistArray : notExistArrayList) {
+				notExistStr += "," + notExistArray[0] + "(" + notExistArray[1] + ")";
+			}
+			System.out.println(" @@@@@@@@@@@@>以下股票不存在表(all_import_stock_)中：" + notExistStr.substring(1));
+			log.loger.warn(" @@@@@@@@@@@@>以下股票不存在表(all_import_stock_)中：" + notExistStr.substring(1));
+		}
 		System.out.println(" >>>>>>>>>>>>>表(daily_stock_)涨跌幅和换手率与表(all_import_stock_)比较次数为：" + count + "！");
 		log.loger.warn(" >>>>>>>>>>>>>表(daily_stock_)涨跌幅和换手率与表(all_import_stock_)比较次数为：" + count + "！");
 		if (invalidList.size() == 0) {

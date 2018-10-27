@@ -115,8 +115,7 @@ public class ValidateOriginalStockData extends OperationData {
 				return "输入股票换手率为：" + CommonUtils.getErrorStockMessage(errorTurnoverRateList) + "  实际股票换手率为：" + CommonUtils.getActualStockMessage(errorTurnoverRateList);
 			}
 		} catch(Exception ex) {
-			ex.printStackTrace();
-			log.loger.error(CommonUtils.errorInfo(ex));
+			throw ex;
 		} finally {
 			closeDao(allDetailStockDao, allImportStockDao);
 		}
@@ -187,10 +186,10 @@ public class ValidateOriginalStockData extends OperationData {
 					exception.printStackTrace();
 					log.loger.error(exception);
 				}
-			} else if (DataUtils.isEqualsTurnoverRate(Double.valueOf(inputTurnoverRate), allDetailStock.getTurnoverRate())) {
+			} else if (Double.valueOf(inputTurnoverRate).compareTo(allDetailStock.getTurnoverRate()) == 0) {
 				continue;
 			}
-
+			
 			AllImportStock allImportStock = allImportStockDao.getAllImportStockByKey(stockDate, stockCode);
 			if (allImportStock == null) {
 				if (allImportStockFlg) {
@@ -198,7 +197,7 @@ public class ValidateOriginalStockData extends OperationData {
 					Exception exception = new IOException(sDate + " 股票" + codeArray[index] + "(" + PropertiesUtils.getProperty(codeArray[index]) + ")...不存在表(all_import_stock_)中！");
 					throw exception;
 				}
-			} else if (!DataUtils.isEqualsTurnoverRate(Double.valueOf(inputTurnoverRate), allImportStock.getTurnoverRate())) {
+			} else if (Double.valueOf(inputTurnoverRate).compareTo(allImportStock.getTurnoverRate()) != 0) {
 				String[] errorStock = new String[3];
 				errorStock[0] = codeArray[index];
 				errorStock[1] = inputTurnoverRate;

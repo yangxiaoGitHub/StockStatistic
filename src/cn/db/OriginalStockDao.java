@@ -199,7 +199,7 @@ public class OriginalStockDao extends OperationDao {
 
 		long maxNum = 0;
 		String sql = "select max(" + OriginalStock.NUM + ") as num_ from " + OriginalStock.TABLE_NAME;
-		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql.toString());
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
 		ResultSet rs = state.executeQuery();
 		while (rs.next()) {
 			maxNum = rs.getInt("num_");
@@ -286,5 +286,34 @@ public class OriginalStockDao extends OperationDao {
 			resetConnection();
 			close(state);
 		}
+	}
+
+	public double getAvgNumberBySockDate(Date firstDateOfMonth, Date lastDateOfMonth) throws SQLException {
+		
+		double avgNumber = 0;
+		String sql = "select avg(" + OriginalStock.STOCK_NUMBER + ") as avg_num_ from " + OriginalStock.TABLE_NAME + " where " + OriginalStock.STOCK_DATE + " between ? and ?";
+		PreparedStatement state = (PreparedStatement)super.connection.prepareStatement(sql);
+		state.setDate(1, new java.sql.Date(firstDateOfMonth.getTime()));
+		state.setDate(2, new java.sql.Date(lastDateOfMonth.getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+		   avgNumber = rs.getDouble("avg_num_");
+		}
+		close(rs, state);
+		return avgNumber;
+	}
+
+	public OriginalStock getOriginalStockByKey(Date recentDate) throws SQLException {
+		
+		OriginalStock originalStock = null;
+		String sql = "select " + OriginalStock.ALL_FIELDS + " from " + OriginalStock.TABLE_NAME + " where " + OriginalStock.STOCK_DATE + "=?";
+		PreparedStatement state = (PreparedStatement) super.connection.prepareStatement(sql);
+		state.setDate(1, new java.sql.Date(recentDate.getTime()));
+		ResultSet rs = state.executeQuery();
+		while (rs.next()) {
+			originalStock = getOriginalStockFromResult(rs);
+		}
+		close(rs, state);
+		return originalStock;
 	}
 }

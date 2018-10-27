@@ -30,6 +30,7 @@ import cn.db.bean.AllImportStock;
 import cn.db.bean.AllStock;
 import cn.db.bean.BaseStock;
 import cn.db.bean.DailyStock;
+import cn.db.bean.ext.ExtAllImportStock;
 import cn.db.bean.ext.ExtDailyStock;
 import cn.log.Log;
 
@@ -578,5 +579,33 @@ public class CommonUtils {
 		} else { // 大于25%
 			return ExtDailyStock.LARGER_TWENTY_FIVE;
 		}
+	}
+
+	public static String getCirculateFlg(Long averageCirculate) {
+		
+		if (averageCirculate<=1000000000L) { // 0-10
+			return ExtAllImportStock.ONE_TO_FIFTY;
+		} else if (averageCirculate>1000000000L && averageCirculate<=1800000000L) { //10-18
+			return ExtAllImportStock.FIFTY_TO_ONE_HUNDRED;
+		} else if (averageCirculate>1800000000L && averageCirculate<=2600000000L) { //18-26
+			return ExtAllImportStock.ONE_HUNDRED_TO_THREE_HUNDRED;
+		} else if (averageCirculate>2600000000L && averageCirculate<=3500000000L) { //26-35
+			return ExtAllImportStock.THREE_HUNDRED_TO_SIX_HUNDRED;
+		} else if (averageCirculate>3500000000L && averageCirculate<=4500000000L) { //35-45
+			return ExtAllImportStock.SIX_HUNDRED_TO_ONE_THOUSAND;
+		} else if (averageCirculate>4500000000L && averageCirculate<=5800000000L) { //45-58
+			return ExtAllImportStock.ONE_THOUSAND_TO_FOUR_THOUSAND;
+		} else if (averageCirculate>5800000000L && averageCirculate<=8000000000L) { //58-80
+			return ExtAllImportStock.FOUR_THOUSAND_TO_SEVEN_THOUSAND;
+		} else if (averageCirculate>8000000000L && averageCirculate<=11000000000L) { //80-110
+			return ExtAllImportStock.SEVEN_THOUSAND_TO_THIRTEEN_THOUSAND;
+		} else if (averageCirculate>11000000000L && averageCirculate<=25000000000L) { //110-250
+			return ExtAllImportStock.THIRTEEN_THOUSAND_TO_EIGHTEEN_THOUSAND;
+		} else if (averageCirculate>25000000000L) { //250以上
+			return ExtAllImportStock.GREATER_EIGHTEEN_THOUSAND;
+		} else {
+			return ExtAllImportStock.ONE_TO_FIFTY;
+		}
+
 	}
 }

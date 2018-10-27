@@ -138,15 +138,6 @@ public class DataUtils {
 		return validateFlg;
 	}
 	
-	public static boolean isEqualsTurnoverRate(Double inputTurnoverRate, Double realTurnoverRate) {
-
-		double difference = inputTurnoverRate - realTurnoverRate;
-		if (Math.abs(difference) <= DataUtils._ZERO_DOT_ONE)
-			return true;
-		else
-			return false;
-	}
-	
 	/**
 	 * 将字符串编码成16进制数字
 	 * 
@@ -289,5 +280,11 @@ public class DataUtils {
 			return true;
 		else
 			return false;
+	}
+	
+	public static Integer getRoundInt(double data) {
+
+		BigDecimal bd = new BigDecimal(data).setScale(0, BigDecimal.ROUND_HALF_UP);
+		return Integer.parseInt(bd.toString());
 	}
 }

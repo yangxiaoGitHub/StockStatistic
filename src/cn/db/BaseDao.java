@@ -45,18 +45,6 @@ public abstract class BaseDao {
 		}
 		return connection;
 	}
-	
-	/*protected Connection getConnection() {
-		Connection connection_ = null;
-		try {
-			connection_ = DriverManager.getConnection(url, userName, pwd);
-			connection_.setAutoCommit(false);
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.loger.error(CommonUtils.errorInfo(e));
-		}
-		return connection_;
-	}*/
 
 	/**
 	 * πÿ±’¡¨Ω”

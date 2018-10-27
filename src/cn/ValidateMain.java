@@ -26,9 +26,9 @@ public class ValidateMain {
 			//验证统计股票详细数据(statistic_detail_stock_)
 			validateStaDetailData.validateStatisticDetailStockData();
 			//验证股票信息数据(information_stock_)
-			validateInformationData.validateInformationStockData();
+			//validateInformationData.validateInformationStockData();
 			//验证股票详细信息数据(detail_stock_)
-			validateDetailData.validateDetailStockData();
+			//validateDetailData.validateDetailStockData();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
